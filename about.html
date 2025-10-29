@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About Us</title>
+  <style>
+    /* ===== Root Variables ===== */
+    :root {
+      --primary-color: #004aad;
+      --secondary-color: #00b4d8;
+      --background-light: #f9f9f9;
+      --text-dark: #333;
+      --transition: 0.3s ease;
+    }
+
+    /* ===== Reset & Base Styles ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--background-light);
+      color: var(--text-dark);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ===== Header ===== */
+    header {
+      background-color: var(--primary-color);
+      color: #fff;
+      padding: 15px 25px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    /* ===== Navigation ===== */
+    nav ul {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    nav ul li a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 500;
+      transition: var(--transition);
+    }
+
+    nav ul li a:hover {
+      color: var(--secondary-color);
+    }
+
+    /* ===== Sign In Button ===== */
+    .sign-in-btn {
+      background: var(--secondary-color);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 5px;
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    .sign-in-btn:hover {
+      background: #0284c7;
+    }
+
+    /* ===== Hamburger Menu ===== */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      cursor: pointer;
+    }
+
+    .hamburger span {
+      height: 3px;
+      width: 25px;
+      background: #fff;
+      margin: 4px 0;
+      border-radius: 3px;
+      transition: var(--transition);
+    }
+
+    /* ===== Hero Section (About Us Title) ===== */
+    .hero {
+      background: linear-gradient(rgba(0, 74, 173, 0.8), rgba(0, 74, 173, 0.8)), 
+                  url('https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+      color: #fff;
+      text-align: center;
+      padding: 80px 20px;
+    }
+
+    .hero h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+    }
+
+    /* ===== Main Content ===== */
+    main {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+
+    section {
+      margin-bottom: 60px;
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+
+    section:nth-child(even) {
+      flex-direction: row-reverse;
+    }
+
+    section img {
+      width: 100%;
+      max-width: 400px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      transition: transform var(--transition);
+    }
+
+    section img:hover {
+      transform: scale(1.05);
+    }
+
+    section div.text {
+      flex: 1;
+    }
+
+    section h2 {
+      color: var(--primary-color);
+      margin-bottom: 10px;
+      font-size: 1.8rem;
+      border-left: 5px solid var(--secondary-color);
+      padding-left: 10px;
+    }
+
+    section p {
+      font-size: 1.1rem;
+      line-height: 1.8;
+    }
+
+    /* ===== Footer ===== */
+    footer {
+      text-align: center;
+      background: var(--primary-color);
+      color: #fff;
+      padding: 20px 10px;
+      font-size: 0.95rem;
+      margin-top: 40px;
+    }
+
+    /* ===== Responsive Styles ===== */
+    @media (max-width: 768px) {
+      nav ul {
+        position: absolute;
+        top: 60px;
+        left: 0;
+        width: 100%;
+        background: var(--primary-color);
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+        padding: 15px 0;
+        display: none;
+      }
+
+      nav ul.active {
+        display: flex;
+      }
+
+      .hamburger {
+        display: flex;
+      }
+
+      .sign-in-btn {
+        padding: 10px 20px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .hero h1 {
+        font-size: 2rem;
+      }
+
+      section {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      section h2 {
+        font-size: 1.5rem;
+      }
+
+      section p {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- ===== HEADER ===== -->
+  <header>
+    <div class="logo">YourCompany</div>
+
+    <div class="hamburger" id="hamburger">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+    <nav>
+      <ul id="nav-menu">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html" class="active">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="signin.html" class="sign-in-btn">Sign In</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- ===== HERO SECTION ===== -->
+  <section class="hero">
+    <h1>About Us</h1>
+    <p>Get to know who we are, what we believe in, and where we’re headed.</p>
+  </section>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main>
+    <section id="introduction">
+      <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80" alt="Team working together">
+      <div class="text">
+        <h2>Introduction</h2>
+        <p>
+          Welcome to our organization! We are a passionate team dedicated to delivering innovative solutions 
+          that make a real difference. Our journey began with a simple idea — to create value and impact through 
+          creativity, collaboration, and commitment.
+        </p>
+      </div>
+    </section>
+
+    <section id="vision">
+      <img src="https://images.unsplash.com/photo-1506784365847-bbad939e9335?auto=format&fit=crop&w=800&q=80" alt="Vision for the future">
+      <div class="text">
+        <h2>Our Vision</h2>
+        <p>
+          To be a leading force in driving positive change, inspiring innovation, and building a future 
+          where technology and human creativity work hand in hand to improve lives globally.
+        </p>
+      </div>
+    </section>
+
+    <section id="mission">
+      <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80" alt="Mission driven work">
+      <div class="text">
+        <h2>Our Mission</h2>
+        <p>
+          Our mission is to provide high-quality services and products that empower individuals and 
+          organizations to reach their fullest potential. We strive to foster a culture of excellence, 
+          sustainability, and integrity in everything we do.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer>
+    <p>&copy; 2025 Your Company Name. All rights reserved.</p>
+  </footer>
+
+  <!-- ===== JavaScript for Hamburger Menu ===== -->
+  <script>
+    const hamburger = document.getElementById('hamburger');
+    const navMenu = document.getElementById('nav-menu');
+
+    hamburger.addEventListener('click', () => {
+      navMenu.classList.toggle('active');
+      hamburger.classList.toggle('open');
+    });
+  </script>
+</body>
+</html>
