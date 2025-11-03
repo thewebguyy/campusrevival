@@ -15,12 +15,7 @@
     }
 
     /* ===== Reset & Base Styles ===== */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    * { margin:0; padding:0; box-sizing:border-box; }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: var(--background-light);
@@ -29,328 +24,52 @@
       overflow-x: hidden;
     }
 
-    /* ===== Header & Navigation ===== */
-header {
-  background-color: var(--primary-color);
-  color: #fff;
-  padding: 15px 25px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: relative;
-  flex-wrap: wrap; /* allows wrapping on small screens */
-}
-
-.logo {
-  height: 150px; /* desktop size */
-  width: auto;
-  display: block;
-  transition: height 0.3s ease;
-}
-
-nav {
-  display: flex;
-  flex-direction: column; /* stack nav + button vertically */
-  align-items: flex-start; /* left-aligned nav items */
-  width: 100%;
-}
-
-nav ul {
-  list-style: none;
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-
-nav ul li a {
-  color: #fff;
-  text-decoration: none;
-  font-weight: 300;
-  transition: var(--transition);
-}
-
-nav ul li a:hover {
-  color: var(--secondary-color);
-}
-
-/* Sign-in button always under nav */
-.sign-in-btn {
-  display: block;
-  align-self: flex-end; /* push to the far right */
-  text-decoration: none;
-  color: #fff;
-}
-
-.sign-in-btn:hover {
-  text-decoration: underline;
-  color: #dcdcdc;
-}
-
-/* Hamburger menu for mobile */
-.hamburger {
-  display: none;
-  flex-direction: column;
-  cursor: pointer;
-  margin-left: auto;
-}
-
-.hamburger span {
-  height: 3px;
-  width: 25px;
-  background: #fff;
-  margin: 4px 0;
-  border-radius: 3px;
-  transition: var(--transition);
-}
-
-/* ===== Responsive Styles ===== */
-@media (max-width: 768px) {
-  .logo {
-    height: 100px;
-  }
-
-  nav ul {
-    position: absolute;
-    top: 60px;
-    left: 0;
-    width: 100%;
-    background: rgba(0,0,0,0.5);
-    flex-direction: column;
-    align-items: flex-end;
-    justify-content: flex-end;
-    gap: 15px;
-    padding: 15px 20px;
-    display: none;
-  }
-
-  nav ul.active {
-    display: flex;
-  }
-
-  .hamburger {
-    display: flex;
-  }
-
-  .sign-in-btn {
-    padding: none;
-  }
-}
-
-@media (max-width: 600px) {
-  .logo {
-    height: 70px; /* smaller on mobile */
-  }
-
-  .hero h1 {
-    font-size: 2rem;
-  }
-
-  section {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  section h2 {
-    font-size: 1.5rem;
-  }
-
-  section p {
-    font-size: 1rem;
-  }
-
-  .sign-in-btn {
-    padding: 8px 15px;
-  }
-}
-    /* ===== Navigation ===== */
-    nav ul {
-  list-style: none;
-  display: flex;
-  align-items: flex-start; /* use flex-start instead of 'left' */
-  gap: 20px;
-  justify-content: flex-start; /* pushes text to the left */
-}
-
-
-    nav ul li a {
-      color: #fff;
-      text-decoration: none;
-      font-weight: 300;
-      transition: var(--transition);
-    }
-
-    nav ul li a:hover {
-      color: var(--secondary-color);
-    }
-
-    /* ===== Sign In Button ===== */
-   nav {
-  display: flex;
-  flex-direction: column; /* stack ul + button vertically */
-  align-items: flex-end; /* align nav links to left */
-}
-
-.sign-in-btn {
-  display: block;
-  align-self: flex-end; /* move the button to the far right */
-  text-decoration: none;
-  color: #fff;
-}
-
-.sign-in-btn:hover {
-  text-decoration: underline;
-  color: #dcdcdc;
-}
-
-
-    /* ===== Hamburger Menu ===== */
-    
-.hamburger {
-  display: none;
-  flex-direction: column;
-  cursor: pointer;
-  transition: opacity 0.3s ease;
-  margin-left: auto;      /* pushes it to the right edge */
-}
-
-.hamburger span {
-  height: 3px;
-  width: 25px;
-  background: rgba(255, 255, 255, 1); /* also slightly transparent bars */
-  margin: 4px 0;
-  border-radius: 3px;
-  transition: var(--transition);
-  opacity: 1;   
-}
-
+    /* ===== Header Placeholder ===== */
+    #header-placeholder { width: 100%; }
 
     /* ===== Main Content ===== */
-    main {
-      max-width: 1000px;
-      margin: 40px auto;
-      padding: 20px;
-    }
+    main { max-width: 1000px; margin: 40px auto; padding: 20px; }
 
-    section {
-      margin-bottom: 60px;
-      display: flex;
-      align-items: center;
-      gap: 30px;
-      flex-wrap: wrap;
-    }
+    section { margin-bottom: 60px; display:flex; align-items:center; gap:30px; flex-wrap:wrap; }
+    section:nth-child(even) { flex-direction: row-reverse; }
 
-    section:nth-child(even) {
-      flex-direction: row-reverse;
-    }
+    section img { width:100%; max-width:400px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1); transition: transform var(--transition);}
+    section img:hover { transform: scale(1.05); }
 
-    section img {
-      width: 100%;
-      max-width: 400px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      transition: transform var(--transition);
-    }
-
-    section img:hover {
-      transform: scale(1.05);
-    }
-
-    section div.text {
-      flex: 1;
-    }
+    section div.text { flex:1; }
 
     section h2 {
       color: var(--primary-color);
       margin-bottom: 10px;
-      font-size: 1.8rem;
+      font-size:1.8rem;
       border-left: 5px solid var(--secondary-color);
       padding-left: 10px;
     }
 
-    section p {
-      font-size: 1.1rem;
-      line-height: 1.8;
-    }
+    section p { font-size:1.1rem; line-height:1.8; }
 
     /* ===== Footer ===== */
     footer {
-      text-align: center;
+      text-align:center;
       background: var(--background-light);
       color: #000000;
       padding: 20px 10px;
       font-size: 0.95rem;
-      margin-top: 40px;
+      margin-top:40px;
     }
 
     /* ===== Responsive Styles ===== */
-   @media (max-width: 768px) {
-  nav ul {
-    position: absolute;
-    top: 60px;
-    left: 0;
-    width: 100%;
-    background: rgba(0, 0, 0, 0.5); /* semi-transparent background */
-    flex-direction: column;
-    align-items: flex-end; /* text left-aligned */
-    justify-content: flex-end;
-    gap: 15px;
-    padding: 15px 20px;
-    display: none;
-  }
-
-  nav ul.active {
-    display: flex;
-  }
-
-  .hamburger {
-    display: flex;
-  }
-
-      .sign-in-btn {
-        padding: 10px 20px;
-      }
+    @media(max-width:768px){
+      section { flex-direction:column; text-align:center; }
+      section img { max-width: 100%; }
+      section h2 { font-size:1.5rem; }
+      section p { font-size:1rem; }
     }
-
-    @media (max-width: 600px) {
-      .hero h1 {
-        font-size: 2rem;
-      }
-
-      section {
-        flex-direction: column;
-        text-align: center;
-      }
-
-      section h2 {
-        font-size: 1.5rem;
-      }
-
-      section p {
-        font-size: 1rem;
-      }
-    }
-
   </style>
 </head>
 <body>
-  <!-- ===== HEADER ===== -->
-  <header>
-    <img src="crmfulllogo.png" alt="Campus Revival Movement Logo" class="logo">
-
-    <div class="hamburger" id="hamburger">
-      <span></span>
-      <span></span>
-      <span></span>
-    </div>
-
-    <nav>
-      <ul id="nav-menu">
-        <li><a href="map.html">CRM Map</a></li>
-        <li><a href="contact.html">Contact Us</a></li>
-        <a href="signin.html" class="sign-in-btn">Login or Create Account</a>
-      </ul>
-    </nav>
-  </header>
+  <!-- ===== HEADER PLACEHOLDER ===== -->
+  <div id="header-placeholder"></div>
 
   <!-- ===== MAIN CONTENT ===== -->
   <main>
@@ -395,15 +114,28 @@ nav ul li a:hover {
     <p>&copy; 2025 Campus Revival Movement. All rights reserved.</p>
   </footer>
 
-  <!-- ===== JavaScript for Hamburger Menu ===== -->
+  <!-- ===== JavaScript for Fetching Header & Hamburger ===== -->
   <script>
-    const hamburger = document.getElementById('hamburger');
-    const navMenu = document.getElementById('nav-menu');
+    // Load header.html into the placeholder
+    fetch('header.html')
+      .then(response => {
+        if(!response.ok) throw new Error('Header fetch failed');
+        return response.text();
+      })
+      .then(html => {
+        document.getElementById('header-placeholder').innerHTML = html;
 
-    hamburger.addEventListener('click', () => {
-      navMenu.classList.toggle('active');
-      hamburger.classList.toggle('open');
-    });
+        // After loading header, setup hamburger menu
+        const hamburger = document.querySelector('.hamburger');
+        const navMenu = document.querySelector('nav ul');
+        if(hamburger && navMenu){
+          hamburger.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            hamburger.classList.toggle('open');
+          });
+        }
+      })
+      .catch(err => console.error(err));
   </script>
 </body>
 </html>
