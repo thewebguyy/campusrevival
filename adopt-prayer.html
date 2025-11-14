@@ -80,18 +80,18 @@
       cursor: not-allowed;
     }
 
-    /* Modal */
     .modal {
-  display: none;  /* Keep this ONLY */
-  position: fixed;
-  z-index: 1000;
-  left: 0; top: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.6);
-  justify-content: center;
-  align-items: center;
-}
-
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+    }
 
     .modal-content {
       background: #fff;
@@ -135,16 +135,24 @@
       background: #000;
     }
 
+    .modal-content button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
     .close {
       position: absolute;
-      right: 15px; top: 10px;
+      right: 15px;
+      top: 10px;
       font-size: 1.4rem;
       font-weight: bold;
       cursor: pointer;
       color: #aaa;
     }
 
-    .close:hover { color: #000; }
+    .close:hover {
+      color: #000;
+    }
 
     .back-button {
       display: inline-block;
@@ -160,6 +168,25 @@
 
     .back-button:hover {
       background: #ddd;
+    }
+
+    .message {
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      display: none;
+    }
+
+    .message.error {
+      background: #ffe6e6;
+      color: #c70000;
+      border: 1px solid #ffcccc;
+    }
+
+    .message.success {
+      background: #e6ffe6;
+      color: #00aa44;
+      border: 1px solid #ccffcc;
     }
   </style>
 </head>
@@ -178,12 +205,12 @@
     <p id="instructions">
       By adopting this school for prayer, you commit to interceding regularly for spiritual renewal, 
       student transformation, and open doors for the Gospel.  
-      Choose whether you’re adopting as an individual or with a group.
+      Choose whether you're adopting as an individual or with a group.
     </p>
 
     <div class="choice-buttons">
-      <button id="btnIndividual" onclick="openModal('individual')">Individual</button>
-      <button id="btnGroup" onclick="openModal('group')">Group</button>
+      <button id="btnIndividual" onclick="startAdoption('individual')">Individual</button>
+      <button id="btnGroup" onclick="startAdoption('group')">Group</button>
     </div>
 
     <a class="back-button" onclick="window.location.href='map.html'">← Back to Map</a>
@@ -193,23 +220,17 @@
   <div id="registrationModal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeModal()">&times;</span>
-      <h3 id="modalTitle">Register</h3>
-      <form id="registrationForm">
-        <input type="text" id="fullName" placeholder="Full Name" required>
-        <input type="email" id="email" placeholder="Email" required>
-        <input type="date" id="dob" required>
-        <select id="referral" required>
-          <option value="">How did you hear about us?</option>
-          <option value="social">Social Media</option>
-          <option value="church">Church</option>
-          <option value="friend">Friend</option>
-          <option value="event">Event</option>
-        </select>
-        <button type="submit">Register</button>
-      </form>
+      <h3 id="modalTitle">Adopt School</h3>
+      <div id="modalMessage" class="message"></div>
+      <div id="modalContent">
+        <p>You are about to adopt <strong id="modalSchoolName"></strong> for prayer.</p>
+        <p>Please confirm you are logged in and ready to proceed.</p>
+        <button id="confirmBtn" onclick="confirmAdoption()">Confirm Adoption</button>
+      </div>
     </div>
   </div>
 
+  <script src="utils/api.js"></script>
   <script>
     function getQueryParams() {
       const params = {};
@@ -227,6 +248,9 @@
     const schoolList = data[city] || [];
     const school = schoolList[parseInt(index)];
 
+    let adoptionMode = 'individual';
+
+    // Display school info
     if (school) {
       document.getElementById('schoolName').textContent = school.name || "Unnamed School";
       document.getElementById('schoolLocation').textContent = `Location: ${city}`;
@@ -238,14 +262,24 @@
       document.getElementById('btnGroup').disabled = true;
     }
 
-    function openModal(type) {
-      const title = type === 'individual' ? "Register as Individual" : "Register as Group";
-      document.getElementById('modalTitle').textContent = title;
+    function startAdoption(mode) {
+      // Check if user is logged in
+      if (!isLoggedIn()) {
+        alert('Please login first to adopt a school');
+        window.location.href = 'signin.html?redirect=' + encodeURIComponent(window.location.href);
+        return;
+      }
+
+      adoptionMode = mode;
+      const modalTitle = mode === 'individual' ? "Adopt as Individual" : "Adopt as Group";
+      document.getElementById('modalTitle').textContent = modalTitle;
+      document.getElementById('modalSchoolName').textContent = school.name;
       document.getElementById('registrationModal').style.display = 'flex';
     }
 
     function closeModal() {
       document.getElementById('registrationModal').style.display = 'none';
+      document.getElementById('modalMessage').style.display = 'none';
     }
 
     window.onclick = function(event) {
@@ -254,27 +288,70 @@
       }
     }
 
-    function calculateAge(dobString) {
-      const dob = new Date(dobString);
-      const diff = Date.now() - dob.getTime();
-      const ageDate = new Date(diff); 
-      return Math.abs(ageDate.getUTCFullYear() - 1970);
-    }
-
-    document.getElementById('registrationForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const fullName = document.getElementById('fullName').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const dob = document.getElementById('dob').value;
-
-      if (calculateAge(dob) < 18) {
-        alert("You must be at least 18 years old to register.");
+    async function confirmAdoption() {
+      if (!school || !school.id) {
+        showMessage('Invalid school selection', 'error');
         return;
       }
 
-      alert(`Prayer adoption successful for ${school?.name || 'selected school'}!`);
-      window.location.href = "dashboard.html";
-    });
+      const confirmBtn = document.getElementById('confirmBtn');
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = 'Processing...';
+
+      try {
+        // Call API to adopt school with 'prayer' type
+        const result = await adoptSchool(school.id, 'prayer');
+        
+        showMessage('Prayer adoption successful! Redirecting to dashboard...', 'success');
+        
+        setTimeout(() => {
+          window.location.href = 'dashboard.html';
+        }, 2000);
+
+      } catch (error) {
+        console.error('Adoption error:', error);
+        showMessage('Adoption failed: ' + error.message, 'error');
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = 'Confirm Adoption';
+      }
+    }
+
+    function showMessage(text, type) {
+      const messageEl = document.getElementById('modalMessage');
+      messageEl.textContent = text;
+      messageEl.className = 'message ' + type;
+      messageEl.style.display = 'block';
+    }
+
+    // Update adoptSchool function in api.js to accept adoptionType
+    async function adoptSchool(schoolId, adoptionType = 'prayer') {
+      const API_URL = 'http://localhost:5000/api';
+      const token = localStorage.getItem('authToken');
+      
+      if (!token) {
+        throw new Error('Please login');
+      }
+
+      const response = await fetch(`${API_URL}/adoptions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ 
+          schoolId,
+          adoptionType 
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to adopt school');
+      }
+
+      return data;
+    }
   </script>
 </body>
 </html>

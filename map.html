@@ -56,35 +56,45 @@
       margin-bottom: 15px;
       color: #fff;
     }
-.school-card h3 {
-  margin-bottom: 8px;
-  font-size: 1.1rem;
-  color: #ffffff;
-}
+    .school-card h3 {
+      margin-bottom: 8px;
+      font-size: 1.1rem;
+      color: #ffffff;
+    }
 
-.school-card p {
-  margin: 4px 0;
-  font-size: 0.95rem;
-  color: #ccc;
-}
+    .school-card p {
+      margin: 4px 0;
+      font-size: 0.95rem;
+      color: #ccc;
+    }
 
-.school-card a {
-  display: block;           /* makes each button occupy a full line */
-  color: #ffffff;
-  padding: 8px 12px;
-  border-radius: 3px;
-  font-size: 0.9rem;
-  margin: 5px 0;            /* adds space between buttons */
-  text-align: center;       /* optional: center the text inside button */
-  background-color: #333;   /* optional: gives button a background */
-  text-decoration: none;    /* remove underline */
-  transition: background 0.3s ease;
-}
+    .school-card a {
+      display: block;
+      color: #ffffff;
+      padding: 8px 12px;
+      border-radius: 3px;
+      font-size: 0.9rem;
+      margin: 5px 0;
+      text-align: center;
+      background-color: #333;
+      text-decoration: none;
+      transition: background 0.3s ease;
+    }
 
-.school-card a:hover {
-  background-color: #555;   /* hover effect for better UX */
-}
+    .school-card a:hover {
+      background-color: #555;
+    }
 
+    .adopter-badge {
+      display: inline-block;
+      background: #6a00ff;
+      color: white;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      margin: 5px 0;
+    }
 
     /* ===== Side Panel ===== */
     #side-panel {
@@ -109,7 +119,43 @@
       align-items: center;
       margin-bottom: 15px;
     }
-    .close-panel-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #ccc; }
+    .close-panel-btn { 
+      background: none; 
+      border: none; 
+      font-size: 24px; 
+      cursor: pointer; 
+      color: #ccc; 
+    }
+
+    .loading {
+      text-align: center;
+      color: #999;
+      padding: 20px;
+    }
+
+    .back-btn {
+      display: inline-block;
+      background: #444;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      cursor: pointer;
+      border: none;
+      font-size: 0.9rem;
+    }
+
+    .back-btn:hover {
+      background: #555;
+    }
+
+    .adopter-item {
+      padding: 12px;
+      margin-bottom: 10px;
+      background: #2a2a2a;
+      border-radius: 6px;
+      border-left: 3px solid #6a00ff;
+    }
 
     /* ===== Responsive ===== */
     @media (max-width: 900px) {
@@ -133,7 +179,7 @@
     <h2>University Partnerships</h2>
     <div class="stats-bar">
       <div>Total Universities: <strong id="totalSchools">0</strong></div>
-      <div>Adopted: <strong id="adoptedCount">0</strong></div>
+      <div>Total Adopters: <strong id="adoptedCount">0</strong></div>
     </div>
     <p>Click a city pin to see all schools and universities registered for adoption.</p>
   </section>
@@ -156,14 +202,13 @@
 
   <!-- ===== SCRIPTS ===== -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="utils/api.js"></script>
   <script>
     // ===== FETCH HEADER =====
     fetch('header.html')
       .then(response => response.text())
       .then(html => {
         document.getElementById('header-placeholder').innerHTML = html;
-
-        // Hamburger menu functionality
         const hamburger = document.getElementById('hamburger');
         const navMenu = document.getElementById('nav-menu');
         if(hamburger && navMenu){
@@ -175,61 +220,163 @@
       })
       .catch(err => console.error('Error loading header:', err));
 
-    // ===== MAP & SIDE PANEL LOGIC =====
-    const schoolsByCity = {
-      "Leeds": [
-        {id:"l1",name:"Leeds University",address:"Woodhouse Ln"},
-        {id:"l2",name:"Leeds College",address:"City Rd"}
-      ],
-      "London": [
-        {id:"ld1",name:"Imperial College",address:"South Kensington"},
-        {id:"ld2",name:"London School of Economics",address:"Houghton St"}
-      ],
-      "Manchester": [
-        {id:"m1",name:"Manchester University",address:"Oxford Rd"}
-      ]
-    };
+    // ===== MAP & DATA LOGIC =====
+    let schoolsByCity = {};
+    let map;
+
+    // Load schools from API
+    async function loadSchools() {
+      try {
+        const schools = await getAllSchools();
+        
+        // Group schools by city
+        schools.forEach(school => {
+          const city = extractCity(school.address);
+          if (!schoolsByCity[city]) {
+            schoolsByCity[city] = [];
+          }
+          schoolsByCity[city].push({
+            id: school._id,
+            name: school.name,
+            address: school.address,
+            lat: school.lat,
+            lng: school.lng,
+            adopted: school.isAdopted || false,
+            adoptionCount: school.adoptionCount || 0,
+            description: school.description
+          });
+        });
+        
+        initMap();
+        updateStats();
+      } catch (error) {
+        console.error('Failed to load schools:', error);
+        alert('Failed to load schools. Please check if the backend is running on port 5000.');
+      }
+    }
+
+    function extractCity(address) {
+      const parts = address.split(',');
+      return parts[parts.length - 2]?.trim() || parts[0]?.trim() || 'Unknown';
+    }
 
     function initMap(){
-      const map = L.map('map').setView([54, -2], 6);
+      map = L.map('map').setView([54, -2], 6);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-        maxZoom:18, attribution:'© OpenStreetMap contributors'
+        maxZoom:18, 
+        attribution:'© OpenStreetMap contributors'
       }).addTo(map);
 
       for(const city in schoolsByCity){
         const coords = getCityCoords(city);
+        const schoolCount = schoolsByCity[city].length;
+        const totalAdopters = schoolsByCity[city].reduce((sum, s) => sum + s.adoptionCount, 0);
+        
         const marker = L.marker(coords).addTo(map);
-        marker.bindPopup(`<b>${city}</b><br>${schoolsByCity[city].length} schools/universities<br>
-          <a href="#" onclick="openCityPanel('${city}')">View Schools</a>`);
+        marker.bindPopup(`
+          <div style="color: #000;">
+            <b>${city}</b><br>
+            ${schoolCount} school${schoolCount !== 1 ? 's' : ''}<br>
+            ${totalAdopters} adopter${totalAdopters !== 1 ? 's' : ''}<br>
+            <a href="#" onclick="openCityPanel('${city}'); return false;" style="color: #6a00ff; font-weight: bold;">View Schools</a>
+          </div>
+        `);
       }
 
       updateStats();
     }
 
     function getCityCoords(city){
-      const coords = { "Leeds":[53.8008,-1.5491], "London":[51.5074,-0.1278], "Manchester":[53.4808,-2.2426] };
-      return coords[city] || [54,-2];
+      const schools = schoolsByCity[city];
+      if (schools && schools.length > 0) {
+        return [schools[0].lat, schools[0].lng];
+      }
+      return [54, -2];
     }
 
+    // Open city panel with school list
     function openCityPanel(city){
       const schools = schoolsByCity[city];
-      let content='';
-      schools.forEach(s=>{
-        content+=`
+      let content = '';
+      
+      schools.forEach(s => {
+        const adopterCount = s.adoptionCount || 0;
+        const adopterText = adopterCount === 0 ? 'No adopters yet' : 
+                            adopterCount === 1 ? '1 person adopted' :
+                            `${adopterCount} people adopted`;
+        
+        content += `
           <div class="school-card">
             <h3>${s.name}</h3>
             <p><strong>Address:</strong> ${s.address}</p>
-            <a href="read-more.html?school=${s.id}">Read More</a>
-            <a href="adopt-prayer.html?school=${s.id}">Adopt for Prayer</a>
-            <a href="adopt-revival.html?school=${s.id}">Adopt for Revival</a>
+            <p><strong>Adopters:</strong> <span class="adopter-badge">${adopterText}</span></p>
+            
+            <a href="read-more.html?city=${encodeURIComponent(city)}&index=${schools.indexOf(s)}">Read More</a>
+            <a href="adopt-prayer.html?city=${encodeURIComponent(city)}&index=${schools.indexOf(s)}">Adopt for Prayer</a>
+            <a href="adopt-revival.html?city=${encodeURIComponent(city)}&index=${schools.indexOf(s)}">Adopt for Revival</a>
+            
+            ${adopterCount > 0 ? `<a href="#" onclick="viewAdopters('${s.id}', '${s.name}'); return false;">View All Adopters (${adopterCount})</a>` : ''}
           </div>
         `;
       });
+      
       document.getElementById('panel-title').textContent = city;
       document.getElementById('panel-content').innerHTML = content;
       const panel = document.getElementById('side-panel');
       panel.classList.add('active');
       panel.setAttribute('aria-hidden','false');
+    }
+
+    // View all adopters for a school
+    async function viewAdopters(schoolId, schoolName) {
+      const panelContent = document.getElementById('panel-content');
+      panelContent.innerHTML = '<p class="loading">Loading adopters...</p>';
+      
+      try {
+        const response = await fetch(`http://localhost:5000/api/schools/${schoolId}/adopters`);
+        const data = await response.json();
+        
+        if (!response.ok || !data.success) {
+          throw new Error(data.error || 'Failed to load adopters');
+        }
+        
+        let html = `
+          <button class="back-btn" onclick="closePanel()">← Back to Map</button>
+          <div style="margin-bottom: 20px;">
+            <h3>${schoolName}</h3>
+            <p><strong>Total Adopters: ${data.totalAdopters}</strong></p>
+          </div>
+        `;
+        
+        if (data.adopters.length === 0) {
+          html += '<p>No adopters yet. Be the first to adopt!</p>';
+        } else {
+          html += '<div style="max-height: 500px; overflow-y: auto;">';
+          data.adopters.forEach((adopter, index) => {
+            const date = new Date(adopter.adoptedAt).toLocaleDateString();
+            const type = adopter.adoptionType || 'prayer';
+            html += `
+              <div class="adopter-item">
+                <strong>${index + 1}. ${adopter.userId.name}</strong><br>
+                <small style="color: #aaa;">Type: ${type.charAt(0).toUpperCase() + type.slice(1)}</small><br>
+                <small style="color: #aaa;">Adopted: ${date}</small>
+              </div>
+            `;
+          });
+          html += '</div>';
+        }
+        
+        panelContent.innerHTML = html;
+        
+      } catch (error) {
+        console.error('Error loading adopters:', error);
+        panelContent.innerHTML = `
+          <div style="color: #ff6b6b; padding: 20px;">
+            <p>Failed to load adopters: ${error.message}</p>
+            <button class="back-btn" onclick="closePanel()">← Back</button>
+          </div>
+        `;
+      }
     }
 
     function closePanel(){
@@ -240,17 +387,29 @@
 
     function updateStats(){
       const allSchools = Object.values(schoolsByCity).flat();
+      const totalAdopters = allSchools.reduce((sum, school) => sum + (school.adoptionCount || 0), 0);
+      
       document.getElementById('totalSchools').textContent = allSchools.length;
-      document.getElementById('adoptedCount').textContent = 0;
+      document.getElementById('adoptedCount').textContent = totalAdopters;
     }
 
-    document.addEventListener('keydown', e => { if(e.key==='Escape') closePanel(); });
-    document.addEventListener('click', e => {
-      const panel = document.getElementById('side-panel');
-      if(panel.classList.contains('active') && !panel.contains(e.target) && !e.target.closest('.leaflet-popup')) closePanel();
+    // Close panel on escape key
+    document.addEventListener('keydown', e => { 
+      if(e.key === 'Escape') closePanel(); 
     });
 
-    window.addEventListener('load', initMap);
+    // Close panel on outside click
+    document.addEventListener('click', e => {
+      const panel = document.getElementById('side-panel');
+      if(panel.classList.contains('active') && 
+         !panel.contains(e.target) && 
+         !e.target.closest('.leaflet-popup')) {
+        closePanel();
+      }
+    });
+
+    // Initialize on page load
+    window.addEventListener('load', loadSchools);
   </script>
 </body>
 </html>
