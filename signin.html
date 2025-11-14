@@ -3,26 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sign In - YourCompany</title>
+  <title>Sign In - Campus Revival Movement</title>
   <style>
-    /* ===== Root Variables ===== */
     :root {
-      --primary-color: #000000;
-      --secondary-color: #c6c6c6;
+      --primary-color: #012169;
+      --secondary-color: #6a00ff;
       --background-light: #f9f9f9;
       --text-dark: #333;
       --transition: 0.3s ease;
     }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background:#000000;
+      background: linear-gradient(135deg, #000000 0%, #012169 100%);
       color: var(--text-dark);
       line-height: 1.6;
       min-height: 100vh;
@@ -30,82 +25,8 @@
       flex-direction: column;
     }
 
-    /* ===== Header ===== */
-    header {
-      background-color: var(--primary-color);
-      color: #fff;
-      padding: 15px 25px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: relative;
-      z-index: 10;
-    }
+    #header-placeholder { width: 100%; }
 
-    .logo {
-      font-size: 1.5rem;
-      font-weight: bold;
-      letter-spacing: 1px;
-    }
-
-    nav ul {
-      list-style: none;
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-
-    nav ul li a {
-      color: #fff;
-      text-decoration: none;
-      font-weight: 500;
-      transition: var(--transition);
-    }
-
-    nav ul li a:hover {
-      color: var(--secondary-color);
-    }
-
-    /* ===== Hamburger Menu ===== */
-    .hamburger {
-      display: none;
-      flex-direction: column;
-      cursor: pointer;
-    }
-
-    .hamburger span {
-      height: 3px;
-      width: 25px;
-      background: #fff;
-      margin: 4px 0;
-      border-radius: 3px;
-      transition: var(--transition);
-    }
-
-    @media (max-width: 768px) {
-      nav ul {
-        position: absolute;
-        top: 60px;
-        left: 0;
-        width: 100%;
-        background: var(--primary-color);
-        flex-direction: column;
-        align-items: center;
-        gap: 15px;
-        padding: 15px 0;
-        display: none;
-      }
-
-      nav ul.active {
-        display: flex;
-      }
-
-      .hamburger {
-        display: flex;
-      }
-    }
-
-    /* ===== Sign In Container ===== */
     .signin-container {
       flex: 1;
       display: flex;
@@ -116,19 +37,46 @@
 
     .signin-box {
       background-color: #fff;
-      border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-      padding: 40px 30px;
-      max-width: 400px;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      padding: 40px 35px;
+      max-width: 420px;
       width: 100%;
       text-align: center;
-      animation: fadeIn 0.8s ease forwards;
+      animation: fadeIn 0.6s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .signin-box h2 {
       color: var(--primary-color);
-      margin-bottom: 20px;
+      margin-bottom: 25px;
       font-size: 2rem;
+      font-weight: 700;
+    }
+
+    .message {
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      display: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    #errorMessage {
+      background: #ffe6e6;
+      color: #c70000;
+      border: 1px solid #ffcccc;
+    }
+
+    #successMessage {
+      background: #e6ffe6;
+      color: #00aa44;
+      border: 1px solid #ccffcc;
     }
 
     .input-group {
@@ -138,77 +86,83 @@
 
     .input-group label {
       display: block;
-      margin-bottom: 6px;
-      font-weight: 500;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
     }
 
     .input-group input {
       width: 100%;
-      padding: 10px;
+      padding: 12px 15px;
       font-size: 1rem;
-      border: 2px solid #ddd;
-      border-radius: 6px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
       transition: var(--transition);
+      background: #f8f9fa;
     }
 
     .input-group input:focus {
-      border-color: var(--secondary-color);
+      border-color: var(--primary-color);
       outline: none;
-      box-shadow: 0 0 6px rgba(0, 180, 216, 0.4);
+      box-shadow: 0 0 0 3px rgba(1, 33, 105, 0.1);
+      background: #fff;
     }
 
     .signin-btn {
-      background: var(--primary-color);
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
       color: #fff;
       border: none;
       width: 100%;
-      padding: 12px;
-      font-size: 1rem;
-      border-radius: 6px;
+      padding: 14px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      border-radius: 8px;
       cursor: pointer;
       transition: var(--transition);
+      margin-top: 10px;
     }
 
-    .signin-btn:hover {
-      background: var(--secondary-color);
+    .signin-btn:hover:not(:disabled) {
       transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(1, 33, 105, 0.3);
+    }
+
+    .signin-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
     }
 
     .signin-box p {
-      margin-top: 15px;
+      margin-top: 20px;
       font-size: 0.95rem;
+      color: #666;
     }
 
     .signin-box a {
-      color: var(--secondary-color);
+      color: var(--primary-color);
       text-decoration: none;
-      font-weight: 500;
+      font-weight: 600;
+      transition: var(--transition);
     }
 
     .signin-box a:hover {
+      color: var(--secondary-color);
       text-decoration: underline;
     }
 
-    /* ===== Footer ===== */
     footer {
       text-align: center;
-      background: var(--primary-color);
+      background: rgba(0, 0, 0, 0.8);
       color: #fff;
-      padding: 15px 10px;
+      padding: 20px 10px;
       font-size: 0.9rem;
-    }
-
-    /* ===== Animations ===== */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
     }
 
     @media (max-width: 500px) {
       .signin-box {
-        padding: 30px 20px;
+        padding: 30px 25px;
       }
-
       .signin-box h2 {
         font-size: 1.6rem;
       }
@@ -216,14 +170,21 @@
   </style>
 </head>
 <body>
-   <!-- ===== HEADER PLACEHOLDER ===== -->
   <div id="header-placeholder"></div>
 
-  <!-- ===== SIGN IN FORM ===== -->
   <div class="signin-container">
     <div class="signin-box">
-      <h2>Sign In</h2>
-      <form>
+      <h2 id="formTitle">Sign In</h2>
+      
+      <div id="errorMessage" class="message"></div>
+      <div id="successMessage" class="message"></div>
+      
+      <form id="authForm">
+        <div class="input-group" id="nameGroup" style="display: none;">
+          <label for="name">Full Name</label>
+          <input type="text" id="name" name="name" placeholder="Enter your full name">
+        </div>
+
         <div class="input-group">
           <label for="email">Email</label>
           <input type="email" id="email" name="email" placeholder="Enter your email" required>
@@ -231,30 +192,25 @@
 
         <div class="input-group">
           <label for="password">Password</label>
-          <input type="password" id="password" name="password" placeholder="Enter your password" required>
+          <input type="password" id="password" name="password" placeholder="Enter your password (min 6 characters)" required minlength="6">
         </div>
 
-        <button type="submit" class="signin-btn">Sign In</button>
+        <button type="submit" class="signin-btn" id="submitBtn">Sign In</button>
       </form>
 
-      <p>Don’t have an account? <a href="#">Create one</a></p>
+      <p id="switchText">Don't have an account? <a href="#" id="switchLink">Create one</a></p>
     </div>
   </div>
 
-  <!-- ===== FOOTER ===== -->
   <footer>
-    <p>&copy; 2025 Your Company Name. All rights reserved.</p>
+    <p>&copy; 2025 Campus Revival Movement. All rights reserved.</p>
   </footer>
 
-  <!-- ===== JS for Hamburger Menu ===== -->
   <script>
-    // ===== FETCH HEADER =====
     fetch('header.html')
       .then(response => response.text())
       .then(html => {
         document.getElementById('header-placeholder').innerHTML = html;
-
-        // Hamburger menu functionality
         const hamburger = document.getElementById('hamburger');
         const navMenu = document.getElementById('nav-menu');
         if(hamburger && navMenu){
@@ -265,6 +221,116 @@
         }
       })
       .catch(err => console.error('Error loading header:', err));
+  </script>
+
+  <script src="utils/api.js"></script>
+  <script>
+    let isRegisterMode = false;
+
+    // Check if already logged in
+    if (typeof isLoggedIn === 'function' && isLoggedIn()) {
+      window.location.href = '/dashboard.html';
+    }
+
+    const form = document.getElementById('authForm');
+    const switchLink = document.getElementById('switchLink');
+    const formTitle = document.getElementById('formTitle');
+    const submitBtn = document.getElementById('submitBtn');
+    const nameGroup = document.getElementById('nameGroup');
+    const switchText = document.getElementById('switchText');
+    const errorMessage = document.getElementById('errorMessage');
+    const successMessage = document.getElementById('successMessage');
+
+    // Toggle between login and register
+    function attachSwitchListener() {
+      const link = document.getElementById('switchLink');
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        isRegisterMode = !isRegisterMode;
+        
+        errorMessage.style.display = 'none';
+        successMessage.style.display = 'none';
+        
+        if (isRegisterMode) {
+          formTitle.textContent = 'Create Account';
+          submitBtn.textContent = 'Register';
+          nameGroup.style.display = 'block';
+          nameGroup.querySelector('input').required = true;
+          switchText.innerHTML = 'Already have an account? <a href="#" id="switchLink">Sign in</a>';
+        } else {
+          formTitle.textContent = 'Sign In';
+          submitBtn.textContent = 'Sign In';
+          nameGroup.style.display = 'none';
+          nameGroup.querySelector('input').required = false;
+          switchText.innerHTML = 'Don\'t have an account? <a href="#" id="switchLink">Create one</a>';
+        }
+        
+        attachSwitchListener();
+      });
+    }
+
+    attachSwitchListener();
+
+    // Form submission
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const name = document.getElementById('name').value.trim();
+      
+      // Validation
+      if (isRegisterMode && !name) {
+        showError('Name is required for registration');
+        return;
+      }
+      
+      if (password.length < 6) {
+        showError('Password must be at least 6 characters');
+        return;
+      }
+      
+      errorMessage.style.display = 'none';
+      successMessage.style.display = 'none';
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Processing...';
+      
+      try {
+        if (typeof registerUser === 'undefined' || typeof loginUser === 'undefined') {
+          throw new Error('Authentication functions not loaded. Please refresh the page.');
+        }
+
+        if (isRegisterMode) {
+          await registerUser(name, email, password);
+          showSuccess('Account created! Redirecting to dashboard...');
+        } else {
+          await loginUser(email, password);
+          showSuccess('Login successful! Redirecting...');
+        }
+        
+        setTimeout(() => {
+          window.location.href = '/dashboard.html';
+        }, 1500);
+        
+      } catch (error) {
+        console.error('Auth error:', error);
+        showError(error.message || 'An error occurred. Please try again.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = isRegisterMode ? 'Register' : 'Sign In';
+      }
+    });
+
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.style.display = 'block';
+      successMessage.style.display = 'none';
+    }
+
+    function showSuccess(message) {
+      successMessage.textContent = message;
+      successMessage.style.display = 'block';
+      errorMessage.style.display = 'none';
+    }
   </script>
 </body>
 </html>
