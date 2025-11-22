@@ -44,4 +44,5 @@ const adoptionSchema = new mongoose.Schema({
 // Prevent duplicate adoptions
 adoptionSchema.index({ userId: 1, schoolId: 1 }, { unique: true });
 
-module.exports = mongoose.model('Adoption', adoptionSchema);
+// Prevent duplicate model compilation
+module.exports = mongoose.models.Adoption || mongoose.model('Adoption', adoptionSchema);

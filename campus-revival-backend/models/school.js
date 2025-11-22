@@ -24,10 +24,8 @@ const schoolSchema = new mongoose.Schema({
     required: [true, 'Address is required'],
     trim: true
   },
-  // REMOVED: adopted (Boolean) - no longer needed
-  // REMOVED: adopterId (single ID) - replaced with array below
   
-  // NEW: Support multiple adopters
+  // Support multiple adopters
   adopters: [{
     userId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -91,4 +89,5 @@ schoolSchema.methods.addAdopter = function(userId, adoptionType = 'prayer') {
 schoolSchema.set('toJSON', { virtuals: true });
 schoolSchema.set('toObject', { virtuals: true });
 
-module.exports = mongoose.model('School', schoolSchema);
+// Prevent duplicate model compilation
+module.exports = mongoose.models.School || mongoose.model('School', schoolSchema);

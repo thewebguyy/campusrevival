@@ -28,4 +28,5 @@ const journalSchema = new mongoose.Schema({
 // Index for efficient queries
 journalSchema.index({ userId: 1, date: -1 });
 
-module.exports = mongoose.model('Journal', journalSchema);
+// Prevent duplicate model compilation
+module.exports = mongoose.models.Journal || mongoose.model('Journal', journalSchema);
