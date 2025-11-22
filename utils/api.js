@@ -3,6 +3,8 @@ const API_URL = window.location.hostname === 'localhost' || window.location.host
   ? 'http://localhost:5000/api'
   : `${window.location.protocol}//${window.location.hostname}/api`;
 
+console.log('API_URL:', API_URL); // Debug log
+
 // ============== HELPER FUNCTIONS ==============
 function getAuthHeaders() {
   const token = localStorage.getItem('authToken');
@@ -102,8 +104,12 @@ async function logout() {
 
 // ============== SCHOOLS ==============
 async function getAllSchools() {
+  console.log('Fetching schools from:', `${API_URL}/schools`); // Debug log
+  
   const res = await fetch(`${API_URL}/schools`);
   const data = await res.json();
+  
+  console.log('Schools response:', data); // Debug log
   
   if (!res.ok) {
     throw new Error(data.error || 'Failed to fetch schools');
