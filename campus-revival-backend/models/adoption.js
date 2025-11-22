@@ -11,6 +11,12 @@ const adoptionSchema = new mongoose.Schema({
     ref: 'School',
     required: true
   },
+  adoptionType: {
+    type: String,
+    enum: ['prayer', 'revival', 'both'],
+    default: 'prayer',
+    required: true
+  },
   dateAdopted: {
     type: Date,
     default: Date.now

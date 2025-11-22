@@ -1,5 +1,7 @@
-// API Configuration
-const API_URL = 'http://localhost:5000/api';
+// API Configuration - Auto-detects environment
+const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:5000/api'
+  : `${window.location.protocol}//${window.location.hostname}/api`;
 
 // ============== HELPER FUNCTIONS ==============
 function getAuthHeaders() {
@@ -121,11 +123,22 @@ async function getSchoolById(schoolId) {
   return data.school;
 }
 
+async function getSchoolAdopters(schoolId) {
+  const res = await fetch(`${API_URL}/schools/${schoolId}/adopters`);
+  const data = await res.json();
+  
+  if (!res.ok) {
+    throw new Error(data.error || 'Failed to fetch adopters');
+  }
+  
+  return data;
+}
+
 // ============== ADOPTIONS ==============
-async function adoptSchool(schoolId) {
+async function adoptSchool(schoolId, adoptionType = 'prayer') {
   return protectedFetch(`${API_URL}/adoptions`, {
     method: 'POST',
-    body: JSON.stringify({ schoolId })
+    body: JSON.stringify({ schoolId, adoptionType })
   });
 }
 
