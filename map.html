@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CRM Map</title>
+  <title>CRM Map - UK Universities</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     /* ===== General Styles ===== */
@@ -26,7 +26,7 @@
       padding: 60px 20px;
     }
     .hero h1 {
-      font-family: "Baskerville Old Face" ;
+      font-family: "Baskerville Old Face";
       font-size: 2rem;
       margin-bottom: 20px;
       color: #ffffff;
@@ -48,67 +48,19 @@
     .container { max-width: 1400px; margin: 30px auto; padding: 0 20px; }
     #map { height: 75vh; width: 100%; border-radius: 12px; }
 
-    /* ===== School Cards ===== */
-    .school-card {
-      background: #222;
-      border-radius: 8px;
-      padding: 15px;
-      margin-bottom: 15px;
-      color: #fff;
-    }
-    .school-card h3 {
-      margin-bottom: 8px;
-      font-size: 1.1rem;
-      color: #ffffff;
-    }
-
-    .school-card p {
-      margin: 4px 0;
-      font-size: 0.95rem;
-      color: #ccc;
-    }
-
-    .school-card a {
-      display: block;
-      color: #ffffff;
-      padding: 8px 12px;
-      border-radius: 3px;
-      font-size: 0.9rem;
-      margin: 5px 0;
-      text-align: center;
-      background-color: #333;
-      text-decoration: none;
-      transition: background 0.3s ease;
-    }
-
-    .school-card a:hover {
-      background-color: #555;
-    }
-
-    .adopter-badge {
-      display: inline-block;
-      background: #6a00ff;
-      color: white;
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 0.85rem;
-      font-weight: bold;
-      margin: 5px 0;
-    }
-
     /* ===== Side Panel ===== */
     #side-panel {
       position: fixed;
       top: 0;
-      right: -420px;
-      width: 420px;
+      right: -450px;
+      width: 450px;
       height: 100%;
       background: #111;
       color: #fff;
       box-shadow: -6px 0 24px rgba(0,0,0,0.25);
       transition: right 0.3s ease;
       overflow-y: auto;
-      padding: 20px;
+      padding: 30px;
       border-left: 1px solid rgba(255,255,255,0.1);
       z-index: 10000;
     }
@@ -117,14 +69,147 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 15px;
+      margin-bottom: 25px;
+      border-bottom: 2px solid #333;
+      padding-bottom: 15px;
     }
+
+    #side-panel h2 {
+      font-size: 1.5rem;
+      color: #fff;
+      margin: 0;
+    }
+
     .close-panel-btn { 
       background: none; 
       border: none; 
-      font-size: 24px; 
+      font-size: 28px; 
       cursor: pointer; 
       color: #ccc; 
+      transition: color 0.3s;
+    }
+
+    .close-panel-btn:hover {
+      color: #fff;
+    }
+
+    .school-info {
+      background: #1a1a1a;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    .school-info h3 {
+      color: #6a00ff;
+      margin-bottom: 15px;
+      font-size: 1.3rem;
+    }
+
+    .school-info p {
+      margin: 10px 0;
+      line-height: 1.6;
+      color: #ddd;
+    }
+
+    .school-info .label {
+      color: #888;
+      font-size: 0.9rem;
+      margin-bottom: 5px;
+    }
+
+    .adopter-count {
+      display: inline-block;
+      background: linear-gradient(135deg, #6a00ff, #012169);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .btn {
+      padding: 14px 20px;
+      font-size: 1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+      text-decoration: none;
+      display: block;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #012169, #6a00ff);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(106, 0, 255, 0.4);
+    }
+
+    .btn-prayer {
+      background: #012169;
+      color: white;
+    }
+
+    .btn-prayer:hover {
+      background: #013599;
+    }
+
+    .btn-revival {
+      background: #6a00ff;
+      color: white;
+    }
+
+    .btn-revival:hover {
+      background: #5500cc;
+    }
+
+    .btn-secondary {
+      background: #333;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #444;
+    }
+
+    .adopters-section {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #333;
+    }
+
+    .adopters-section h4 {
+      color: #6a00ff;
+      margin-bottom: 15px;
+    }
+
+    .adopter-item {
+      padding: 12px;
+      margin-bottom: 10px;
+      background: #1a1a1a;
+      border-radius: 6px;
+      border-left: 3px solid #6a00ff;
+    }
+
+    .adopter-item strong {
+      color: #fff;
+    }
+
+    .adopter-item small {
+      color: #aaa;
     }
 
     .loading {
@@ -133,34 +218,17 @@
       padding: 20px;
     }
 
-    .back-btn {
-      display: inline-block;
-      background: #444;
+    .error-message {
+      background: #ff6b6b;
       color: white;
-      padding: 8px 16px;
-      border-radius: 5px;
-      margin-bottom: 15px;
-      cursor: pointer;
-      border: none;
-      font-size: 0.9rem;
-    }
-
-    .back-btn:hover {
-      background: #555;
-    }
-
-    .adopter-item {
-      padding: 12px;
-      margin-bottom: 10px;
-      background: #2a2a2a;
-      border-radius: 6px;
-      border-left: 3px solid #6a00ff;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px;
+      text-align: center;
     }
 
     /* ===== Responsive ===== */
     @media (max-width: 900px) {
-      #header-placeholder header { flex-direction: column; gap: 10px; }
-      #header-placeholder nav ul { flex-wrap: wrap; justify-content: center; }
       #side-panel { width: 100%; right: -100%; }
       #side-panel.active { right: 0; }
       #map { height: 60vh; }
@@ -176,12 +244,12 @@
   <!-- ===== HERO SECTION ===== -->
   <section class="hero">
     <h1>CAMPUS REVIVAL MOVEMENT MAP</h1>
-    <h2>University Partnerships</h2>
+    <h2>UK Universities for Adoption</h2>
     <div class="stats-bar">
       <div>Total Universities: <strong id="totalSchools">0</strong></div>
       <div>Total Adopters: <strong id="adoptedCount">0</strong></div>
     </div>
-    <p>Click a city pin to see all schools and universities registered for adoption.</p>
+    <p>Click on any university marker to view details and adopt for prayer or revival.</p>
   </section>
 
   <!-- ===== MAP CONTAINER ===== -->
@@ -192,11 +260,11 @@
   <!-- ===== SIDE PANEL ===== -->
   <aside id="side-panel" aria-hidden="true">
     <header>
-      <h2 id="panel-title">City Details</h2>
+      <h2 id="panel-title">University Details</h2>
       <button class="close-panel-btn" onclick="closePanel()" aria-label="Close panel">×</button>
     </header>
     <div id="panel-content">
-      <p class="loading">Loading city details...</p>
+      <p class="loading">Select a university on the map...</p>
     </div>
   </aside>
 
@@ -221,159 +289,182 @@
       .catch(err => console.error('Error loading header:', err));
 
     // ===== MAP & DATA LOGIC =====
-    let schoolsByCity = {};
+    let allSchools = [];
     let map;
+    let schoolMarkers = {};
+
+    // Custom marker icons
+    const createMarkerIcon = (color) => {
+      return L.divIcon({
+        className: 'custom-marker',
+        html: `<div style="background-color: ${color}; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"></div>`,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
+      });
+    };
 
     // Load schools from API
     async function loadSchools() {
       try {
         const schools = await getAllSchools();
-        
-        // Group schools by city
-        schools.forEach(school => {
-          const city = extractCity(school.address);
-          if (!schoolsByCity[city]) {
-            schoolsByCity[city] = [];
-          }
-          schoolsByCity[city].push({
-            id: school._id,
-            name: school.name,
-            address: school.address,
-            lat: school.lat,
-            lng: school.lng,
-            adopted: school.isAdopted || false,
-            adoptionCount: school.adoptionCount || 0,
-            description: school.description
-          });
-        });
+        allSchools = schools;
         
         initMap();
         updateStats();
       } catch (error) {
         console.error('Failed to load schools:', error);
-        alert('Failed to load schools. Please check if the backend is running on port 5000.');
+        document.querySelector('.container').innerHTML = `
+          <div class="error-message">
+            <h3>⚠️ Failed to Load Universities</h3>
+            <p>${error.message}</p>
+            <p>Please make sure the backend is running.</p>
+            <button class="btn btn-primary" onclick="location.reload()" style="margin-top: 15px; display: inline-block;">Retry</button>
+          </div>
+        `;
       }
-    }
-
-    function extractCity(address) {
-      const parts = address.split(',');
-      return parts[parts.length - 2]?.trim() || parts[0]?.trim() || 'Unknown';
     }
 
     function initMap(){
-      map = L.map('map').setView([54, -2], 6);
+      // Initialize map centered on UK
+      map = L.map('map').setView([54.5, -3], 6);
+      
+      // Add tile layer
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-        maxZoom:18, 
-        attribution:'© OpenStreetMap contributors'
+        maxZoom: 18, 
+        attribution: '© OpenStreetMap contributors'
       }).addTo(map);
 
-      for(const city in schoolsByCity){
-        const coords = getCityCoords(city);
-        const schoolCount = schoolsByCity[city].length;
-        const totalAdopters = schoolsByCity[city].reduce((sum, s) => sum + s.adoptionCount, 0);
+      // Add marker for EACH university
+      allSchools.forEach(school => {
+        const markerColor = (school.adoptionCount && school.adoptionCount > 0) ? '#6a00ff' : '#00ff88';
+        const icon = createMarkerIcon(markerColor);
         
-        const marker = L.marker(coords).addTo(map);
-        marker.bindPopup(`
-          <div style="color: #000;">
-            <b>${city}</b><br>
-            ${schoolCount} school${schoolCount !== 1 ? 's' : ''}<br>
-            ${totalAdopters} adopter${totalAdopters !== 1 ? 's' : ''}<br>
-            <a href="#" onclick="openCityPanel('${city}'); return false;" style="color: #6a00ff; font-weight: bold;">View Schools</a>
-          </div>
-        `);
-      }
+        const marker = L.marker([school.lat, school.lng], { icon: icon }).addTo(map);
+        
+        // Store reference
+        schoolMarkers[school._id] = marker;
+        
+        // Click handler - open side panel with school details
+        marker.on('click', () => {
+          openSchoolPanel(school);
+        });
+        
+        // Tooltip on hover
+        const adopterText = school.adoptionCount === 0 ? 'Not yet adopted' :
+                           school.adoptionCount === 1 ? '1 adopter' :
+                           `${school.adoptionCount} adopters`;
+        
+        marker.bindTooltip(`<strong>${school.name}</strong><br>${adopterText}`, {
+          direction: 'top',
+          offset: [0, -10]
+        });
+      });
 
       updateStats();
     }
 
-    function getCityCoords(city){
-      const schools = schoolsByCity[city];
-      if (schools && schools.length > 0) {
-        return [schools[0].lat, schools[0].lng];
-      }
-      return [54, -2];
-    }
+    // Open side panel with school details
+    function openSchoolPanel(school) {
+      const adopterCount = school.adoptionCount || 0;
+      const adopterText = adopterCount === 0 ? 'No adopters yet' : 
+                          adopterCount === 1 ? '1 person has adopted this university' :
+                          `${adopterCount} people have adopted this university`;
+      
+      let content = `
+        <div class="school-info">
+          <h3>${school.name}</h3>
+          
+          <div class="label">Location</div>
+          <p>${school.address}</p>
+          
+          ${school.description ? `
+            <div class="label" style="margin-top: 15px;">About</div>
+            <p>${school.description}</p>
+          ` : ''}
+          
+          <div class="adopter-count">${adopterText}</div>
+        </div>
 
-    // Open city panel with school list
-    function openCityPanel(city){
-      const schools = schoolsByCity[city];
-      let content = '';
+        <div class="action-buttons">
+          <a href="read-more.html?schoolId=${school._id}" class="btn btn-primary">
+            📖 View Full Details
+          </a>
+          <a href="adopt-prayer.html?schoolId=${school._id}" class="btn btn-prayer">
+            🙏 Adopt for Prayer
+          </a>
+          <a href="adopt-revival.html?schoolId=${school._id}" class="btn btn-revival">
+            ⚡ Adopt for Revival
+          </a>
+      `;
       
-      schools.forEach(s => {
-        const adopterCount = s.adoptionCount || 0;
-        const adopterText = adopterCount === 0 ? 'No adopters yet' : 
-                            adopterCount === 1 ? '1 person adopted' :
-                            `${adopterCount} people adopted`;
-        
-        content += `
-          <div class="school-card">
-            <h3>${s.name}</h3>
-            <p><strong>Address:</strong> ${s.address}</p>
-            <p><strong>Adopters:</strong> <span class="adopter-badge">${adopterText}</span></p>
-            
-            <a href="read-more.html?city=${encodeURIComponent(city)}&index=${schools.indexOf(s)}">Read More</a>
-            <a href="adopt-prayer.html?city=${encodeURIComponent(city)}&index=${schools.indexOf(s)}">Adopt for Prayer</a>
-            <a href="adopt-revival.html?city=${encodeURIComponent(city)}&index=${schools.indexOf(s)}">Adopt for Revival</a>
-            
-            ${adopterCount > 0 ? `<a href="#" onclick="viewAdopters('${s.id}', '${s.name}'); return false;">View All Adopters (${adopterCount})</a>` : ''}
-          </div>
-        `;
-      });
+      // Add adopters section if there are any
+      if (adopterCount > 0) {
+        content += `<button class="btn btn-secondary" onclick="loadAdopters('${school._id}', '${school.name.replace(/'/g, "\\'")}')">
+          👥 View All Adopters (${adopterCount})
+        </button>`;
+      }
       
-      document.getElementById('panel-title').textContent = city;
+      content += `</div>`;
+      
+      document.getElementById('panel-title').textContent = school.name;
       document.getElementById('panel-content').innerHTML = content;
+      
       const panel = document.getElementById('side-panel');
       panel.classList.add('active');
-      panel.setAttribute('aria-hidden','false');
+      panel.setAttribute('aria-hidden', 'false');
     }
 
-    // View all adopters for a school
-    async function viewAdopters(schoolId, schoolName) {
+    // Load adopters for a school
+    async function loadAdopters(schoolId, schoolName) {
       const panelContent = document.getElementById('panel-content');
       panelContent.innerHTML = '<p class="loading">Loading adopters...</p>';
       
       try {
-        const response = await fetch(`http://localhost:5000/api/schools/${schoolId}/adopters`);
-        const data = await response.json();
-        
-        if (!response.ok || !data.success) {
-          throw new Error(data.error || 'Failed to load adopters');
-        }
+        const data = await getSchoolAdopters(schoolId);
         
         let html = `
-          <button class="back-btn" onclick="closePanel()">← Back to Map</button>
-          <div style="margin-bottom: 20px;">
+          <div class="school-info">
             <h3>${schoolName}</h3>
-            <p><strong>Total Adopters: ${data.totalAdopters}</strong></p>
+            <div class="adopter-count">Total Adopters: ${data.totalAdopters}</div>
           </div>
+
+          <div class="adopters-section">
+            <h4>Adopters List</h4>
         `;
         
         if (data.adopters.length === 0) {
-          html += '<p>No adopters yet. Be the first to adopt!</p>';
+          html += '<p style="color: #888;">No adopters yet. Be the first!</p>';
         } else {
-          html += '<div style="max-height: 500px; overflow-y: auto;">';
           data.adopters.forEach((adopter, index) => {
             const date = new Date(adopter.adoptedAt).toLocaleDateString();
             const type = adopter.adoptionType || 'prayer';
             html += `
               <div class="adopter-item">
                 <strong>${index + 1}. ${adopter.userId.name}</strong><br>
-                <small style="color: #aaa;">Type: ${type.charAt(0).toUpperCase() + type.slice(1)}</small><br>
-                <small style="color: #aaa;">Adopted: ${date}</small>
+                <small>Type: ${type.charAt(0).toUpperCase() + type.slice(1)}</small><br>
+                <small>Adopted: ${date}</small>
               </div>
             `;
           });
-          html += '</div>';
         }
+        
+        html += `
+          </div>
+          <button class="btn btn-secondary" onclick="closePanel()" style="margin-top: 20px;">
+            ← Back to Map
+          </button>
+        `;
         
         panelContent.innerHTML = html;
         
       } catch (error) {
         console.error('Error loading adopters:', error);
         panelContent.innerHTML = `
-          <div style="color: #ff6b6b; padding: 20px;">
+          <div style="padding: 20px; color: #ff6b6b;">
             <p>Failed to load adopters: ${error.message}</p>
-            <button class="back-btn" onclick="closePanel()">← Back</button>
+            <button class="btn btn-secondary" onclick="closePanel()" style="margin-top: 20px;">
+              ← Back to Map
+            </button>
           </div>
         `;
       }
@@ -382,11 +473,10 @@
     function closePanel(){
       const panel = document.getElementById('side-panel');
       panel.classList.remove('active');
-      panel.setAttribute('aria-hidden','true');
+      panel.setAttribute('aria-hidden', 'true');
     }
 
     function updateStats(){
-      const allSchools = Object.values(schoolsByCity).flat();
       const totalAdopters = allSchools.reduce((sum, school) => sum + (school.adoptionCount || 0), 0);
       
       document.getElementById('totalSchools').textContent = allSchools.length;
@@ -403,7 +493,8 @@
       const panel = document.getElementById('side-panel');
       if(panel.classList.contains('active') && 
          !panel.contains(e.target) && 
-         !e.target.closest('.leaflet-popup')) {
+         !e.target.closest('.leaflet-popup') &&
+         !e.target.closest('.leaflet-marker-icon')) {
         closePanel();
       }
     });
