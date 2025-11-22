@@ -182,6 +182,12 @@
       color: #00aa44;
       border: 1px solid #ccffcc;
     }
+
+    .loading {
+      text-align: center;
+      color: #666;
+      padding: 40px;
+    }
   </style>
 </head>
 <body>
@@ -190,25 +196,8 @@
     <h1>Adopt a School for Revival</h1>
   </header>
 
-  <main>
-    <div class="school-highlight">
-      <h2 id="schoolName">Loading School...</h2>
-      <p id="schoolLocation"></p>
-    </div>
-
-    <p id="description">
-      Help bring revival to this school by committing to outreach efforts, hosting events,
-      and gathering students to worship and encounter Christ.
-      Choose whether you're adopting as a church, individual, or group.
-    </p>
-
-    <div class="choice-buttons">
-      <button id="churchBtn" onclick="startAdoption('church')">Church</button>
-      <button id="individualBtn" onclick="startAdoption('individual')">Individual</button>
-      <button id="groupBtn" onclick="startAdoption('group')">Group</button>
-    </div>
-
-    <a class="back-button" href="map.html">← Back to Map</a>
+  <main id="mainContent">
+    <div class="loading">Loading school details...</div>
   </main>
 
   <!-- Modal -->
@@ -227,40 +216,64 @@
 
   <script src="utils/api.js"></script>
   <script>
-    function getQueryParams() {
-      const params = {};
-      const queryString = window.location.search.substring(1);
-      queryString.split('&').forEach(pair => {
-        const [key, value] = pair.split('=');
-        params[decodeURIComponent(key)] = decodeURIComponent(value || '');
-      });
-      return params;
-    }
-
-    const { city, index } = getQueryParams();
-    const schoolData = JSON.parse(localStorage.getItem('cityChildren') || '{}');
-    const school = schoolData?.[city]?.[index];
-
+    let currentSchool = null;
     let adoptionMode = 'individual';
 
-    const nameEl = document.getElementById('schoolName');
-    const locationEl = document.getElementById('schoolLocation');
-    const descEl = document.getElementById('description');
-    const modal = document.getElementById('registrationModal');
-    const buttons = {
-      church: document.getElementById('churchBtn'),
-      individual: document.getElementById('individualBtn'),
-      group: document.getElementById('groupBtn')
-    };
+    // Get schoolId from URL
+    function getSchoolId() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('schoolId');
+    }
 
-    if (school && school.name) {
-      nameEl.textContent = school.name;
-      locationEl.textContent = `Location: ${city}`;
-    } else {
-      nameEl.textContent = "School Not Found";
-      locationEl.textContent = "";
-      descEl.textContent = "Unable to load school details. Please return to the map and select a school again.";
-      Object.values(buttons).forEach(btn => btn.disabled = true);
+    // Load school data on page load
+    window.addEventListener('load', async () => {
+      const schoolId = getSchoolId();
+      
+      if (!schoolId) {
+        showError('No school selected. Please return to the map.');
+        return;
+      }
+
+      try {
+        // Fetch school details from API
+        currentSchool = await getSchoolById(schoolId);
+        displaySchool();
+      } catch (error) {
+        console.error('Failed to load school:', error);
+        showError('Failed to load school details. Please try again.');
+      }
+    });
+
+    function displaySchool() {
+      document.getElementById('mainContent').innerHTML = `
+        <div class="school-highlight">
+          <h2 id="schoolName">${currentSchool.name}</h2>
+          <p id="schoolLocation">${currentSchool.address}</p>
+        </div>
+
+        <p id="description">
+          Help bring revival to this school by committing to outreach efforts, hosting events,
+          and gathering students to worship and encounter Christ.
+          Choose whether you're adopting as a church, individual, or group.
+        </p>
+
+        <div class="choice-buttons">
+          <button id="churchBtn" onclick="startAdoption('church')">Church</button>
+          <button id="individualBtn" onclick="startAdoption('individual')">Individual</button>
+          <button id="groupBtn" onclick="startAdoption('group')">Group</button>
+        </div>
+
+        <a class="back-button" href="map.html">← Back to Map</a>
+      `;
+    }
+
+    function showError(message) {
+      document.getElementById('mainContent').innerHTML = `
+        <div class="message error" style="display: block;">
+          ${message}
+        </div>
+        <a class="back-button" href="map.html">← Back to Map</a>
+      `;
     }
 
     function startAdoption(mode) {
@@ -277,21 +290,23 @@
         group: "Adopt as Group"
       };
       document.getElementById('modalTitle').textContent = titles[mode] || "Adopt School";
-      document.getElementById('modalSchoolName').textContent = school.name;
-      modal.style.display = 'flex';
+      document.getElementById('modalSchoolName').textContent = currentSchool.name;
+      document.getElementById('registrationModal').style.display = 'flex';
     }
 
     function closeModal() {
-      modal.style.display = 'none';
+      document.getElementById('registrationModal').style.display = 'none';
       document.getElementById('modalMessage').style.display = 'none';
     }
 
     window.onclick = function(event) {
-      if (event.target === modal) closeModal();
+      if (event.target === document.getElementById('registrationModal')) {
+        closeModal();
+      }
     }
 
     async function confirmAdoption() {
-      if (!school || !school.id) {
+      if (!currentSchool || !currentSchool._id) {
         showMessage('Invalid school selection', 'error');
         return;
       }
@@ -302,7 +317,7 @@
 
       try {
         // Call API to adopt school with 'revival' type
-        const result = await adoptSchool(school.id, 'revival');
+        const result = await adoptSchool(currentSchool._id, 'revival');
         
         showMessage('Revival adoption successful! Redirecting to dashboard...', 'success');
         
@@ -323,36 +338,6 @@
       messageEl.textContent = text;
       messageEl.className = 'message ' + type;
       messageEl.style.display = 'block';
-    }
-
-    // Update adoptSchool function in api.js to accept adoptionType
-    async function adoptSchool(schoolId, adoptionType = 'revival') {
-      const API_URL = 'http://localhost:5000/api';
-      const token = localStorage.getItem('authToken');
-      
-      if (!token) {
-        throw new Error('Please login');
-      }
-
-      const response = await fetch(`${API_URL}/adoptions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ 
-          schoolId,
-          adoptionType 
-        })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to adopt school');
-      }
-
-      return data;
     }
   </script>
 </body>

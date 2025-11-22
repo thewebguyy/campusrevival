@@ -188,6 +188,12 @@
       color: #00aa44;
       border: 1px solid #ccffcc;
     }
+
+    .loading {
+      text-align: center;
+      color: #666;
+      padding: 40px;
+    }
   </style>
 </head>
 <body>
@@ -196,24 +202,8 @@
     <h1>Adopt a School for Prayer</h1>
   </header>
 
-  <main>
-    <div class="school-highlight">
-      <h2 id="schoolName">Loading School...</h2>
-      <p id="schoolLocation"></p>
-    </div>
-
-    <p id="instructions">
-      By adopting this school for prayer, you commit to interceding regularly for spiritual renewal, 
-      student transformation, and open doors for the Gospel.  
-      Choose whether you're adopting as an individual or with a group.
-    </p>
-
-    <div class="choice-buttons">
-      <button id="btnIndividual" onclick="startAdoption('individual')">Individual</button>
-      <button id="btnGroup" onclick="startAdoption('group')">Group</button>
-    </div>
-
-    <a class="back-button" onclick="window.location.href='map.html'">← Back to Map</a>
+  <main id="mainContent">
+    <div class="loading">Loading school details...</div>
   </main>
 
   <!-- Modal -->
@@ -232,34 +222,63 @@
 
   <script src="utils/api.js"></script>
   <script>
-    function getQueryParams() {
-      const params = {};
-      const queryString = window.location.search.substring(1);
-      const pairs = queryString.split('&');
-      for (let pair of pairs) {
-        const [key, value] = pair.split('=');
-        if (key) params[decodeURIComponent(key)] = decodeURIComponent(value || '');
-      }
-      return params;
-    }
-
-    const { city, index } = getQueryParams();
-    const data = JSON.parse(localStorage.getItem('cityChildren')) || {};
-    const schoolList = data[city] || [];
-    const school = schoolList[parseInt(index)];
-
+    let currentSchool = null;
     let adoptionMode = 'individual';
 
-    // Display school info
-    if (school) {
-      document.getElementById('schoolName').textContent = school.name || "Unnamed School";
-      document.getElementById('schoolLocation').textContent = `Location: ${city}`;
-    } else {
-      document.getElementById('schoolName').textContent = "School Not Found";
-      document.getElementById('schoolLocation').textContent = "";
-      document.getElementById('instructions').style.display = "none";
-      document.getElementById('btnIndividual').disabled = true;
-      document.getElementById('btnGroup').disabled = true;
+    // Get schoolId from URL
+    function getSchoolId() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('schoolId');
+    }
+
+    // Load school data on page load
+    window.addEventListener('load', async () => {
+      const schoolId = getSchoolId();
+      
+      if (!schoolId) {
+        showError('No school selected. Please return to the map.');
+        return;
+      }
+
+      try {
+        // Fetch school details from API
+        currentSchool = await getSchoolById(schoolId);
+        displaySchool();
+      } catch (error) {
+        console.error('Failed to load school:', error);
+        showError('Failed to load school details. Please try again.');
+      }
+    });
+
+    function displaySchool() {
+      document.getElementById('mainContent').innerHTML = `
+        <div class="school-highlight">
+          <h2 id="schoolName">${currentSchool.name}</h2>
+          <p id="schoolLocation">${currentSchool.address}</p>
+        </div>
+
+        <p id="instructions">
+          By adopting this school for prayer, you commit to interceding regularly for spiritual renewal, 
+          student transformation, and open doors for the Gospel.  
+          Choose whether you're adopting as an individual or with a group.
+        </p>
+
+        <div class="choice-buttons">
+          <button id="btnIndividual" onclick="startAdoption('individual')">Individual</button>
+          <button id="btnGroup" onclick="startAdoption('group')">Group</button>
+        </div>
+
+        <a class="back-button" href="map.html">← Back to Map</a>
+      `;
+    }
+
+    function showError(message) {
+      document.getElementById('mainContent').innerHTML = `
+        <div class="message error" style="display: block;">
+          ${message}
+        </div>
+        <a class="back-button" href="map.html">← Back to Map</a>
+      `;
     }
 
     function startAdoption(mode) {
@@ -273,7 +292,7 @@
       adoptionMode = mode;
       const modalTitle = mode === 'individual' ? "Adopt as Individual" : "Adopt as Group";
       document.getElementById('modalTitle').textContent = modalTitle;
-      document.getElementById('modalSchoolName').textContent = school.name;
+      document.getElementById('modalSchoolName').textContent = currentSchool.name;
       document.getElementById('registrationModal').style.display = 'flex';
     }
 
@@ -289,7 +308,7 @@
     }
 
     async function confirmAdoption() {
-      if (!school || !school.id) {
+      if (!currentSchool || !currentSchool._id) {
         showMessage('Invalid school selection', 'error');
         return;
       }
@@ -300,7 +319,7 @@
 
       try {
         // Call API to adopt school with 'prayer' type
-        const result = await adoptSchool(school.id, 'prayer');
+        const result = await adoptSchool(currentSchool._id, 'prayer');
         
         showMessage('Prayer adoption successful! Redirecting to dashboard...', 'success');
         
@@ -321,36 +340,6 @@
       messageEl.textContent = text;
       messageEl.className = 'message ' + type;
       messageEl.style.display = 'block';
-    }
-
-    // Update adoptSchool function in api.js to accept adoptionType
-    async function adoptSchool(schoolId, adoptionType = 'prayer') {
-      const API_URL = 'http://localhost:5000/api';
-      const token = localStorage.getItem('authToken');
-      
-      if (!token) {
-        throw new Error('Please login');
-      }
-
-      const response = await fetch(`${API_URL}/adoptions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ 
-          schoolId,
-          adoptionType 
-        })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to adopt school');
-      }
-
-      return data;
     }
   </script>
 </body>

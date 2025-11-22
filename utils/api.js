@@ -1,189 +1,256 @@
-// API Configuration - Auto-detects environment
-const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  ? 'http://localhost:5000/api'
-  : `${window.location.protocol}//${window.location.hostname}/api`;
+// ===== Dynamic API URL Configuration =====
+// This automatically detects the correct API URL for mobile and desktop
 
-console.log('API_URL:', API_URL); // Debug log
-
-// ============== HELPER FUNCTIONS ==============
-function getAuthHeaders() {
-  const token = localStorage.getItem('authToken');
-  return {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`
-  };
+function getApiUrl() {
+  // Check if we're in production (you'll set this when deploying)
+  if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    // Production: use the same domain as the frontend
+    return `${window.location.protocol}//${window.location.hostname}:5000/api`;
+  }
+  
+  // Development: check if accessing via network IP
+  if (window.location.hostname.match(/^\d+\.\d+\.\d+\.\d+$/)) {
+    // Accessing via IP address (mobile on same network)
+    return `${window.location.protocol}//${window.location.hostname}:5000/api`;
+  }
+  
+  // Default: localhost for desktop development
+  return 'http://localhost:5000/api';
 }
 
+const API_URL = getApiUrl();
+
+console.log('API URL configured as:', API_URL);
+
+// ===== Authentication Helper =====
 function isLoggedIn() {
   const token = localStorage.getItem('authToken');
-  const user = localStorage.getItem('user');
-  return !!(token && user);
-}
-
-function getCurrentUser() {
-  const userStr = localStorage.getItem('user');
-  return userStr ? JSON.parse(userStr) : null;
-}
-
-async function protectedFetch(url, options = {}) {
-  const token = localStorage.getItem('authToken');
-  if (!token) {
-    throw new Error('Please login');
-  }
-
-  const response = await fetch(url, {
-    ...options,
-    headers: { 
-      ...getAuthHeaders(), 
-      ...options.headers 
-    }
-  });
-
-  const data = await response.json();
-
-  if (response.status === 401) {
-    localStorage.clear();
-    window.location.href = '/signin.html';
-    throw new Error('Unauthorized - please login again');
-  }
-
-  if (!response.ok) {
-    throw new Error(data.error || 'Request failed');
-  }
+  if (!token) return false;
   
-  return data;
-}
-
-// ============== AUTHENTICATION ==============
-async function registerUser(name, email, password) {
-  const res = await fetch(`${API_URL}/register`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, email, password })
-  });
-  
-  const data = await res.json();
-  
-  if (!res.ok) {
-    throw new Error(data.error || 'Registration failed');
-  }
-  
-  localStorage.setItem('authToken', data.token);
-  localStorage.setItem('user', JSON.stringify(data.user));
-  return data;
-}
-
-async function loginUser(email, password) {
-  const res = await fetch(`${API_URL}/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password })
-  });
-  
-  const data = await res.json();
-  
-  if (!res.ok) {
-    throw new Error(data.error || 'Login failed');
-  }
-  
-  localStorage.setItem('authToken', data.token);
-  localStorage.setItem('user', JSON.stringify(data.user));
-  return data;
-}
-
-async function logout() {
   try {
-    await protectedFetch(`${API_URL}/logout`, { method: 'POST' });
-  } catch (error) {
-    console.error('Logout error:', error);
-  } finally {
-    localStorage.clear();
-    window.location.href = '/index.html';
+    // Check if token is expired (basic check)
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.exp * 1000 > Date.now();
+  } catch (e) {
+    return false;
   }
 }
 
-// ============== SCHOOLS ==============
+function getAuthToken() {
+  return localStorage.getItem('authToken');
+}
+
+function setAuthToken(token) {
+  localStorage.setItem('authToken', token);
+}
+
+function clearAuthToken() {
+  localStorage.removeItem('authToken');
+}
+
+// ===== API Functions =====
+
+// Get all schools
 async function getAllSchools() {
-  console.log('Fetching schools from:', `${API_URL}/schools`); // Debug log
-  
-  const res = await fetch(`${API_URL}/schools`);
-  const data = await res.json();
-  
-  console.log('Schools response:', data); // Debug log
-  
-  if (!res.ok) {
-    throw new Error(data.error || 'Failed to fetch schools');
+  try {
+    const response = await fetch(`${API_URL}/schools`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: Failed to fetch schools`);
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching schools:', error);
+    throw new Error(`Failed to load schools. Please check if the backend is running on port 5000.`);
   }
-  
-  return data.schools;
 }
 
+// Get single school by ID
 async function getSchoolById(schoolId) {
-  const res = await fetch(`${API_URL}/schools/${schoolId}`);
-  const data = await res.json();
-  
-  if (!res.ok) {
-    throw new Error(data.error || 'Failed to fetch school');
+  try {
+    const response = await fetch(`${API_URL}/schools/${schoolId}`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: School not found`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching school:', error);
+    throw error;
   }
-  
-  return data.school;
 }
 
+// Get school adopters
 async function getSchoolAdopters(schoolId) {
-  const res = await fetch(`${API_URL}/schools/${schoolId}/adopters`);
-  const data = await res.json();
-  
-  if (!res.ok) {
-    throw new Error(data.error || 'Failed to fetch adopters');
+  try {
+    const response = await fetch(`${API_URL}/schools/${schoolId}/adopters`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: Failed to fetch adopters`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching adopters:', error);
+    throw error;
   }
-  
-  return data;
 }
 
-// ============== ADOPTIONS ==============
+// Adopt a school
 async function adoptSchool(schoolId, adoptionType = 'prayer') {
-  return protectedFetch(`${API_URL}/adoptions`, {
-    method: 'POST',
-    body: JSON.stringify({ schoolId, adoptionType })
-  });
-}
-
-async function getMyAdoptions() {
-  const data = await protectedFetch(`${API_URL}/adoptions`);
-  return data.adoptions;
-}
-
-// ============== JOURNAL ==============
-async function createJournalEntry(entryText, schoolId = null) {
-  return protectedFetch(`${API_URL}/journal`, {
-    method: 'POST',
-    body: JSON.stringify({ entryText, schoolId })
-  });
-}
-
-async function getJournalEntries(schoolId = null, limit = 50) {
-  const url = schoolId 
-    ? `${API_URL}/journal?schoolId=${schoolId}&limit=${limit}`
-    : `${API_URL}/journal?limit=${limit}`;
+  const token = getAuthToken();
   
-  const data = await protectedFetch(url);
-  return data.entries;
+  if (!token) {
+    throw new Error('Please login first');
+  }
+
+  try {
+    const response = await fetch(`${API_URL}/adoptions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ 
+        schoolId,
+        adoptionType 
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || data.message || 'Failed to adopt school');
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Adoption error:', error);
+    throw error;
+  }
 }
 
-async function deleteJournalEntry(entryId) {
-  return protectedFetch(`${API_URL}/journal/${entryId}`, {
-    method: 'DELETE'
-  });
+// Get user's adoptions (for dashboard)
+async function getMyAdoptions() {
+  const token = getAuthToken();
+  
+  if (!token) {
+    throw new Error('Please login first');
+  }
+
+  try {
+    const response = await fetch(`${API_URL}/adoptions/my`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch your adoptions');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching adoptions:', error);
+    throw error;
+  }
 }
 
-// ============== DASHBOARD ==============
-async function getDashboard() {
-  const data = await protectedFetch(`${API_URL}/dashboard`);
-  return data.dashboard;
+// User signup
+async function signup(name, email, password) {
+  try {
+    const response = await fetch(`${API_URL}/auth/signup`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ name, email, password })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || data.message || 'Signup failed');
+    }
+
+    // Save token
+    if (data.token) {
+      setAuthToken(data.token);
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Signup error:', error);
+    throw error;
+  }
 }
 
-// ============== USER INFO ==============
-async function getMe() {
-  const data = await protectedFetch(`${API_URL}/me`);
-  return data.user;
+// User signin
+async function signin(email, password) {
+  try {
+    const response = await fetch(`${API_URL}/auth/signin`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || data.message || 'Login failed');
+    }
+
+    // Save token
+    if (data.token) {
+      setAuthToken(data.token);
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Signin error:', error);
+    throw error;
+  }
+}
+
+// Logout
+function logout() {
+  clearAuthToken();
+  window.location.href = 'index.html';
+}
+
+// Get current user profile
+async function getProfile() {
+  const token = getAuthToken();
+  
+  if (!token) {
+    throw new Error('Please login first');
+  }
+
+  try {
+    const response = await fetch(`${API_URL}/auth/profile`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        clearAuthToken();
+        throw new Error('Session expired. Please login again.');
+      }
+      throw new Error('Failed to fetch profile');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Profile error:', error);
+    throw error;
+  }
 }
