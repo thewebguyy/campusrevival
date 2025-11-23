@@ -384,168 +384,128 @@
   </div>
 
   <script>
-    // Friendly robust param parsing
-    function getQueryParams() {
-      const q = {};
-      const sp = new URLSearchParams(window.location.search);
-      for (const [k, v] of sp.entries()) q[k] = v;
-      return q;
+// ========== UTILITIES ==========
+function getQueryParams() {
+  const q = {};
+  const sp = new URLSearchParams(window.location.search);
+  for (const [k, v] of sp.entries()) q[k] = v;
+  return q;
+}
+
+function createMetaItem(label, value) {
+  const container = document.createElement('div');
+  container.className = 'meta-item';
+  const dt = document.createElement('dt'); dt.textContent = label;
+  const dd = document.createElement('dd'); dd.textContent = value ?? 'N/A';
+  container.appendChild(dt); container.appendChild(dd);
+  return container;
+}
+
+function showMessage(msg, city) {
+  const left = document.querySelector('.details');
+  left.innerHTML = `<div class="message">${msg}</div>`;
+  document.getElementById('school-name').textContent = 'No data';
+  document.getElementById('school-location').textContent = '';
+  document.getElementById('breadcrumb-school').textContent = '';
+  document.getElementById('breadcrumb-city').textContent = city || '';
+  document.getElementById('tag-row').innerHTML = '';
+  document.getElementById('joined-info').textContent = '';
+  document.getElementById('about-text').textContent = '';
+  document.getElementById('meta-list').innerHTML = '';
+  document.getElementById('action-ctas').style.display = 'none';
+}
+
+// ========== MAIN LOGIC ==========
+const params = getQueryParams();
+const cityParam = params.city;
+const indexParam = params.index !== undefined ? parseInt(params.index, 10) : NaN;
+
+if (!cityParam || Number.isNaN(indexParam)) {
+  showMessage('Invalid request — missing city or index.', cityParam);
+} else {
+  const data = JSON.parse(localStorage.getItem('cityChildren') || '{}');
+  const schoolsForCity = data[cityParam] || [];
+  const school = schoolsForCity[indexParam];
+
+  if (!school) {
+    showMessage('No institution found for this city/index.', cityParam);
+  } else {
+    // === Fill basic header
+    document.getElementById('school-name').textContent = school.name || 'Unnamed Institution';
+    document.getElementById('school-location').textContent = `Location: ${cityParam}`;
+    document.getElementById('breadcrumb-city').textContent = cityParam;
+    document.getElementById('breadcrumb-school').textContent = school.name || 'School';
+
+    // === Joined date
+    const joinedInfo = document.getElementById('joined-info');
+    if (school.JoinedCRMProgram) {
+      const d = new Date(school.JoinedCRMProgram);
+      if (!isNaN(d)) joinedInfo.textContent = 'Added: ' + d.toLocaleString();
     }
 
-    const params = getQueryParams();
-    const cityParam = params.city;
-    const indexParam = params.index !== undefined ? parseInt(params.index, 10) : NaN;
+    // === About section
+    document.getElementById('about-text').textContent = school.About || 'No description available.';
 
-    // utility to create meta items
-    function createMetaItem(label, value){
-      const container = document.createElement('div');
-      container.className = 'meta-item';
-      const dt = document.createElement('dt'); dt.textContent = label;
-      const dd = document.createElement('dd'); dd.textContent = value ?? 'N/A';
-      container.appendChild(dt); container.appendChild(dd);
-      return container;
-    }
+    // === Meta info
+    const metaList = document.getElementById('meta-list');
+    metaList.innerHTML = '';
+    metaList.appendChild(createMetaItem('Address', school.address || 'N/A'));
+    metaList.appendChild(createMetaItem('Website', school.website || 'N/A'));
+    metaList.appendChild(createMetaItem('City', school.city || cityParam));
+    metaList.appendChild(createMetaItem('Latitude', school.lat));
+    metaList.appendChild(createMetaItem('Longitude', school.lng));
 
-    function showMessage(msg){
-      const left = document.querySelector('.details');
-      left.innerHTML = `<div class="message">${msg}</div>`;
-      document.getElementById('school-name').textContent = 'No data';
-      document.getElementById('school-location').textContent = '';
-      document.getElementById('breadcrumb-school').textContent = '';
-      document.getElementById('breadcrumb-city').textContent = cityParam || '';
-      document.getElementById('tag-row').innerHTML = '';
-      document.getElementById('joined-info').textContent = '';
-      document.getElementById('about-text').textContent = '';
-      document.getElementById('meta-list').innerHTML = '';
-      document.getElementById('action-ctas').style.display = 'none';
-    }
+    // === Quick Facts
+    const quickFacts = document.getElementById('quick-facts');
+    quickFacts.innerHTML = '';
+    const addFact = (text) => {
+      const f = document.createElement('div');
+      f.className = 'fact';
+      f.textContent = text;
+      quickFacts.appendChild(f);
+    };
+    if (school.address) addFact(school.address);
+    if (school.city) addFact('City: ' + school.city);
+    if (school.website) addFact('Website available');
 
-    if (!cityParam || Number.isNaN(indexParam)) {
-      showMessage('Invalid request — city or school index is missing from the URL.');
+    // === Action Buttons
+    const visitBtn = document.getElementById('visit-site');
+    const adoptPrayer = document.getElementById('adopt-prayer');
+    const adoptRevival = document.getElementById('adopt-revival');
+
+    // Show Visit Website button if URL exists
+    if (school.website) {
+      visitBtn.style.display = 'inline-flex';
+      visitBtn.onclick = () => {
+        let url = school.website;
+        if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+        window.open(url, '_blank');
+      };
     } else {
-      const data = JSON.parse(localStorage.getItem('cityChildren') || '{}');
-      const schoolsForCity = data[cityParam] || [];
-      const school = schoolsForCity[indexParam];
-
-      if (!school) {
-        showMessage('School not found for the provided city/index.');
-      } else {
-        // Fill header
-        const nameEl = document.getElementById('school-name');
-        const locEl = document.getElementById('school-location');
-        const breadcrumbCity = document.getElementById('breadcrumb-city');
-        const breadcrumbSchool = document.getElementById('breadcrumb-school');
-        const tagRow = document.getElementById('tag-row');
-        const joinedInfo = document.getElementById('joined-info');
-        const aboutText = document.getElementById('about-text');
-        const metaList = document.getElementById('meta-list');
-        const quickFacts = document.getElementById('quick-facts');
-
-        nameEl.textContent = school.name || 'Unnamed Institution';
-        locEl.textContent = `Location: ${cityParam}`;
-        breadcrumbCity.textContent = cityParam;
-        breadcrumbSchool.textContent = school.name || 'School';
-
-        // badges / tags
-        tagRow.innerHTML = '';
-        const pushBadge = (txt) => {
-          const b = document.createElement('span'); b.className = 'badge'; b.textContent = txt; tagRow.appendChild(b);
-        };
-
-        // Scholarship / Visa
-        if (school.scholarships) pushBadge('Scholarships: ' + (String(school.scholarships).toLowerCase() === 'yes' ? 'Available' : school.scholarships));
-        if (school.visaSupport) pushBadge('Visa Support: ' + (String(school.visaSupport).toLowerCase() === 'yes' ? 'Yes' : school.visaSupport));
-        if (school.accreditation) pushBadge('Rank: ' + school.accreditation);
-
-        // joined date
-        let joinedText = 'Added: N/A';
-        if (school.JoinedCRMProgram) {
-          const d = new Date(school.JoinedCRMProgram);
-          if (!isNaN(d)) joinedText = 'Added: ' + d.toLocaleString();
-        }
-        joinedInfo.textContent = joinedText;
-
-        // about
-        aboutText.textContent = school.About || 'No description available.';
-
-        // meta grid
-        metaList.innerHTML = '';
-        metaList.appendChild(createMetaItem('Programs & Majors', school.programs || 'N/A'));
-        metaList.appendChild(createMetaItem('Accreditation & Ranking', school.accreditation || 'N/A'));
-        metaList.appendChild(createMetaItem('Tuition & Fees', school.tuition || 'N/A'));
-        metaList.appendChild(createMetaItem('Scholarships', school.scholarships || 'N/A'));
-        metaList.appendChild(createMetaItem('Campus Facilities', school.facilities || 'N/A'));
-        metaList.appendChild(createMetaItem('Student Diversity', school.diversity || 'N/A'));
-        metaList.appendChild(createMetaItem('Graduate Employment', school.employment || 'N/A'));
-        metaList.appendChild(createMetaItem('Admission Rate', school.admissionRate || 'N/A'));
-        metaList.appendChild(createMetaItem('Visa Support', school.visaSupport || 'N/A'));
-        metaList.appendChild(createMetaItem('Language Requirements', school.languageReq || 'N/A'));
-
-        // quick-facts
-        quickFacts.innerHTML = '';
-        if (school.tuition) {
-          const t = document.createElement('div'); t.className = 'fact'; t.textContent = 'Tuition: ' + school.tuition; quickFacts.appendChild(t);
-        }
-        if (school.accreditation) {
-          const t = document.createElement('div'); t.className = 'fact'; t.textContent = 'Rank: ' + school.accreditation; quickFacts.appendChild(t);
-        }
-        if (school.scholarships) {
-          const t = document.createElement('div'); t.className = 'fact'; t.textContent = (String(school.scholarships).toLowerCase()==='yes' ? 'Scholarships' : school.scholarships); quickFacts.appendChild(t);
-        }
-
-        // Actions: keep your existing navigation logic but enhanced with buttons
-        const visitBtn = document.getElementById('visit-site');
-        const adoptPrayer = document.getElementById('adopt-prayer');
-        const adoptRevival = document.getElementById('adopt-revival');
-
-        // If the school object contains a 'website' property, show Visit button
-        if (school.website) {
-          visitBtn.style.display = 'inline-flex';
-          visitBtn.onclick = () => {
-            let url = school.website;
-            // fix if missing protocol
-            if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
-            window.open(url, '_blank');
-          };
-        } else {
-          visitBtn.style.display = 'none';
-        }
-
-        adoptPrayer.onclick = () => { window.location.href = 'adopt-prayer.html?city=' + encodeURIComponent(cityParam) + '&index=' + indexParam; };
-        adoptRevival.onclick = () => { window.location.href = 'adopt-revival.html?city=' + encodeURIComponent(cityParam) + '&index=' + indexParam; };
-
-        shareBtn.onclick = async () => {
-          const shareData = {
-            title: school.name || 'Institution profile',
-            text: 'Check out this institution: ' + (school.name || '') + ' — ' + cityParam,
-            url: window.location.href
-          };
-          if (navigator.share) {
-            try { await navigator.share(shareData); } catch (err) { /* user canceled */ }
-          } else {
-            // fallback: copy URL
-            navigator.clipboard?.writeText(window.location.href).then(() => {
-              alert('Profile link copied to clipboard.');
-            }).catch(()=>{ alert('Copy this URL: ' + window.location.href); });
-          }
-        };
-
-        printBtn.onclick = () => window.print();
-
-        // Fill the small "crest" square with initials (fallback)
-        const crest = document.getElementById('crest');
-        if (!school.icon && school.name) {
-          const initials = (school.name.split(/\s+/).slice(0,2).map(s=>s[0]).join('')).toUpperCase();
-          crest.textContent = initials || '';
-        } else if (school.icon) {
-          crest.textContent = ''; // if you had an icon URL you could set as background image - kept simple here
-        }
-      }
+      visitBtn.style.display = 'none';
     }
 
-    // Accessibility: focus the name for screen readers
-    document.getElementById('school-name').setAttribute('tabindex', '-1');
-    document.getElementById('school-name').focus();
-  </script>
+    // Navigation
+    adoptPrayer.onclick = () => {
+      window.location.href = `adopt-prayer.html?city=${encodeURIComponent(cityParam)}&index=${indexParam}`;
+    };
+    adoptRevival.onclick = () => {
+      window.location.href = `adopt-revival.html?city=${encodeURIComponent(cityParam)}&index=${indexParam}`;
+    };
+
+    // === Crest initials
+    const crest = document.querySelector('.institution-crest');
+    if (crest && school.name) {
+      crest.textContent = (school.name.split(/\s+/).slice(0, 2).map(w => w[0]).join('')).toUpperCase();
+    }
+
+    // === Focus for accessibility
+    const nameEl = document.getElementById('school-name');
+    nameEl.setAttribute('tabindex', '-1');
+    nameEl.focus();
+  }
+}
+</script>
+
 </body>
 </html>

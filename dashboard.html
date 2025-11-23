@@ -1,309 +1,350 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>CRM Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f4f4f9;
-    }
-    header {
-      background-color: #012169;
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
-    header h1 { margin: 0; font-size: 1.8rem; }
-    #clock { font-size: 1.5rem; color: #ffffff; }
+<meta charset="UTF-8" />
+<title>CRM Dashboard</title>
+<style>
+  :root {
+    --bg-color: #000;
+    --text-color: #fff;
+    --card-bg: #fff;
+    --card-text: #000;
+    --accent-color: #007BFF;
+  }
+
+  body.light-mode {
+    --bg-color: #f5f5f5;
+    --text-color: #000;
+    --card-bg: #fff;
+    --card-text: #000;
+    --accent-color: #007BFF;
+  }
+
+  body {
+    margin:0;
+    font-family: Arial, sans-serif;
+    background: var(--bg-color);
+    color: var(--text-color);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  #header-placeholder {
+    width: 100%;
+    height: 200px;
+  }
+
+  h1 {
+    text-align:center;
+    margin:20px 0;
+    font-size: 32px;
+    font-weight: 800;
+  }
+
+  /* ===== DASHBOARD GRID ===== */
+  .dashboard {
+    display:flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 40px 100px; /* page margins */
+    box-sizing: border-box;
+  }
+
+  .col {
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    gap: 12px;
+    min-width: 250px;
+  }
+
+  /* ===== GLOBAL CARD STYLE ===== */
+  .card {
+    background: var(--card-bg);
+    color: var(--card-text);
+    padding: 20px;
+    border-radius: 14px;
+    transition:0.25s ease, background 0.3s, color 0.3s;
+  }
+
+  .card:hover {
+    transform: scale(1.03);
+    box-shadow: 0px 0px 18px rgba(0,0,0,0.25);
+  }
+
+  /* ===== CLOCK ===== */
+  .clock {
+    background: transparent;
+    font-size: 140px;
+    font-weight: bold;
+    text-align: center;
+    color: var(--text-color);
+  }
+
+  /* ===== PROFILE ===== */
+  .profile {
+    text-align: center;
+    background: transparent !important;
+  }
+
+  .profile img {
+    width: 200px;
+    height: 180px;
+    object-fit: contain;
+  }
+
+  .profile .name {
+    font-weight: bold;
+    margin-top: 8px;
+  }
+
+  /* ===== CALENDAR ===== */
+  .calendar{ 
+    background:transparent; 
+    border:none; 
+    padding:0; 
+  }
+
+  .calendar iframe {
+    width: 100%;
+    height: 350px;
+    border-radius: 14px;
+    border: none;
+  }
+
+  /* ===== INPUTS & BUTTONS ===== */
+  textarea, .book input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    margin-bottom: 8px;
+    box-sizing: border-box;
+  }
+
+  .book button {
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    background: var(--card-text);
+    color: var(--card-bg);
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.25s;
+  }
+
+  .book button:hover {
+    background: var(--accent-color);
+  }
+
+  /* ===== LINK CARDS ===== */
+  a.card-link {
+    display:block;
+    text-align:center;
+    text-decoration:none;
+    background: var(--card-bg);
+    color: var(--card-text);
+    border:4px solid var(--card-text);
+    padding:18px;
+    font-weight:bold;
+    border-radius:14px;
+    transition:0.25s ease;
+  }
+
+  a.card-link:hover {
+    transform:scale(1.05);
+    box-shadow:0px 0px 16px rgba(0,0,0,0.25);
+  }
+
+  /* ===== LINKS ===== */
+  ul li a {
+    color: var(--card-text);
+    text-decoration: none;
+  }
+  ul li a:hover {
+    text-decoration: underline;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media(max-width: 1024px){
     .dashboard {
-      display: flex;
-      flex-wrap: wrap;
       padding: 20px;
-      gap: 20px;
     }
-    .card {
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+
+  @media(max-width: 768px){
+    .dashboard {
+      flex-direction: column;
       padding: 20px;
-      flex: 1 1 300px;
-      min-height: 200px;
-      position: relative;
     }
-    .loading { text-align: center; color: #666; }
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-      gap: 10px;
-      margin: 10px 0;
+    .clock {
+      font-size: 120px;
     }
-    .stat { 
-      background: #f0f8ff; 
-      padding: 10px; 
-      text-align: center; 
-      border-radius: 5px;
-      font-weight: bold;
-      color: #012169;
-    }
-    .card h2 {
-      font-size: 1.2rem;
-      margin-top: 0;
-      color: #012169;
-    }
-    textarea {
-      width: 100%;
-      height: 120px;
-      padding: 10px;
-      font-size: 1rem;
-      resize: vertical;
-    }
-    button {
-      background-color: #012169;
-      color: white;
-      padding: 10px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-top: 10px;
-      width: 100%;
-    }
-    button:hover { background-color: #013369; }
-    button:disabled { background-color: #ccc; cursor: not-allowed; }
-    input[type="text"], input[type="email"], select {
-      padding: 8px;
-      width: 100%;
-      margin: 5px 0 10px;
-      font-size: 1rem;
-    }
-    iframe { width: 100%; height: 300px; border: none; }
-    .school-list { max-height: 200px; overflow-y: auto; }
-    .school-item { 
-      padding: 8px; 
-      border-bottom: 1px solid #eee; 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center;
-    }
-    .success { color: green; }
-    .error { color: red; }
-  </style>
+  }
+
+  /* Minimal Icons (inline SVG) */
+  .icon {
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    margin-right: 6px;
+    fill: var(--card-text);
+  }
+
+
+
+/* ===== TOGGLE BUTTON ===== */
+.toggle-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--card-bg);
+  color: var(--card-text);
+  border: none;
+  padding: 10px 16px;  /* normal size */
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s;
+  display: inline-block;  /* ensures it doesn't stretch vertically */
+  height: auto;           /* prevents full-height stretching */
+}
+
+.toggle-btn:hover {
+  background: var(--accent-color);
+  color: #fff;
+}
+
+
+
+
+</style>
 </head>
 <body>
 
-  <header>
-    <h1 id="welcomeHeader">Welcome, Loading...</h1>
-    <div id="clock"></div>
-  </header>
+<button class="toggle-btn" onclick="toggleMode()">Toggle Dark/Light Mode</button>
 
-  <section class="dashboard">
+<div id="header-placeholder"></div>
 
-    <!-- STATS OVERVIEW -->
-    <div class="card">
-      <h2>📊 Your Stats</h2>
-      <div id="statsGrid" class="loading">Loading...</div>
-    </div>
+<h1>WELCOME {NAME} TO CRM DASHBOARD</h1>
 
-    <!-- ADOPTED SCHOOLS -->
-    <div class="card">
-      <h2>🏫 Adopted Schools (<span id="schoolsCount">0</span>)</h2>
-      <div id="adoptedSchools" class="school-list loading">Loading...</div>
-      <button onclick="window.location.href='map.html'">Adopt Another School</button>
-    </div>
+<div class="dashboard">
 
-    <!-- PERSONAL JOURNAL -->
-    <div class="card">
-      <h2>📝 Prayer Journal (<span id="journalCount">0</span> entries)</h2>
-      <div id="recentJournals" class="loading">Loading...</div>
-      <textarea id="journalText" placeholder="Write your prayer or thoughts here..."></textarea>
-      <button onclick="saveJournal()">Save Prayer</button>
-      <div id="journalMessage"></div>
-    </div>
+  <!-- COLUMN 1 -->
+  <div class="col">
+    <div class="clock" id="clock">10:32</div>
 
-    <!-- BOOK MEETING -->
-    <div class="card">
-      <h2>📞 Book a Call</h2>
-      <input type="email" id="meetingEmail" placeholder="Your Email">
-      <input type="text" id="meetingTime" placeholder="Preferred Date & Time">
-      <button onclick="bookMeeting()">Book Meeting</button>
-      <div id="meetingMessage"></div>
-    </div>
-
-    <!-- PRAYER CELL -->
-    <div class="card">
-      <h2>🙏 Prayer Cell</h2>
-      <button onclick="joinPrayerCell()">Join Prayer Cell</button>
-      <div id="cellMessage"></div>
-    </div>
-
-    <!-- CALENDAR -->
-    <div class="card">
-      <h2>📅 Calendar</h2>
+    <div class="card calendar">
       <iframe src="https://calendar.google.com/calendar/embed?src=en.uk%23holiday%40group.v.calendar.google.com&ctz=UTC"></iframe>
     </div>
 
-  </section>
+    <div class="card resources">
+      <h2>Resources</h2>
+      <ul>
+        <li><svg class="icon" viewBox="0 0 16 16"><path d="M2 2h12v12H2z"/></svg><a href="pdf1.pdf" target="_blank">PDF 1</a></li>
+        <li><svg class="icon" viewBox="0 0 16 16"><path d="M2 2h12v12H2z"/></svg><a href="pdf2.pdf" target="_blank">PDF 2</a></li>
+        <li><svg class="icon" viewBox="0 0 16 16"><path d="M2 2h12v12H2z"/></svg><a href="pdf3.pdf" target="_blank">PDF 3</a></li>
+      </ul>
+    </div>
+  </div>
 
-  <!-- API HELPERS -->
-  <script src="utils/api.js"></script>
-  <script>
-    // Global variables
-    let dashboardData = null;
+  <!-- COLUMN 2 -->
+  <div class="col">
+    <div class="card book">
+      <h2>CRM DASHBOARD</h2>
+      <p>Welcome to your CRM portal. Here you can find essential tools and information.Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+    </div>
 
-    // Load dashboard on page load
-    window.addEventListener('load', async () => {
-      if (!isLoggedIn()) {
-        window.location.href = '/login.html';
-        return;
-      }
-      await loadDashboard();
-      updateClock();
-    });
+    <div class="card announcements">
+      <h2>Announcements</h2>
+      <ul>
+        <li>5 Universities added — check the map.</li>
+        <li>Next Onboarding Meeting: <strong>2nd Jan 26</strong> — Book Now.</li>
+      </ul>
+    </div>
 
-    async function loadDashboard() {
-      try {
-        const data = await getDashboard();
-        dashboardData = data;
-        updateUI();
-      } catch (error) {
-        console.error('Dashboard error:', error);
-        document.querySelectorAll('.loading').forEach(el => {
-          el.textContent = 'Error loading data';
-        });
-      }
-    }
+    <div class="card book">
+      <h2>Book a Meeting</h2>
+      <input type="email" placeholder="Your Email">
+      <input type="text" placeholder="Preferred Date & Time">
+      <button>Book Meeting</button>
+    </div>
+  </div>
 
-    function updateUI() {
-      const user = dashboardData.user;
-      document.getElementById('welcomeHeader').textContent = `Welcome, ${user.name}`;
-      
-      // Stats
-      const stats = dashboardData.stats;
-      document.getElementById('schoolsCount').textContent = stats.schoolsCount;
-      document.getElementById('journalCount').textContent = stats.journalCount;
-      
-      document.getElementById('statsGrid').innerHTML = `
-        <div class="stat">Schools<br>${stats.schoolsCount}</div>
-        <div class="stat">Prayers<br>${stats.totalPrayers}</div>
-        <div class="stat">Journals<br>${stats.journalCount}</div>
-        <div class="stat">Days<br>${stats.daysActive}</div>
-      `;
+  <!-- COLUMN 3 -->
+  <div class="col">
+    <div class="card overview">
+      <h2>Overview</h2>
+      <ul>
+        <li>Total Universities adopted: 5</li>
+        <li>Upcoming Meetings...</li>
+      </ul>
+    </div>
 
-      // Adopted Schools
-      const schoolsList = document.getElementById('adoptedSchools');
-      if (stats.schoolsCount === 0) {
-        schoolsList.innerHTML = '<p style="color:#666">No schools adopted yet. <a href="map.html">Adopt now!</a></p>';
-      } else {
-        schoolsList.innerHTML = dashboardData.adoptions.map(school => `
-          <div class="school-item">
-            <div>
-              <strong>${school.name}</strong><br>
-              <small>${school.address}</small>
-            </div>
-            <div>
-              🙏 ${school.prayerCount}<br>
-              📝 ${school.journalEntries}
-            </div>
-          </div>
-        `).join('');
-      }
+    <div class="card adopted">
+      <h2>Adopted Universities</h2>
+      <ol>
+        <li>Uni 1</li>
+        <li>Uni 2</li>
+        <li>Uni 3</li>
+      </ol>
+    </div>
 
-      // Recent Journals
-      const journalsDiv = document.getElementById('recentJournals');
-      if (stats.journalCount === 0) {
-        journalsDiv.innerHTML = '<p style="color:#666">No journal entries yet</p>';
-      } else {
-        journalsDiv.innerHTML = dashboardData.recentJournals.slice(0, 3).map(j => `
-          <div style="margin-bottom: 10px; padding: 8px; background: #f9f9f9; border-radius: 4px;">
-            <small>${new Date(j.date).toLocaleDateString()}</small><br>
-            <em>${j.schoolId ? `For ${j.schoolId.name}` : 'General'}</em><br>
-            ${j.entryText.substring(0, 100)}${j.entryText.length > 100 ? '...' : ''}
-          </div>
-        `).join('');
-      }
-    }
+    <div class="card prayer">
+      <h2>Prayer Journal</h2>
+      <textarea placeholder="prayer request reminder..."></textarea>
+    </div>
 
-    // Save Journal
-    async function saveJournal() {
-      const text = document.getElementById('journalText').value.trim();
-      if (!text) return showMessage('journalMessage', 'Please write something', 'error');
+    <a href="#" class="card-link">Become a Partner</a>
+    <a href="#" class="card-link">Join a Prayer Group</a>
+  </div>
 
-      try {
-        const selectedSchoolId = dashboardData.adoptions[0]?.id || null;
-        await createJournalEntry(text, selectedSchoolId);
-        showMessage('journalMessage', 'Prayer saved! 🙏', 'success');
-        document.getElementById('journalText').value = '';
-        await loadDashboard(); // Refresh
-      } catch (error) {
-        showMessage('journalMessage', 'Failed to save: ' + error.message, 'error');
-      }
-    }
+  <!-- COLUMN 4 -->
+  <div class="col">
+    <div class="profile">
+      <img src="profileicon.png" alt="profile">
+      <div class="name">{FULL NAME}</div>
+    </div>
 
-    // Book Meeting
-    async function bookMeeting() {
-      const email = document.getElementById('meetingEmail').value.trim();
-      const time = document.getElementById('meetingTime').value.trim();
-      
-      if (!email || !time) {
-        return showMessage('meetingMessage', 'Please fill both fields', 'error');
-      }
+    <div class="card contact">
+      <h2>Contact</h2>
+      <p>England, UK<br>johndon@gmail.com<br>0756637384</p>
+    </div>
 
-      try {
-        await fetch('http://localhost:5000/api/contact', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: getCurrentUser().name,
-            email,
-            message: `Meeting request for: ${time}`,
-            type: 'meeting'
-          })
-        });
-        showMessage('meetingMessage', 'Meeting booked! We\'ll contact you soon.', 'success');
-        document.getElementById('meetingEmail').value = '';
-        document.getElementById('meetingTime').value = '';
-      } catch (error) {
-        showMessage('meetingMessage', 'Booking failed', 'error');
-      }
-    }
+    <div class="card quicklinks">
+      <h2>Quick Links</h2>
+      <ul>
+        <li><a href="map.html">MAP</a></li>
+        <li><a href="about.html">ABOUT CRM</a></li>
+        <li><a href="adoptuni.html">ADOPT A UNI</a></li>
+        <li><a href="adoptchurch.html">ADOPT A CHURCH</a></li>
+        <li><a href="contact.html">CONTACT CRM</a></li>
+        <li><a href="join.html">JOIN THE TEAM</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
 
-    // Join Prayer Cell
-    async function joinPrayerCell() {
-      try {
-        await fetch('http://localhost:5000/api/prayer-cell', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: getCurrentUser().name,
-            email: getCurrentUser().email
-          })
-        });
-        showMessage('cellMessage', 'Welcome to Prayer Cell! Check your email.', 'success');
-      } catch (error) {
-        showMessage('cellMessage', 'Join failed', 'error');
-      }
-    }
+<script>
+  // Load header
+  fetch('header.html')
+    .then(r => r.text())
+    .then(h => document.getElementById('header-placeholder').innerHTML = h);
 
-    function showMessage(id, text, type) {
-      const el = document.getElementById(id);
-      el.textContent = text;
-      el.className = type;
-      setTimeout(() => el.textContent = '', 3000);
-    }
+  // Clock
+  function updateClock(){
+    const now = new Date();
+    document.getElementById('clock').textContent =
+      now.toLocaleString('en-GB',{hour:'2-digit',minute:'2-digit',hour12:false});
+  }
+  updateClock();
+  setInterval(updateClock,1000);
 
-    // Clock
-    function updateClock() {
-      document.getElementById('clock').textContent = new Date().toLocaleString();
-    }
-    setInterval(updateClock, 1000);
-
-    // Logout
-    window.addEventListener('beforeunload', () => {
-      if (confirm('Logout?')) logout();
-    });
-  </script>
+  // Dark/Light Mode Toggle
+  function toggleMode(){
+    document.body.classList.toggle('light-mode');
+  }
+</script>
 </body>
 </html>

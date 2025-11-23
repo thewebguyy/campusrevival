@@ -4,56 +4,98 @@
   <meta charset="UTF-8" />
   <title>View Submitted Schools/Universities</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 40px;
-      max-width: 1000px;
-      margin: auto;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 30px;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 10px;
-      vertical-align: top;
-    }
-    th {
-      background-color: #f2f2f2;
-    }
-    button {
-      margin-right: 5px;
-      padding: 6px 10px;
-      background-color: #6a00ff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #5700d4;
-    }
-    .delete-btn {
-      background-color: #c70000;
-    }
-    .delete-btn:hover {
-      background-color: #a00000;
-    }
-    textarea {
-      width: 100%;
-      resize: vertical;
-    }
-  </style>
+  body {
+    font-family: Arial, sans-serif;
+    padding: 40px;
+    max-width: 1000px;
+    margin: auto;
+    background-color: #000; /* Black background */
+    color: #fff; /* White text */
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+    background-color: #fff; /* Table background white */
+    color: #000; /* Table text black */
+  }
+
+  th, td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    vertical-align: top;
+  }
+
+  th {
+    background-color: #f2f2f2; /* Header light gray */
+    color: #000; /* Header text black */
+  }
+
+  button {
+    margin-right: 5px;
+    padding: 6px 10px;
+    background-color: #6a00ff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background-color: #5700d4;
+  }
+
+  .delete-btn {
+    background-color: #c70000;
+  }
+
+  .delete-btn:hover {
+    background-color: #a00000;
+  }
+
+  textarea {
+    width: 100%;
+    resize: vertical;
+  }
+
+  h1 {
+    color: #fff; /* Page heading white */
+  }
+
+  caption {
+    color: #000; /* Table caption black */
+  }
+</style>
+
 </head>
 <body>
+  
+   <!-- ===== HEADER PLACEHOLDER ===== -->
+  <div id="header-placeholder"></div>
 
   <h1>Submitted Schools and Universities</h1>
   <div id="tableContainer"></div>
   <button onclick="window.location.href='form.html'">Back to Form</button>
 
   <script>
+    // ===== FETCH HEADER =====
+    fetch('header.html')
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById('header-placeholder').innerHTML = html;
+
+        // Hamburger menu functionality
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('nav-menu');
+        if(hamburger && navMenu){
+          hamburger.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            hamburger.classList.toggle('open');
+          });
+        }
+      })
+      .catch(err => console.error('Error loading header:', err));
     const cityChildren = JSON.parse(localStorage.getItem('cityChildren')) || {};
 
     const tableContainer = document.getElementById('tableContainer');
@@ -77,16 +119,6 @@
         thead.innerHTML = `
           <tr>
             <th>Name</th>
-            <th>Programs</th>
-            <th>Accreditation</th>
-            <th>Tuition</th>
-            <th>Scholarships</th>
-            <th>Facilities</th>
-            <th>Diversity</th>
-            <th>Employment</th>
-            <th>Admission Rate</th>
-            <th>Visa Support</th>
-            <th>Language Requirements</th>
             <th>Actions</th>
           </tr>
         `;
@@ -99,16 +131,7 @@
 
           row.innerHTML = `
             <td contenteditable="true">${school.name}</td>
-            <td contenteditable="true">${school.programs}</td>
-            <td contenteditable="true">${school.accreditation}</td>
-            <td contenteditable="true">${school.tuition}</td>
-            <td contenteditable="true">${school.scholarships}</td>
-            <td contenteditable="true">${school.facilities}</td>
-            <td contenteditable="true">${school.diversity}</td>
-            <td contenteditable="true">${school.employment}</td>
-            <td contenteditable="true">${school.admissionRate}</td>
-            <td contenteditable="true">${school.visaSupport}</td>
-            <td contenteditable="true">${school.languageReq}</td>
+        
             <td>
               <button onclick="saveEdit('${city}', ${index}, this)">Save</button>
               <button class="delete-btn" onclick="deleteEntry('${city}', ${index})">Delete</button>

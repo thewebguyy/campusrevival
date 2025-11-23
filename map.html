@@ -26,7 +26,7 @@
       padding: 60px 20px;
     }
     .hero h1 {
-      font-family: "Baskerville Old Face" ;
+      font-family: "Baskerville Old Face";
       font-size: 2rem;
       margin-bottom: 20px;
       color: #ffffff;
@@ -56,35 +56,29 @@
       margin-bottom: 15px;
       color: #fff;
     }
-.school-card h3 {
-  margin-bottom: 8px;
-  font-size: 1.1rem;
-  color: #ffffff;
-}
-
-.school-card p {
-  margin: 4px 0;
-  font-size: 0.95rem;
-  color: #ccc;
-}
-
-.school-card a {
-  display: block;           /* makes each button occupy a full line */
-  color: #ffffff;
-  padding: 8px 12px;
-  border-radius: 3px;
-  font-size: 0.9rem;
-  margin: 5px 0;            /* adds space between buttons */
-  text-align: center;       /* optional: center the text inside button */
-  background-color: #333;   /* optional: gives button a background */
-  text-decoration: none;    /* remove underline */
-  transition: background 0.3s ease;
-}
-
-.school-card a:hover {
-  background-color: #555;   /* hover effect for better UX */
-}
-
+    .school-card h3 {
+      margin-bottom: 8px;
+      font-size: 1.1rem;
+      color: #ffffff;
+    }
+    .school-card p {
+      margin: 4px 0;
+      font-size: 0.95rem;
+      color: #ccc;
+    }
+    .school-card a {
+      display: block;
+      color: #ffffff;
+      padding: 8px 12px;
+      border-radius: 3px;
+      font-size: 0.9rem;
+      margin: 5px 0;
+      text-align: center;
+      background-color: #333;
+      text-decoration: none;
+      transition: background 0.3s ease;
+    }
+    .school-card a:hover { background-color: #555; }
 
     /* ===== Side Panel ===== */
     #side-panel {
@@ -156,101 +150,130 @@
 
   <!-- ===== SCRIPTS ===== -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script>
-    // ===== FETCH HEADER =====
-    fetch('header.html')
-      .then(response => response.text())
-      .then(html => {
-        document.getElementById('header-placeholder').innerHTML = html;
+<script>
+// ===== FETCH HEADER =====
+fetch('header.html')
+  .then(response => response.text())
+  .then(html => {
+    document.getElementById('header-placeholder').innerHTML = html;
 
-        // Hamburger menu functionality
-        const hamburger = document.getElementById('hamburger');
-        const navMenu = document.getElementById('nav-menu');
-        if(hamburger && navMenu){
-          hamburger.addEventListener('click', () => {
-            navMenu.classList.toggle('active');
-            hamburger.classList.toggle('open');
-          });
-        }
-      })
-      .catch(err => console.error('Error loading header:', err));
-
-    // ===== MAP & SIDE PANEL LOGIC =====
-    const schoolsByCity = {
-      "Leeds": [
-        {id:"l1",name:"Leeds University",address:"Woodhouse Ln"},
-        {id:"l2",name:"Leeds College",address:"City Rd"}
-      ],
-      "London": [
-        {id:"ld1",name:"Imperial College",address:"South Kensington"},
-        {id:"ld2",name:"London School of Economics",address:"Houghton St"}
-      ],
-      "Manchester": [
-        {id:"m1",name:"Manchester University",address:"Oxford Rd"}
-      ]
-    };
-
-    function initMap(){
-      const map = L.map('map').setView([54, -2], 6);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-        maxZoom:18, attribution:'© OpenStreetMap contributors'
-      }).addTo(map);
-
-      for(const city in schoolsByCity){
-        const coords = getCityCoords(city);
-        const marker = L.marker(coords).addTo(map);
-        marker.bindPopup(`<b>${city}</b><br>${schoolsByCity[city].length} schools/universities<br>
-          <a href="#" onclick="openCityPanel('${city}')">View Schools</a>`);
-      }
-
-      updateStats();
-    }
-
-    function getCityCoords(city){
-      const coords = { "Leeds":[53.8008,-1.5491], "London":[51.5074,-0.1278], "Manchester":[53.4808,-2.2426] };
-      return coords[city] || [54,-2];
-    }
-
-    function openCityPanel(city){
-      const schools = schoolsByCity[city];
-      let content='';
-      schools.forEach(s=>{
-        content+=`
-          <div class="school-card">
-            <h3>${s.name}</h3>
-            <p><strong>Address:</strong> ${s.address}</p>
-            <a href="read-more.html?school=${s.id}">Read More</a>
-            <a href="adopt-prayer.html?school=${s.id}">Adopt for Prayer</a>
-            <a href="adopt-revival.html?school=${s.id}">Adopt for Revival</a>
-          </div>
-        `;
+    const hamburger = document.getElementById('hamburger');
+    const navMenu = document.getElementById('nav-menu');
+    if (hamburger && navMenu) {
+      hamburger.addEventListener('click', () => {
+        navMenu.classList.toggle('active');
+        hamburger.classList.toggle('open');
       });
-      document.getElementById('panel-title').textContent = city;
-      document.getElementById('panel-content').innerHTML = content;
-      const panel = document.getElementById('side-panel');
-      panel.classList.add('active');
-      panel.setAttribute('aria-hidden','false');
     }
+  })
+  .catch(err => console.error('Error loading header:', err));
 
-    function closePanel(){
-      const panel = document.getElementById('side-panel');
-      panel.classList.remove('active');
-      panel.setAttribute('aria-hidden','true');
-    }
+// ===== INITIAL DATA =====
+let schoolsByCity = {};
 
-    function updateStats(){
-      const allSchools = Object.values(schoolsByCity).flat();
-      document.getElementById('totalSchools').textContent = allSchools.length;
-      document.getElementById('adoptedCount').textContent = 0;
-    }
+// ===== LOAD SCHOOLS FROM LOCALSTORAGE =====
+const savedSchools = localStorage.getItem('cityChildren');
+if (savedSchools) {
+  const parsed = JSON.parse(savedSchools);
+  for (const city in parsed) {
+    schoolsByCity[city] = parsed[city];
+  }
+}
 
-    document.addEventListener('keydown', e => { if(e.key==='Escape') closePanel(); });
-    document.addEventListener('click', e => {
-      const panel = document.getElementById('side-panel');
-      if(panel.classList.contains('active') && !panel.contains(e.target) && !e.target.closest('.leaflet-popup')) closePanel();
+// ===== MAP LOGIC =====
+function initMap() {
+  const map = L.map('map').setView([54, -2], 6);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+
+  // Add markers for each city
+  for (const city in schoolsByCity) {
+    const coords = getCityCoords(city);
+    const marker = L.marker(coords).addTo(map);
+
+    marker.bindPopup(`
+      <b>${city}</b><br>
+      ${schoolsByCity[city].length} schools/universities<br>
+      <a href="#" onclick="openCityPanel('${city}')">View Schools</a>
+    `);
+  }
+
+  updateStats();
+}
+
+// ===== STATIC COORDS (FALLBACK FOR CITY PINS) =====
+function getCityCoords(city) {
+  const coords = {
+    "London": [51.5074, -0.1278],
+    "Oxford": [51.7520, -1.2577],
+    "Cambridge": [52.2053, 0.1218],
+    "Manchester": [53.4808, -2.2426],
+    "Birmingham": [52.4862, -1.8904],
+    "Leeds": [53.8008, -1.5491],
+    "Edinburgh": [55.9533, -3.1883],
+    "Glasgow": [55.8642, -4.2518],
+    "Belfast": [54.5973, -5.9301],
+    "Cardiff": [51.4816, -3.1791]
+  };
+  return coords[city] || [54, -2];
+}
+
+// ===== SIDE PANEL FUNCTIONS =====
+function openCityPanel(city) {
+  const schools = schoolsByCity[city];
+  let content = '';
+
+  if (!schools || schools.length === 0) {
+    content = `<p>No schools found for ${city}.</p>`;
+  } else {
+    schools.forEach((s, i) => {
+      content += `
+        <div class="school-card">
+          <h3>${s.name || 'Unnamed Institution'}</h3>
+          <p><strong>Address:</strong> ${s.address || 'N/A'}</p>
+          <a href="read-more.html?city=${encodeURIComponent(city)}&index=${i}">Read More</a>
+          <a href="adopt-prayer.html?city=${encodeURIComponent(city)}&index=${i}">Adopt for Prayer</a>
+          <a href="adopt-revival.html?city=${encodeURIComponent(city)}&index=${i}">Adopt for Revival</a>
+        </div>
+      `;
     });
+  }
 
-    window.addEventListener('load', initMap);
-  </script>
+  document.getElementById('panel-title').textContent = city;
+  document.getElementById('panel-content').innerHTML = content;
+  const panel = document.getElementById('side-panel');
+  panel.classList.add('active');
+  panel.setAttribute('aria-hidden', 'false');
+}
+
+function closePanel() {
+  const panel = document.getElementById('side-panel');
+  panel.classList.remove('active');
+  panel.setAttribute('aria-hidden', 'true');
+}
+
+// ===== UPDATE STATS =====
+function updateStats() {
+  const allSchools = Object.values(schoolsByCity).flat();
+  document.getElementById('totalSchools').textContent = allSchools.length;
+  document.getElementById('adoptedCount').textContent = 0;
+}
+
+// ===== CLOSE PANEL ON ESCAPE OR OUTSIDE CLICK =====
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
+document.addEventListener('click', e => {
+  const panel = document.getElementById('side-panel');
+  if (panel.classList.contains('active') && !panel.contains(e.target) && !e.target.closest('.leaflet-popup')) {
+    closePanel();
+  }
+});
+
+// ===== INIT MAP =====
+window.addEventListener('load', initMap);
+</script>
+
 </body>
 </html>

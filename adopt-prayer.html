@@ -13,15 +13,10 @@
     }
 
     header {
-      background-color: #012169;
+      background-color: #000;
       color: #fff;
-      padding: 30px;
       text-align: center;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 2rem;
+      padding: 25px;
     }
 
     main {
@@ -33,118 +28,38 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
-    main h2 {
-      color: #012169;
-      margin-bottom: 10px;
-    }
-
-    main p {
-      line-height: 1.6;
-      margin-bottom: 20px;
-    }
-
     .school-highlight {
       background: #f0f6ff;
-      border-left: 4px solid #012169;
+      border-left: 4px solid #000;
       padding: 15px 20px;
-      margin-bottom: 25px;
       border-radius: 6px;
+      margin-bottom: 25px;
+    }
+
+    .school-image {
+      width: 100%;
+      max-height: 250px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 15px;
     }
 
     .choice-buttons {
       display: flex;
       gap: 20px;
       flex-wrap: wrap;
-      margin-bottom: 30px;
     }
-
     .choice-buttons button {
       flex: 1;
       min-width: 150px;
       padding: 12px;
-      font-size: 1rem;
-      background: #012169;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .choice-buttons button:hover {
       background: #000;
-    }
-
-    .choice-buttons button:disabled {
-      background: #888;
-      cursor: not-allowed;
-    }
-
-    /* Modal */
-    .modal {
-  display: none;  /* Keep this ONLY */
-  position: fixed;
-  z-index: 1000;
-  left: 0; top: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.6);
-  justify-content: center;
-  align-items: center;
-}
-
-
-    .modal-content {
-      background: #fff;
-      padding: 30px;
-      border-radius: 10px;
-      width: 90%;
-      max-width: 500px;
-      position: relative;
-      animation: fadeIn 0.3s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
-    }
-
-    .modal-content h3 {
-      margin-top: 0;
-      color: #012169;
-    }
-
-    .modal-content input,
-    .modal-content select,
-    .modal-content button {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 15px;
-      font-size: 1rem;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-
-    .modal-content button {
-      background: #012169;
       color: #fff;
       border: none;
+      border-radius: 6px;
       cursor: pointer;
     }
-
-    .modal-content button:hover {
-      background: #000;
-    }
-
-    .close {
-      position: absolute;
-      right: 15px; top: 10px;
-      font-size: 1.4rem;
-      font-weight: bold;
-      cursor: pointer;
-      color: #aaa;
-    }
-
-    .close:hover { color: #000; }
+    .choice-buttons button:hover { background: #333; }
 
     .back-button {
       display: inline-block;
@@ -154,58 +69,66 @@
       color: #333;
       border-radius: 6px;
       text-decoration: none;
-      font-size: 0.95rem;
       cursor: pointer;
     }
 
-    .back-button:hover {
-      background: #ddd;
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 500px;
+    }
+    .close {
+      position: absolute;
+      right: 20px; top: 10px;
+      cursor: pointer;
+      font-size: 20px;
     }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>Adopt a School for Prayer</h1>
+    <h1>Adopt A School For Prayer</h1>
   </header>
 
   <main>
+    <img id="schoolImage" class="school-image" src="" alt="School Image" />
     <div class="school-highlight">
       <h2 id="schoolName">Loading School...</h2>
       <p id="schoolLocation"></p>
+      <p id="adopterCount"></p>
     </div>
-
-    <p id="instructions">
-      By adopting this school for prayer, you commit to interceding regularly for spiritual renewal, 
-      student transformation, and open doors for the Gospel.  
-      Choose whether you’re adopting as an individual or with a group.
-    </p>
 
     <div class="choice-buttons">
-      <button id="btnIndividual" onclick="openModal('individual')">Individual</button>
-      <button id="btnGroup" onclick="openModal('group')">Group</button>
+      <button onclick="openModal('individual')">Adopt as Individual</button>
+      <button onclick="openModal('group')">Adopt as Group</button>
     </div>
 
-    <a class="back-button" onclick="window.location.href='map.html'">← Back to Map</a>
+    <a class="back-button" href="map.html">← Back to Map</a>
   </main>
 
   <!-- Modal -->
   <div id="registrationModal" class="modal">
     <div class="modal-content">
-      <span class="close" onclick="closeModal()">&times;</span>
+      <span class="close" onclick="closeModal()">×</span>
       <h3 id="modalTitle">Register</h3>
       <form id="registrationForm">
-        <input type="text" id="fullName" placeholder="Full Name" required>
-        <input type="email" id="email" placeholder="Email" required>
-        <input type="date" id="dob" required>
-        <select id="referral" required>
-          <option value="">How did you hear about us?</option>
-          <option value="social">Social Media</option>
-          <option value="church">Church</option>
-          <option value="friend">Friend</option>
-          <option value="event">Event</option>
-        </select>
-        <button type="submit">Register</button>
+        <input type="text" id="fullName" placeholder="Full Name" required />
+        <input type="email" id="email" placeholder="Email" required />
+        <input type="date" id="dob" required />
+        <button type="submit">Submit</button>
       </form>
     </div>
   </div>
@@ -213,67 +136,48 @@
   <script>
     function getQueryParams() {
       const params = {};
-      const queryString = window.location.search.substring(1);
-      const pairs = queryString.split('&');
-      for (let pair of pairs) {
-        const [key, value] = pair.split('=');
-        if (key) params[decodeURIComponent(key)] = decodeURIComponent(value || '');
-      }
+      window.location.search.substring(1).split("&").forEach(p => {
+        const [key, val] = p.split("=");
+        params[decodeURIComponent(key)] = decodeURIComponent(val || "");
+      });
       return params;
     }
 
     const { city, index } = getQueryParams();
-    const data = JSON.parse(localStorage.getItem('cityChildren')) || {};
-    const schoolList = data[city] || [];
+    const allCities = JSON.parse(localStorage.getItem("schoolsByCity")) || {};
+    const schoolList = allCities[city] || [];
     const school = schoolList[parseInt(index)];
 
     if (school) {
-      document.getElementById('schoolName').textContent = school.name || "Unnamed School";
-      document.getElementById('schoolLocation').textContent = `Location: ${city}`;
+      document.getElementById("schoolName").textContent = school.name;
+      document.getElementById("schoolLocation").textContent = `Location: ${city}`;
+      document.getElementById("adopterCount").textContent = `${school.name} currently has ${school.adopters || 0} adopters.`;
+      document.getElementById("schoolImage").src = school.image ? school.image : "https://via.placeholder.com/800x250?text=No+Image+Available";
     } else {
-      document.getElementById('schoolName').textContent = "School Not Found";
-      document.getElementById('schoolLocation').textContent = "";
-      document.getElementById('instructions').style.display = "none";
-      document.getElementById('btnIndividual').disabled = true;
-      document.getElementById('btnGroup').disabled = true;
+      document.getElementById("schoolName").textContent = "School Not Found";
     }
 
     function openModal(type) {
-      const title = type === 'individual' ? "Register as Individual" : "Register as Group";
-      document.getElementById('modalTitle').textContent = title;
-      document.getElementById('registrationModal').style.display = 'flex';
+      document.getElementById("modalTitle").textContent = type === "individual" ? "Register as Individual" : "Register as Group";
+      document.getElementById("registrationModal").style.display = "flex";
     }
-
     function closeModal() {
-      document.getElementById('registrationModal').style.display = 'none';
+      document.getElementById("registrationModal").style.display = "none";
     }
 
-    window.onclick = function(event) {
-      if (event.target.id === 'registrationModal') {
-        closeModal();
-      }
-    }
-
-    function calculateAge(dobString) {
-      const dob = new Date(dobString);
-      const diff = Date.now() - dob.getTime();
-      const ageDate = new Date(diff); 
-      return Math.abs(ageDate.getUTCFullYear() - 1970);
-    }
-
-    document.getElementById('registrationForm').addEventListener('submit', function(e) {
+    document.getElementById("registrationForm").addEventListener("submit", function(e) {
       e.preventDefault();
-      const fullName = document.getElementById('fullName').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const dob = document.getElementById('dob').value;
+      const dob = new Date(document.getElementById("dob").value);
+      const age = new Date().getFullYear() - dob.getFullYear();
+      if (age < 18) return alert("You must be at least 18 years old.");
 
-      if (calculateAge(dob) < 18) {
-        alert("You must be at least 18 years old to register.");
-        return;
-      }
+      // Increment adopters and save
+      school.adopters = (school.adopters || 0) + 1;
+      allCities[city][index] = school;
+      localStorage.setItem("schoolsByCity", JSON.stringify(allCities));
 
-      alert(`Prayer adoption successful for ${school?.name || 'selected school'}!`);
-      window.location.href = "dashboard.html";
+      alert(`Prayer adoption successful for ${school.name}!`);
+      window.location.href = "map.html";
     });
   </script>
 </body>
