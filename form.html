@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     :root {
-      --primary: #012169;
+      --primary: #000000;
       --text: #000000;
       --bg: #ffffff;
       --gray: #f5f5f5;
@@ -166,11 +166,10 @@
 </head>
 <body>
 
+  <div id="header-placeholder"></div>
+
   <header>
     <h1>Admin Dashboard – Add School/University</h1>
-    <div class="user-info">
-      <span id="userName">Loading...</span>
-      <button class="logout-btn" onclick="logout()">Logout</button>
     </div>
   </header>
 
@@ -181,14 +180,9 @@
         <label for="name">School / University Name *:</label>
         <input type="text" id="name" required />
 
-        <label for="lat">Latitude *:</label>
-        <input type="number" id="lat" step="any" placeholder="51.5074" required />
+        <label for="address">Address *:</label>
+<input type="text" id="address" placeholder="123 University Road" required />
 
-        <label for="lng">Longitude *:</label>
-        <input type="number" id="lng" step="any" placeholder="-0.1278" required />
-
-        <label for="address">Full Address *:</label>
-        <input type="text" id="address" required />
 
         <label for="city">City:</label>
         <select id="city">
@@ -226,25 +220,21 @@
           <option value="Bradford">Bradford</option>
         </select>
 
+        <label for="lat">Latitude *:</label>
+        <input type="number" id="lat" step="any" placeholder="51.5074" required />
+
+        <label for="lng">Longitude *:</label>
+        <input type="number" id="lng" step="any" placeholder="-0.1278" required />
+
+        <label for="image">Upload School Image *:</label>
+<input type="file" id="image" accept="image/*" required />
+
+<label for="website">University Website Link *:</label>
+<input type="url" id="website" placeholder="https://example.edu" required />
+
+
         <label for="description">About *:</label>
         <textarea id="description" required placeholder="Description of the school..."></textarea>
-
-        <label for="accreditation">Accreditation & Ranking:</label>
-        <textarea id="accreditation"></textarea>
-
-        <label for="scholarships">Scholarships Available:</label>
-        <select id="scholarships">
-          <option value="">-- Select --</option>
-          <option value="yes">Yes</option>
-          <option value="no">No</option>
-        </select>
-
-        <label for="visaSupport">Visa Support:</label>
-        <select id="visaSupport">
-          <option value="">-- Select --</option>
-          <option value="yes">Yes</option>
-          <option value="no">No</option>
-        </select>
 
         <div class="full-width">
           <button type="submit" id="submitBtn">Add to Map</button>
@@ -260,104 +250,179 @@
     </div>
   </main>
 
-  <!-- API HELPERS -->
-  <script src="utils/api.js"></script>
   <script>
-    let currentUser = null;
+// ===============================
+// CITY → LAT/LNG AUTO-FILL MAP
+// ===============================
+const cityCoordinates = {
+  "London": { lat: 51.5074, lng: -0.1278 },
+  "Oxford": { lat: 51.7520, lng: -1.2577 },
+  "Cambridge": { lat: 52.2053, lng: 0.1218 },
+  "Manchester": { lat: 53.4808, lng: -2.2426 },
+  "Birmingham": { lat: 52.4862, lng: -1.8904 },
+  "Glasgow": { lat: 55.8642, lng: -4.2518 },
+  "St Andrews": { lat: 56.3398, lng: -2.7967 },
+  "Edinburgh": { lat: 55.9533, lng: -3.1883 },
+  "Liverpool": { lat: 53.4084, lng: -2.9916 },
+  "Bristol": { lat: 51.4545, lng: -2.5879 },
+  "Leeds": { lat: 53.8008, lng: -1.5491 },
+  "Sheffield": { lat: 53.3811, lng: -1.4701 },
+  "Newcastle": { lat: 54.9784, lng: -1.6174 },
+  "Nottingham": { lat: 52.9548, lng: -1.1581 },
+  "Southampton": { lat: 50.9097, lng: -1.4044 },
+  "Portsmouth": { lat: 50.8198, lng: -1.0880 },
+  "Brighton": { lat: 50.8225, lng: -0.1372 },
+  "Plymouth": { lat: 50.3755, lng: -4.1427 },
+  "Cardiff": { lat: 51.4816, lng: -3.1791 },
+  "Bangor": { lat: 53.2270, lng: -4.1294 },
+  "Aberystwyth": { lat: 52.4153, lng: -4.0829 },
+  "Belfast": { lat: 54.5973, lng: -5.9301 },
+  "Coventry": { lat: 52.4068, lng: -1.5197 },
+  "Hull": { lat: 53.7676, lng: -0.3274 },
+  "Dundee": { lat: 56.4620, lng: -2.9707 },
+  "Aberdeen": { lat: 57.1497, lng: -2.0943 },
+  "Inverness": { lat: 57.4778, lng: -4.2247 },
+  "Swansea": { lat: 51.6214, lng: -3.9436 },
+  "Reading": { lat: 51.4543, lng: -0.9781 },
+  "Leicester": { lat: 52.6369, lng: -1.1398 },
+  "Bradford": { lat: 53.7950, lng: -1.7594 }
+};
 
-    // Load on page start
-    window.addEventListener('load', async () => {
-      if (!isLoggedIn()) {
-        window.location.href = '/login.html';
-        return;
-      }
-      
-      try {
-        const data = await protectedFetch('http://localhost:5000/api/me');
-        currentUser = data.user;
-        
-        if (currentUser.role !== 'admin') {
-          alert('Admin access required!');
-          window.location.href = '/dashboard.html';
-          return;
-        }
-        
-        document.getElementById('userName').textContent = currentUser.name;
-      } catch (error) {
-        alert('Admin login required');
-        window.location.href = '/login.html';
-      }
-      
-      setupForm();
-    });
-
-    function setupForm() {
-      const form = document.getElementById('schoolForm');
-      const message = document.getElementById('message');
-      const submitBtn = document.getElementById('submitBtn');
-      const loading = document.getElementById('loading');
-
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const formData = {
-          name: document.getElementById('name').value.trim(),
-          lat: parseFloat(document.getElementById('lat').value),
-          lng: parseFloat(document.getElementById('lng').value),
-          address: document.getElementById('address').value.trim(),
-          description: document.getElementById('description').value.trim(),
-          accreditation: document.getElementById('accreditation').value,
-          scholarships: document.getElementById('scholarships').value,
-          visaSupport: document.getElementById('visaSupport').value,
-          city: document.getElementById('city').value
-        };
-
-        // Validation
-        if (!formData.name || !formData.lat || !formData.lng || !formData.address || !formData.description) {
-          showMessage('Please fill all required fields', 'error');
-          return;
-        }
-
-        if (formData.lat < -90 || formData.lat > 90 || formData.lng < -180 || formData.lng > 180) {
-          showMessage('Invalid coordinates', 'error');
-          return;
-        }
-
-        // Submit
-        submitBtn.disabled = true;
-        loading.style.display = 'block';
-
-        try {
-          const response = await protectedFetch('http://localhost:5000/api/schools', {
-            method: 'POST',
-            body: JSON.stringify(formData)
-          });
-
-          showMessage(`✅ "${formData.name}" added to map!`, 'success');
-          form.reset();
-        } catch (error) {
-          showMessage('❌ Failed to add school: ' + error.message, 'error');
-        } finally {
-          submitBtn.disabled = false;
-          loading.style.display = 'none';
-        }
+// ===============================
+// HEADER LOAD (OPTIONAL)
+// ===============================
+fetch('header.html')
+  .then(res => res.text())
+  .then(html => {
+    document.getElementById('header-placeholder').innerHTML = html;
+    const hamburger = document.getElementById('hamburger');
+    const navMenu = document.getElementById('nav-menu');
+    if (hamburger && navMenu) {
+      hamburger.addEventListener('click', () => {
+        navMenu.classList.toggle('active');
+        hamburger.classList.toggle('open');
       });
     }
+  })
+  .catch(err => console.error('Error loading header:', err));
 
-    function showMessage(text, type) {
-      const message = document.getElementById('message');
-      message.textContent = text;
-      message.className = type;
-      message.style.display = 'block';
-      setTimeout(() => {
-        message.style.display = 'none';
-      }, 5000);
+// ===============================
+// MAIN FORM SETUP
+// ===============================
+function setupForm() {
+  const form = document.getElementById("schoolForm");
+  const citySelect = document.getElementById("city");
+  const latInput = document.getElementById("lat");
+  const lngInput = document.getElementById("lng");
+  const submitBtn = document.getElementById("submitBtn");
+  const loading = document.getElementById("loading");
+  const message = document.getElementById("message");
+
+  // --- Auto-fill lat/lng when city changes (set once)
+  citySelect.addEventListener('change', () => {
+    const selected = citySelect.value;
+    if (cityCoordinates[selected]) {
+      latInput.value = cityCoordinates[selected].lat;
+      lngInput.value = cityCoordinates[selected].lng;
+    } else {
+      latInput.value = '';
+      lngInput.value = '';
+    }
+  });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    // Collect form values correctly with trimmed strings
+    const name = document.getElementById("name").value.trim();
+    const city = citySelect.value;
+    const address = document.getElementById("address").value.trim();
+    const website = document.getElementById("website").value.trim();
+    const lat = parseFloat(latInput.value);
+    const lng = parseFloat(lngInput.value);
+    const description = document.getElementById("description").value.trim();
+    const imageInput = document.getElementById("image");
+    const imageFile = imageInput.files[0];
+
+    // Validation
+    if (!name || !city || !address || !description || isNaN(lat) || isNaN(lng) || !website || !imageFile) {
+      showMessage('⚠️ Please fill in all required fields.', 'error');
+      return;
     }
 
-    async function logout() {
-      await logout();
-      window.location.href = '/index.html';
+    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      showMessage('Invalid coordinates.', 'error');
+      return;
     }
-  </script>
+
+    submitBtn.disabled = true;
+    loading.style.display = 'block';
+
+    try {
+      // Convert image file to Base64 string
+      const imageBase64 = await toBase64(imageFile);
+
+      const schoolData = {
+        name,
+        city,
+        address,
+        lat,
+        lng,
+        About: description,
+        website,
+        image: imageBase64,
+        JoinedCRMProgram: new Date().toISOString()
+      };
+
+      // Save data grouped by city in localStorage
+      const cityChildren = JSON.parse(localStorage.getItem('cityChildren')) || {};
+      if (!cityChildren[city]) cityChildren[city] = [];
+      cityChildren[city].push(schoolData);
+      localStorage.setItem('cityChildren', JSON.stringify(cityChildren));
+
+      showMessage(`✅ "${name}" added to map successfully!`, 'success');
+      form.reset();
+      latInput.value = '';
+      lngInput.value = '';
+    } catch (error) {
+      console.error(error);
+      showMessage('❌ Failed to add school: ' + error.message, 'error');
+    } finally {
+      submitBtn.disabled = false;
+      loading.style.display = 'none';
+    }
+  });
+}
+
+// ===============================
+// HELPER: Convert file → Base64
+// ===============================
+function toBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// ===============================
+// HELPER: Show success/error
+// ===============================
+function showMessage(text, type) {
+  const message = document.getElementById('message');
+  message.textContent = text;
+  message.className = type;
+  message.style.display = 'block';
+  setTimeout(() => { message.style.display = 'none'; }, 5000);
+}
+
+// ===============================
+// INIT
+// ===============================
+window.addEventListener('load', setupForm);
+</script>
+
+
 </body>
 </html>

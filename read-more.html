@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Institution Profile — Read More</title>
 
-  <!-- tasteful system / web font -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
   <style>
@@ -13,7 +12,7 @@
       --bg: #f6f8fb;
       --card: #ffffff;
       --muted: #6b7280;
-      --accent: #012169; /* original brand navy */
+      --accent: #012169;
       --accent-2: #6a00ff;
       --success: #012169;
       --danger: #012169;
@@ -96,7 +95,6 @@
       gap: 22px;
     }
 
-    /* Page header area inside the card */
     .profile-header {
       grid-column: 1 / -1;
       display:flex;
@@ -132,9 +130,6 @@
       font-size:1.35rem;
       font-weight:700;
       color:#0f1724;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
 
     .school-location {
@@ -162,7 +157,6 @@
       font-weight:600;
     }
 
-    /* left details */
     .details {
       background: linear-gradient(180deg, rgba(255,255,255,1), rgba(255,255,255,0.98));
       padding: 14px;
@@ -205,7 +199,6 @@
       border:1px solid #f1f5f9;
     }
 
-    /* right column */
     aside.panel {
       position:relative;
       top:0;
@@ -236,6 +229,7 @@
       color:#fff;
       font-size:0.95rem;
       width:100%;
+      text-decoration: none;
     }
     .btn.primary { background: var(--accent); }
     .btn.ghost { background: #f1f5f9; color: var(--accent); font-weight:700; border:1px solid #e6eefc; }
@@ -283,7 +277,6 @@
       font-weight:700;
     }
 
-    /* messages */
     .message {
       padding:18px;
       border-radius:8px;
@@ -292,99 +285,99 @@
       color:#374151;
     }
 
-    /* responsive */
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+    }
+
+    .error {
+      background: #ffe6e6;
+      color: #c70000;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px;
+    }
+
     @media (max-width: 880px) {
       main.card { grid-template-columns: 1fr; padding:14px; }
       aside.panel { order: 2; }
       .profile-header { align-items:flex-start; gap:12px; }
       .institution-crest { width:68px;height:68px;font-size:22px }
     }
-
   </style>
 </head>
 <body>
   <div class="shell" role="document">
     <header class="site-header" role="banner">
-      <div class="brand" aria-hidden="true">
-        <div class="logo" aria-hidden="true">UN</div>
+      <div class="brand">
+        <div class="logo">UN</div>
         <div>
           <div class="site-title">University Network</div>
           <div class="site-sub">Profiles • Prayer • Outreach</div>
         </div>
       </div>
 
-      <nav class="breadcrumbs" aria-label="Breadcrumb">
-        <span id="breadcrumb-map">Map</span> › <strong id="breadcrumb-city">City</strong> › <span id="breadcrumb-school">School</span>
+      <nav class="breadcrumbs">
+        <a href="map.html" style="color: var(--muted); text-decoration: none;">Map</a> › 
+        <strong id="breadcrumb-school">School</strong>
       </nav>
     </header>
 
-    <main class="card" role="main" aria-labelledby="school-name">
-      <!-- Header area -->
-      <div class="profile-header" role="region" aria-label="Institution summary">
-        
-        <div class="header-meta">
-          <div class="school-name" id="school-name">Loading…</div>
-          <div class="school-location small" id="school-location">Location</div>
-
-          <div class="tag-row" id="tag-row">
-            <!-- badges inserted dynamically -->
-          </div>
-
-          <div class="small" id="joined-info" style="margin-top:8px;color:var(--muted)"></div>
-        </div>
+    <main class="card" role="main">
+      <div id="loadingState" class="loading" style="grid-column: 1 / -1;">Loading school details...</div>
+      
+      <div id="errorState" class="error" style="grid-column: 1 / -1; display: none;">
+        <h3>Error Loading School</h3>
+        <p id="errorMessage"></p>
+        <a href="map.html" class="back-link">← Back to Map</a>
       </div>
 
-      <!-- Left: detailed info -->
-      <section class="details" aria-labelledby="details-heading">
-        <h3 id="details-heading">Institution Details</h3>
-
-        <p class="lead" id="lead-intro">Comprehensive information about this institution, pulled from the database.</p>
-
-        <div class="meta-list" id="meta-list">
-          <!-- meta items (dl) added here -->
-        </div>
-
-        <div class="about" id="about-section" aria-label="About this institution">
-          <h4 style="margin:0 0 8px 0;color:var(--accent);font-size:0.98rem;">About this institution</h4>
-          <p id="about-text" style="margin:0;color:#374151;"></p>
-        </div>
-      </section>
-
-      <!-- Right: actions & quick facts -->
-      <aside class="panel" aria-labelledby="actions-heading">
-        <h3 id="actions-heading" style="margin:0;color:var(--accent);">Next steps</h3>
-        <div class="small" style="margin-top:6px;">Get involved — select an action below</div>
-
-        <div class="cta" id="action-ctas">
-          <button class="btn primary" id="visit-site" style="display:none" aria-hidden="true">Visit Institution Website</button>
-          <button class="btn prayer" id="adopt-prayer">Adopt for Prayer</button>
-          <button class="btn revival" id="adopt-revival">Adopt for Revival</button>
-    
-        </div>
-
-        <div style="margin-top:14px;">
-          <div class="small">Quick facts</div>
-          <div class="quick-facts" id="quick-facts">
-            <!-- badges -->
+      <div id="contentState" style="display: none; grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 320px; gap: 22px;">
+        <!-- Header -->
+        <div class="profile-header" style="grid-column: 1 / -1;">
+          <div class="institution-crest" id="school-crest">UN</div>
+          <div class="header-meta">
+            <div class="school-name" id="school-name">Loading…</div>
+            <div class="school-location small" id="school-location">Location</div>
+            <div class="tag-row" id="tag-row"></div>
+            <div class="small" id="joined-info" style="margin-top:8px;color:var(--muted)"></div>
           </div>
         </div>
 
-        <div style="margin-top:16px;">
+        <!-- Left: Details -->
+        <section class="details">
+          <h3>Institution Details</h3>
+          <p class="lead">Comprehensive information about this institution.</p>
+          <div class="meta-list" id="meta-list"></div>
+          <div class="about">
+            <h4 style="margin:0 0 8px 0;color:var(--accent);font-size:0.98rem;">About this institution</h4>
+            <p id="about-text" style="margin:0;color:#374151;"></p>
+          </div>
+        </section>
 
-          <div style="margin-top:8px;display:flex;gap:8px;">
-            <a class="back-link" id="back-to-map" href="map.html">← Back to Map</a>
-        </div>
-      </aside>
+        <!-- Right: Actions -->
+        <aside class="panel">
+          <h3 style="margin:0;color:var(--accent);">Next steps</h3>
+          <div class="small" style="margin-top:6px;">Get involved — select an action below</div>
+          <div class="cta" id="action-ctas">
+            <a class="btn prayer" id="adopt-prayer" href="#">Adopt for Prayer</a>
+            <a class="btn revival" id="adopt-revival" href="#">Adopt for Revival</a>
+          </div>
+          <div style="margin-top:16px;">
+            <a class="back-link" href="map.html">← Back to Map</a>
+          </div>
+        </aside>
+      </div>
 
-      <footer class="page-foot" role="contentinfo">
-        <div class="small">Profile data shown is managed locally in your browser's storage.</div>
-        <div class="small">If something looks off, please check the source data.</div>
+      <footer class="page-foot" style="grid-column: 1 / -1;">
+        <div class="small">Profile data from Campus Revival Movement database.</div>
       </footer>
     </main>
   </div>
 
+  <script src="utils/api.js"></script>
   <script>
-    // Friendly robust param parsing
     function getQueryParams() {
       const q = {};
       const sp = new URLSearchParams(window.location.search);
@@ -392,160 +385,96 @@
       return q;
     }
 
-    const params = getQueryParams();
-    const cityParam = params.city;
-    const indexParam = params.index !== undefined ? parseInt(params.index, 10) : NaN;
-
-    // utility to create meta items
-    function createMetaItem(label, value){
+    function createMetaItem(label, value) {
       const container = document.createElement('div');
       container.className = 'meta-item';
-      const dt = document.createElement('dt'); dt.textContent = label;
-      const dd = document.createElement('dd'); dd.textContent = value ?? 'N/A';
-      container.appendChild(dt); container.appendChild(dd);
+      const dt = document.createElement('dt'); 
+      dt.textContent = label;
+      const dd = document.createElement('dd'); 
+      dd.textContent = value ?? 'N/A';
+      container.appendChild(dt); 
+      container.appendChild(dd);
       return container;
     }
 
-    function showMessage(msg){
-      const left = document.querySelector('.details');
-      left.innerHTML = `<div class="message">${msg}</div>`;
-      document.getElementById('school-name').textContent = 'No data';
-      document.getElementById('school-location').textContent = '';
-      document.getElementById('breadcrumb-school').textContent = '';
-      document.getElementById('breadcrumb-city').textContent = cityParam || '';
-      document.getElementById('tag-row').innerHTML = '';
-      document.getElementById('joined-info').textContent = '';
-      document.getElementById('about-text').textContent = '';
-      document.getElementById('meta-list').innerHTML = '';
-      document.getElementById('action-ctas').style.display = 'none';
+    function showError(message) {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('contentState').style.display = 'none';
+      document.getElementById('errorState').style.display = 'block';
+      document.getElementById('errorMessage').textContent = message;
     }
 
-    if (!cityParam || Number.isNaN(indexParam)) {
-      showMessage('Invalid request — city or school index is missing from the URL.');
-    } else {
-      const data = JSON.parse(localStorage.getItem('cityChildren') || '{}');
-      const schoolsForCity = data[cityParam] || [];
-      const school = schoolsForCity[indexParam];
+    async function loadSchoolData() {
+      const params = getQueryParams();
+      const schoolId = params.schoolId;
 
-      if (!school) {
-        showMessage('School not found for the provided city/index.');
-      } else {
-        // Fill header
-        const nameEl = document.getElementById('school-name');
-        const locEl = document.getElementById('school-location');
-        const breadcrumbCity = document.getElementById('breadcrumb-city');
-        const breadcrumbSchool = document.getElementById('breadcrumb-school');
-        const tagRow = document.getElementById('tag-row');
+      if (!schoolId) {
+        showError('No school selected. Please return to the map and select a school.');
+        return;
+      }
+
+      try {
+        console.log('Loading school:', schoolId);
+        const school = await getSchoolById(schoolId);
+        console.log('School loaded:', school);
+
+        // Hide loading, show content
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('errorState').style.display = 'none';
+        document.getElementById('contentState').style.display = 'grid';
+
+        // === Fill basic header
+        document.getElementById('school-name').textContent = school.name || 'Unnamed Institution';
+        document.getElementById('school-location').textContent = school.address || 'Location unknown';
+        document.getElementById('breadcrumb-school').textContent = school.name || 'School';
+
+        // === Crest initials
+        const crest = document.getElementById('school-crest');
+        if (school.name) {
+          const initials = school.name.split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+          crest.textContent = initials;
+        }
+
+        // === Joined date
         const joinedInfo = document.getElementById('joined-info');
-        const aboutText = document.getElementById('about-text');
+        if (school.createdAt) {
+          const d = new Date(school.createdAt);
+          if (!isNaN(d)) joinedInfo.textContent = 'Added: ' + d.toLocaleDateString();
+        }
+
+        // === About section
+        document.getElementById('about-text').textContent = school.description || 'No description available.';
+
+        // === Meta info
         const metaList = document.getElementById('meta-list');
-        const quickFacts = document.getElementById('quick-facts');
-
-        nameEl.textContent = school.name || 'Unnamed Institution';
-        locEl.textContent = `Location: ${cityParam}`;
-        breadcrumbCity.textContent = cityParam;
-        breadcrumbSchool.textContent = school.name || 'School';
-
-        // badges / tags
-        tagRow.innerHTML = '';
-        const pushBadge = (txt) => {
-          const b = document.createElement('span'); b.className = 'badge'; b.textContent = txt; tagRow.appendChild(b);
-        };
-
-        // Scholarship / Visa
-        if (school.scholarships) pushBadge('Scholarships: ' + (String(school.scholarships).toLowerCase() === 'yes' ? 'Available' : school.scholarships));
-        if (school.visaSupport) pushBadge('Visa Support: ' + (String(school.visaSupport).toLowerCase() === 'yes' ? 'Yes' : school.visaSupport));
-        if (school.accreditation) pushBadge('Rank: ' + school.accreditation);
-
-        // joined date
-        let joinedText = 'Added: N/A';
-        if (school.JoinedCRMProgram) {
-          const d = new Date(school.JoinedCRMProgram);
-          if (!isNaN(d)) joinedText = 'Added: ' + d.toLocaleString();
-        }
-        joinedInfo.textContent = joinedText;
-
-        // about
-        aboutText.textContent = school.About || 'No description available.';
-
-        // meta grid
         metaList.innerHTML = '';
-        metaList.appendChild(createMetaItem('Programs & Majors', school.programs || 'N/A'));
-        metaList.appendChild(createMetaItem('Accreditation & Ranking', school.accreditation || 'N/A'));
-        metaList.appendChild(createMetaItem('Tuition & Fees', school.tuition || 'N/A'));
-        metaList.appendChild(createMetaItem('Scholarships', school.scholarships || 'N/A'));
-        metaList.appendChild(createMetaItem('Campus Facilities', school.facilities || 'N/A'));
-        metaList.appendChild(createMetaItem('Student Diversity', school.diversity || 'N/A'));
-        metaList.appendChild(createMetaItem('Graduate Employment', school.employment || 'N/A'));
-        metaList.appendChild(createMetaItem('Admission Rate', school.admissionRate || 'N/A'));
-        metaList.appendChild(createMetaItem('Visa Support', school.visaSupport || 'N/A'));
-        metaList.appendChild(createMetaItem('Language Requirements', school.languageReq || 'N/A'));
+        metaList.appendChild(createMetaItem('Address', school.address));
+        metaList.appendChild(createMetaItem('Latitude', school.lat));
+        metaList.appendChild(createMetaItem('Longitude', school.lng));
+        metaList.appendChild(createMetaItem('Adopters', school.adoptionCount || 0));
 
-        // quick-facts
-        quickFacts.innerHTML = '';
-        if (school.tuition) {
-          const t = document.createElement('div'); t.className = 'fact'; t.textContent = 'Tuition: ' + school.tuition; quickFacts.appendChild(t);
-        }
-        if (school.accreditation) {
-          const t = document.createElement('div'); t.className = 'fact'; t.textContent = 'Rank: ' + school.accreditation; quickFacts.appendChild(t);
-        }
-        if (school.scholarships) {
-          const t = document.createElement('div'); t.className = 'fact'; t.textContent = (String(school.scholarships).toLowerCase()==='yes' ? 'Scholarships' : school.scholarships); quickFacts.appendChild(t);
+        // === Action Buttons
+        document.getElementById('adopt-prayer').href = `adopt-prayer.html?schoolId=${school._id}`;
+        document.getElementById('adopt-revival').href = `adopt-revival.html?schoolId=${school._id}`;
+
+        // === Tags
+        const tagRow = document.getElementById('tag-row');
+        tagRow.innerHTML = '';
+        if (school.adoptionCount > 0) {
+          const badge = document.createElement('span');
+          badge.className = 'badge';
+          badge.textContent = `${school.adoptionCount} Adopters`;
+          tagRow.appendChild(badge);
         }
 
-        // Actions: keep your existing navigation logic but enhanced with buttons
-        const visitBtn = document.getElementById('visit-site');
-        const adoptPrayer = document.getElementById('adopt-prayer');
-        const adoptRevival = document.getElementById('adopt-revival');
-
-        // If the school object contains a 'website' property, show Visit button
-        if (school.website) {
-          visitBtn.style.display = 'inline-flex';
-          visitBtn.onclick = () => {
-            let url = school.website;
-            // fix if missing protocol
-            if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
-            window.open(url, '_blank');
-          };
-        } else {
-          visitBtn.style.display = 'none';
-        }
-
-        adoptPrayer.onclick = () => { window.location.href = 'adopt-prayer.html?city=' + encodeURIComponent(cityParam) + '&index=' + indexParam; };
-        adoptRevival.onclick = () => { window.location.href = 'adopt-revival.html?city=' + encodeURIComponent(cityParam) + '&index=' + indexParam; };
-
-        shareBtn.onclick = async () => {
-          const shareData = {
-            title: school.name || 'Institution profile',
-            text: 'Check out this institution: ' + (school.name || '') + ' — ' + cityParam,
-            url: window.location.href
-          };
-          if (navigator.share) {
-            try { await navigator.share(shareData); } catch (err) { /* user canceled */ }
-          } else {
-            // fallback: copy URL
-            navigator.clipboard?.writeText(window.location.href).then(() => {
-              alert('Profile link copied to clipboard.');
-            }).catch(()=>{ alert('Copy this URL: ' + window.location.href); });
-          }
-        };
-
-        printBtn.onclick = () => window.print();
-
-        // Fill the small "crest" square with initials (fallback)
-        const crest = document.getElementById('crest');
-        if (!school.icon && school.name) {
-          const initials = (school.name.split(/\s+/).slice(0,2).map(s=>s[0]).join('')).toUpperCase();
-          crest.textContent = initials || '';
-        } else if (school.icon) {
-          crest.textContent = ''; // if you had an icon URL you could set as background image - kept simple here
-        }
+      } catch (error) {
+        console.error('Failed to load school:', error);
+        showError(error.message || 'Failed to load school details. Please try again.');
       }
     }
 
-    // Accessibility: focus the name for screen readers
-    document.getElementById('school-name').setAttribute('tabindex', '-1');
-    document.getElementById('school-name').focus();
+    // Initialize
+    window.addEventListener('load', loadSchoolData);
   </script>
 </body>
 </html>
