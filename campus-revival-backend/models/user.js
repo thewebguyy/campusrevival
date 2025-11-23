@@ -60,4 +60,5 @@ userSchema.methods.toJSON = function() {
   return user;
 };
 
-module.exports = mongoose.model('User', userSchema);
+// Prevent duplicate model compilation
+module.exports = mongoose.models.User || mongoose.model('User', userSchema);

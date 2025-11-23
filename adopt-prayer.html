@@ -95,6 +95,25 @@
       cursor: pointer;
       font-size: 20px;
     }
+
+    .message {
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      display: none;
+    }
+
+    .message.error {
+      background: #ffe6e6;
+      color: #c70000;
+      border: 1px solid #ffcccc;
+    }
+
+    .message.success {
+      background: #e6ffe6;
+      color: #00aa44;
+      border: 1px solid #ccffcc;
+    }
   </style>
 </head>
 <body>
@@ -133,6 +152,7 @@
     </div>
   </div>
 
+  <script src="utils/api.js"></script>
   <script>
     function getQueryParams() {
       const params = {};
@@ -148,6 +168,9 @@
     const schoolList = allCities[city] || [];
     const school = schoolList[parseInt(index)];
 
+    let adoptionMode = 'individual';
+
+    // Display school info
     if (school) {
       document.getElementById("schoolName").textContent = school.name;
       document.getElementById("schoolLocation").textContent = `Location: ${city}`;

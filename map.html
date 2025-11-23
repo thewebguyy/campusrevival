@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CRM Map</title>
+  <title>CRM Map - UK Universities</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     /* ===== General Styles ===== */
@@ -84,15 +84,15 @@
     #side-panel {
       position: fixed;
       top: 0;
-      right: -420px;
-      width: 420px;
+      right: -450px;
+      width: 450px;
       height: 100%;
       background: #111;
       color: #fff;
       box-shadow: -6px 0 24px rgba(0,0,0,0.25);
       transition: right 0.3s ease;
       overflow-y: auto;
-      padding: 20px;
+      padding: 30px;
       border-left: 1px solid rgba(255,255,255,0.1);
       z-index: 10000;
     }
@@ -101,14 +101,166 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin-bottom: 25px;
+      border-bottom: 2px solid #333;
+      padding-bottom: 15px;
+    }
+
+    #side-panel h2 {
+      font-size: 1.5rem;
+      color: #fff;
+      margin: 0;
+    }
+
+    .close-panel-btn { 
+      background: none; 
+      border: none; 
+      font-size: 28px; 
+      cursor: pointer; 
+      color: #ccc; 
+      transition: color 0.3s;
+    }
+
+    .close-panel-btn:hover {
+      color: #fff;
+    }
+
+    .school-info {
+      background: #1a1a1a;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    .school-info h3 {
+      color: #6a00ff;
+      margin-bottom: 15px;
+      font-size: 1.3rem;
+    }
+
+    .school-info p {
+      margin: 10px 0;
+      line-height: 1.6;
+      color: #ddd;
+    }
+
+    .school-info .label {
+      color: #888;
+      font-size: 0.9rem;
+      margin-bottom: 5px;
+    }
+
+    .adopter-count {
+      display: inline-block;
+      background: linear-gradient(135deg, #6a00ff, #012169);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .btn {
+      padding: 14px 20px;
+      font-size: 1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+      text-decoration: none;
+      display: block;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #012169, #6a00ff);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(106, 0, 255, 0.4);
+    }
+
+    .btn-prayer {
+      background: #012169;
+      color: white;
+    }
+
+    .btn-prayer:hover {
+      background: #013599;
+    }
+
+    .btn-revival {
+      background: #6a00ff;
+      color: white;
+    }
+
+    .btn-revival:hover {
+      background: #5500cc;
+    }
+
+    .btn-secondary {
+      background: #333;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #444;
+    }
+
+    .adopters-section {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #333;
+    }
+
+    .adopters-section h4 {
+      color: #6a00ff;
       margin-bottom: 15px;
     }
-    .close-panel-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #ccc; }
+
+    .adopter-item {
+      padding: 12px;
+      margin-bottom: 10px;
+      background: #1a1a1a;
+      border-radius: 6px;
+      border-left: 3px solid #6a00ff;
+    }
+
+    .adopter-item strong {
+      color: #fff;
+    }
+
+    .adopter-item small {
+      color: #aaa;
+    }
+
+    .loading {
+      text-align: center;
+      color: #999;
+      padding: 20px;
+    }
+
+    .error-message {
+      background: #ff6b6b;
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px;
+      text-align: center;
+    }
 
     /* ===== Responsive ===== */
     @media (max-width: 900px) {
-      #header-placeholder header { flex-direction: column; gap: 10px; }
-      #header-placeholder nav ul { flex-wrap: wrap; justify-content: center; }
       #side-panel { width: 100%; right: -100%; }
       #side-panel.active { right: 0; }
       #map { height: 60vh; }
@@ -124,12 +276,12 @@
   <!-- ===== HERO SECTION ===== -->
   <section class="hero">
     <h1>CAMPUS REVIVAL MOVEMENT MAP</h1>
-    <h2>University Partnerships</h2>
+    <h2>UK Universities for Adoption</h2>
     <div class="stats-bar">
       <div>Total Universities: <strong id="totalSchools">0</strong></div>
-      <div>Adopted: <strong id="adoptedCount">0</strong></div>
+      <div>Total Adopters: <strong id="adoptedCount">0</strong></div>
     </div>
-    <p>Click a city pin to see all schools and universities registered for adoption.</p>
+    <p>Click on any university marker to view details and adopt for prayer or revival.</p>
   </section>
 
   <!-- ===== MAP CONTAINER ===== -->
@@ -140,11 +292,11 @@
   <!-- ===== SIDE PANEL ===== -->
   <aside id="side-panel" aria-hidden="true">
     <header>
-      <h2 id="panel-title">City Details</h2>
+      <h2 id="panel-title">University Details</h2>
       <button class="close-panel-btn" onclick="closePanel()" aria-label="Close panel">×</button>
     </header>
     <div id="panel-content">
-      <p class="loading">Loading city details...</p>
+      <p class="loading">Select a university on the map...</p>
     </div>
   </aside>
 

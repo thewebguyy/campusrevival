@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const User = require('../models/user');
 
 // Token blacklist (in production, use Redis or database)
 const tokenBlacklist = new Set();

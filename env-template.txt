@@ -1,0 +1,58 @@
+# CAMPUS REVIVAL MOVEMENT - BACKEND CONFIGURATION
+# Copy this to campus-revival-backend/.env
+
+# Environment
+NODE_ENV=development
+
+# Server Port
+PORT=5000
+
+# Database Connection
+# OPTION 1 - Local MongoDB (if you have MongoDB installed locally)
+MONGODB_URI=mongodb://localhost:27017/campus_revival
+
+# OPTION 2 - MongoDB Atlas (Cloud - Recommended for production)
+# MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/campus_revival?retryWrites=true&w=majority
+
+# JWT Configuration
+JWT_SECRET=crm_super_secret_key_2025_minimum_32_characters_required_for_security_purposes
+JWT_EXPIRE=7d
+
+# CORS Configuration
+# Change this to match your frontend URL
+CORS_ORIGIN=http://localhost:3000
+
+# ============================================
+# INSTRUCTIONS:
+# ============================================
+# 
+# 1. Copy this entire file to: campus-revival-backend/.env
+# 
+# 2. Choose ONE MongoDB option:
+#    - For local development: Keep OPTION 1
+#    - For cloud/production: Use OPTION 2 and replace with your connection string
+# 
+# 3. IMPORTANT: Change JWT_SECRET to a random string before production!
+#    Generate one with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+# 
+# 4. Update CORS_ORIGIN if your frontend runs on a different port
+#    - Port 3000: CORS_ORIGIN=http://localhost:3000
+#    - Port 8000: CORS_ORIGIN=http://localhost:8000
+#    - Production: CORS_ORIGIN=https://yourdomain.com
+# 
+# 5. NEVER commit this file to git! (it's in .gitignore)
+# 
+# ============================================
+# MONGODB ATLAS SETUP (if using cloud):
+# ============================================
+# 
+# 1. Go to mongodb.com/cloud/atlas
+# 2. Sign up for free account
+# 3. Create a new cluster (free tier)
+# 4. Click "Connect" → "Connect your application"
+# 5. Copy connection string
+# 6. Replace <password> with your database password
+# 7. Replace <database> with: campus_revival
+# 8. Paste complete string to MONGODB_URI above
+# 
+# ============================================

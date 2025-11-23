@@ -11,6 +11,12 @@ const adoptionSchema = new mongoose.Schema({
     ref: 'School',
     required: true
   },
+  adoptionType: {
+    type: String,
+    enum: ['prayer', 'revival', 'both'],
+    default: 'prayer',
+    required: true
+  },
   dateAdopted: {
     type: Date,
     default: Date.now
@@ -38,4 +44,5 @@ const adoptionSchema = new mongoose.Schema({
 // Prevent duplicate adoptions
 adoptionSchema.index({ userId: 1, schoolId: 1 }, { unique: true });
 
-module.exports = mongoose.model('Adoption', adoptionSchema);
+// Prevent duplicate model compilation
+module.exports = mongoose.models.Adoption || mongoose.model('Adoption', adoptionSchema);
