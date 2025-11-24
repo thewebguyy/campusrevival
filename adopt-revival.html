@@ -69,6 +69,7 @@
       border-radius: 6px;
       cursor: pointer;
       transition: background 0.3s;
+      font-weight: bold;
     }
 
     .choice-buttons button:hover {
@@ -123,6 +124,7 @@
       background: #012169;
       color: #fff;
       cursor: pointer;
+      font-weight: bold;
     }
 
     .modal-content button:hover {
@@ -185,8 +187,8 @@
 
     .loading {
       text-align: center;
-      color: #666;
       padding: 40px;
+      color: #999;
     }
   </style>
 </head>
@@ -196,8 +198,36 @@
     <h1>Adopt a School for Revival</h1>
   </header>
 
-  <main id="mainContent">
-    <div class="loading">Loading school details...</div>
+  <main>
+    <div id="loadingState" class="loading">Loading school details...</div>
+    
+    <div id="contentState" style="display: none;">
+      <div class="school-highlight">
+        <h2 id="schoolName">Loading School...</h2>
+        <p id="schoolLocation"></p>
+        <p id="adopterCount"></p>
+      </div>
+
+      <p id="description">
+        Help bring revival to this school by committing to outreach efforts, hosting events,
+        and gathering students to worship and encounter Christ.
+        Choose whether you're adopting as a church, individual, or group.
+      </p>
+
+      <div class="choice-buttons">
+        <button id="churchBtn" onclick="startAdoption('church')">Church</button>
+        <button id="individualBtn" onclick="startAdoption('individual')">Individual</button>
+        <button id="groupBtn" onclick="startAdoption('group')">Group</button>
+      </div>
+
+      <a class="back-button" href="map.html">← Back to Map</a>
+    </div>
+
+    <div id="errorState" style="display: none; text-align: center; padding: 40px;">
+      <h3 style="color: #c70000;">Error Loading School</h3>
+      <p id="errorMessage"></p>
+      <a class="back-button" href="map.html">← Back to Map</a>
+    </div>
   </main>
 
   <!-- Modal -->
@@ -216,70 +246,61 @@
 
   <script src="utils/api.js"></script>
   <script>
-    let currentSchool = null;
-    let adoptionMode = 'individual';
-
-    // Get schoolId from URL
-    function getSchoolId() {
-      const params = new URLSearchParams(window.location.search);
-      return params.get('schoolId');
+    function getQueryParams() {
+      const params = {};
+      const queryString = window.location.search.substring(1);
+      queryString.split('&').forEach(pair => {
+        const [key, value] = pair.split('=');
+        if (key) params[decodeURIComponent(key)] = decodeURIComponent(value || '');
+      });
+      return params;
     }
 
-    // Load school data on page load
-    window.addEventListener('load', async () => {
-      const schoolId = getSchoolId();
-      
+    const { schoolId } = getQueryParams();
+    let schoolData = null;
+    let adoptionMode = 'individual';
+
+    // Load school data from API
+    async function loadSchoolData() {
       if (!schoolId) {
-        showError('No school selected. Please return to the map.');
+        showError("No school selected. Please return to the map and select a school.");
         return;
       }
 
       try {
-        // Fetch school details from API
-        currentSchool = await getSchoolById(schoolId);
-        displaySchool();
+        console.log('Loading school:', schoolId);
+        schoolData = await getSchoolById(schoolId);
+        console.log('School loaded:', schoolData);
+        
+        // Hide loading, show content
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('contentState').style.display = 'block';
+        
+        // Display school info
+        document.getElementById("schoolName").textContent = schoolData.name;
+        document.getElementById("schoolLocation").textContent = `Location: ${schoolData.address}`;
+        document.getElementById("adopterCount").textContent = 
+          `${schoolData.name} currently has ${schoolData.adoptionCount || 0} adopter${schoolData.adoptionCount === 1 ? '' : 's'}.`;
+        
       } catch (error) {
         console.error('Failed to load school:', error);
-        showError('Failed to load school details. Please try again.');
+        showError(error.message || "Failed to load school details. Please try again.");
       }
-    });
-
-    function displaySchool() {
-      document.getElementById('mainContent').innerHTML = `
-        <div class="school-highlight">
-          <h2 id="schoolName">${currentSchool.name}</h2>
-          <p id="schoolLocation">${currentSchool.address}</p>
-        </div>
-
-        <p id="description">
-          Help bring revival to this school by committing to outreach efforts, hosting events,
-          and gathering students to worship and encounter Christ.
-          Choose whether you're adopting as a church, individual, or group.
-        </p>
-
-        <div class="choice-buttons">
-          <button id="churchBtn" onclick="startAdoption('church')">Church</button>
-          <button id="individualBtn" onclick="startAdoption('individual')">Individual</button>
-          <button id="groupBtn" onclick="startAdoption('group')">Group</button>
-        </div>
-
-        <a class="back-button" href="map.html">← Back to Map</a>
-      `;
     }
 
     function showError(message) {
-      document.getElementById('mainContent').innerHTML = `
-        <div class="message error" style="display: block;">
-          ${message}
-        </div>
-        <a class="back-button" href="map.html">← Back to Map</a>
-      `;
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('contentState').style.display = 'none';
+      document.getElementById('errorState').style.display = 'block';
+      document.getElementById('errorMessage').textContent = message;
     }
 
     function startAdoption(mode) {
+      // Check if logged in
       if (!isLoggedIn()) {
         alert('Please login first to adopt a school');
-        window.location.href = 'signin.html?redirect=' + encodeURIComponent(window.location.href);
+        const currentUrl = encodeURIComponent(window.location.href);
+        window.location.href = `signin.html?redirect=${currentUrl}`;
         return;
       }
 
@@ -289,37 +310,57 @@
         individual: "Adopt as Individual",
         group: "Adopt as Group"
       };
+      
       document.getElementById('modalTitle').textContent = titles[mode] || "Adopt School";
-      document.getElementById('modalSchoolName').textContent = currentSchool.name;
+      document.getElementById('modalSchoolName').textContent = schoolData.name;
       document.getElementById('registrationModal').style.display = 'flex';
     }
 
     function closeModal() {
       document.getElementById('registrationModal').style.display = 'none';
-      document.getElementById('modalMessage').style.display = 'none';
+      hideModalMessage();
     }
 
-    window.onclick = function(event) {
-      if (event.target === document.getElementById('registrationModal')) {
-        closeModal();
-      }
+    function showModalMessage(text, type) {
+      const messageEl = document.getElementById('modalMessage');
+      messageEl.textContent = text;
+      messageEl.className = 'message ' + type;
+      messageEl.style.display = 'block';
     }
+
+    function hideModalMessage() {
+      const messageEl = document.getElementById('modalMessage');
+      messageEl.style.display = 'none';
+    }
+
+    // Close modal on outside click
+    window.onclick = function(event) {
+      const modal = document.getElementById('registrationModal');
+      if (event.target === modal) closeModal();
+    }
+
+    // Close modal on escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
 
     async function confirmAdoption() {
-      if (!currentSchool || !currentSchool._id) {
-        showMessage('Invalid school selection', 'error');
+      if (!schoolData || !schoolData._id) {
+        showModalMessage('Invalid school selection', 'error');
         return;
       }
 
       const confirmBtn = document.getElementById('confirmBtn');
       confirmBtn.disabled = true;
       confirmBtn.textContent = 'Processing...';
+      hideModalMessage();
 
       try {
         // Call API to adopt school with 'revival' type
-        const result = await adoptSchool(currentSchool._id, 'revival');
+        const result = await adoptSchool(schoolData._id, 'revival');
+        console.log('Adoption successful:', result);
         
-        showMessage('Revival adoption successful! Redirecting to dashboard...', 'success');
+        showModalMessage('Revival adoption successful! Redirecting to dashboard...', 'success');
         
         setTimeout(() => {
           window.location.href = 'dashboard.html';
@@ -327,18 +368,14 @@
 
       } catch (error) {
         console.error('Adoption error:', error);
-        showMessage('Adoption failed: ' + error.message, 'error');
+        showModalMessage('Adoption failed: ' + error.message, 'error');
         confirmBtn.disabled = false;
         confirmBtn.textContent = 'Confirm Adoption';
       }
     }
 
-    function showMessage(text, type) {
-      const messageEl = document.getElementById('modalMessage');
-      messageEl.textContent = text;
-      messageEl.className = 'message ' + type;
-      messageEl.style.display = 'block';
-    }
+    // Initialize
+    window.addEventListener('load', loadSchoolData);
   </script>
 </body>
 </html>
