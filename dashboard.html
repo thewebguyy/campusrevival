@@ -2,14 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>CRM Dashboard</title>
+<title>My Dashboard - CRM</title>
 <style>
   :root {
     --bg-color: #000;
     --text-color: #fff;
-    --card-bg: #fff;
-    --card-text: #000;
-    --accent-color: #007BFF;
+    --card-bg: #1a1a1a;
+    --card-text: #fff;
+    --accent-color: #012169;
+    --accent-2: #6a00ff;
   }
 
   body.light-mode {
@@ -17,12 +18,11 @@
     --text-color: #000;
     --card-bg: #fff;
     --card-text: #000;
-    --accent-color: #007BFF;
   }
 
   body {
     margin:0;
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Arial, sans-serif;
     background: var(--bg-color);
     color: var(--text-color);
     transition: background 0.3s, color 0.3s;
@@ -30,7 +30,19 @@
 
   #header-placeholder {
     width: 100%;
-    height: 200px;
+  }
+
+  .loading {
+    text-align: center;
+    padding: 100px 20px;
+    font-size: 1.2rem;
+    color: var(--text-color);
+  }
+
+  .error {
+    text-align: center;
+    padding: 100px 20px;
+    color: #ff6b6b;
   }
 
   h1 {
@@ -40,13 +52,32 @@
     font-weight: 800;
   }
 
+  .welcome-banner {
+    text-align: center;
+    padding: 40px 20px;
+    background: linear-gradient(135deg, var(--accent-color), var(--accent-2));
+    color: white;
+    margin-bottom: 20px;
+  }
+
+  .welcome-banner h1 {
+    margin: 0 0 10px 0;
+    color: white;
+  }
+
+  .welcome-banner p {
+    margin: 0;
+    font-size: 1.1rem;
+    opacity: 0.9;
+  }
+
   /* ===== DASHBOARD GRID ===== */
   .dashboard {
     display:flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    gap: 15px;
-    padding: 40px 100px; /* page margins */
+    gap: 20px;
+    padding: 40px 100px;
     box-sizing: border-box;
   }
 
@@ -54,122 +85,189 @@
     flex:1;
     display:flex;
     flex-direction:column;
-    gap: 12px;
-    min-width: 250px;
+    gap: 15px;
+    min-width: 280px;
   }
 
   /* ===== GLOBAL CARD STYLE ===== */
   .card {
     background: var(--card-bg);
     color: var(--card-text);
-    padding: 20px;
+    padding: 25px;
     border-radius: 14px;
     transition:0.25s ease, background 0.3s, color 0.3s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   }
 
   .card:hover {
-    transform: scale(1.03);
-    box-shadow: 0px 0px 18px rgba(0,0,0,0.25);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
   }
 
-  /* ===== CLOCK ===== */
-  .clock {
-    background: transparent;
-    font-size: 140px;
-    font-weight: bold;
-    text-align: center;
-    color: var(--text-color);
+  .card h2 {
+    margin: 0 0 15px 0;
+    font-size: 1.3rem;
+    border-bottom: 2px solid var(--accent-color);
+    padding-bottom: 10px;
   }
 
-  /* ===== PROFILE ===== */
-  .profile {
-    text-align: center;
-    background: transparent !important;
+  /* ===== STATS CARDS ===== */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    grid-column: 1 / -1;
   }
 
-  .profile img {
-    width: 200px;
-    height: 180px;
-    object-fit: contain;
-  }
-
-  .profile .name {
-    font-weight: bold;
-    margin-top: 8px;
-  }
-
-  /* ===== CALENDAR ===== */
-  .calendar{ 
-    background:transparent; 
-    border:none; 
-    padding:0; 
-  }
-
-  .calendar iframe {
-    width: 100%;
-    height: 350px;
+  .stat-card {
+    background: linear-gradient(135deg, var(--accent-color), var(--accent-2));
+    color: white;
+    padding: 25px;
     border-radius: 14px;
-    border: none;
+    text-align: center;
   }
 
-  /* ===== INPUTS & BUTTONS ===== */
-  textarea, .book input {
-    width: 100%;
-    padding: 10px;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-    margin-bottom: 8px;
-    box-sizing: border-box;
-  }
-
-  .book button {
-    width: 100%;
-    padding: 10px;
-    border-radius: 10px;
-    border: none;
-    background: var(--card-text);
-    color: var(--card-bg);
-    cursor: pointer;
+  .stat-card .number {
+    font-size: 2.5rem;
     font-weight: bold;
-    transition: 0.25s;
+    margin: 10px 0;
   }
 
-  .book button:hover {
+  .stat-card .label {
+    font-size: 0.95rem;
+    opacity: 0.9;
+  }
+
+  /* ===== ADOPTED SCHOOLS ===== */
+  .school-item {
+    background: rgba(255,255,255,0.05);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border-left: 4px solid var(--accent-color);
+  }
+
+  .school-item h4 {
+    margin: 0 0 8px 0;
+    color: var(--accent-color);
+  }
+
+  .school-item p {
+    margin: 5px 0;
+    font-size: 0.9rem;
+    opacity: 0.8;
+  }
+
+  .school-item .actions {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+  }
+
+  .school-item a {
+    display: inline-block;
+    padding: 6px 12px;
     background: var(--accent-color);
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 0.85rem;
   }
 
-  /* ===== LINK CARDS ===== */
-  a.card-link {
-    display:block;
-    text-align:center;
-    text-decoration:none;
-    background: var(--card-bg);
-    color: var(--card-text);
-    border:4px solid var(--card-text);
-    padding:18px;
-    font-weight:bold;
-    border-radius:14px;
-    transition:0.25s ease;
+  .school-item a:hover {
+    background: var(--accent-2);
   }
 
-  a.card-link:hover {
-    transform:scale(1.05);
-    box-shadow:0px 0px 16px rgba(0,0,0,0.25);
+  /* ===== QUICK LINKS ===== */
+  .quicklinks ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
   }
 
-  /* ===== LINKS ===== */
-  ul li a {
+  .quicklinks li {
+    margin-bottom: 10px;
+  }
+
+  .quicklinks a {
+    display: block;
+    padding: 12px 15px;
+    background: rgba(255,255,255,0.05);
     color: var(--card-text);
     text-decoration: none;
+    border-radius: 8px;
+    transition: 0.3s;
   }
-  ul li a:hover {
-    text-decoration: underline;
+
+  .quicklinks a:hover {
+    background: var(--accent-color);
+    color: white;
+    transform: translateX(5px);
+  }
+
+  /* ===== TOGGLE BUTTON ===== */
+  .toggle-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--card-bg);
+    color: var(--card-text);
+    border: 2px solid var(--accent-color);
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+    z-index: 1000;
+  }
+
+  .toggle-btn:hover {
+    background: var(--accent-color);
+    color: #fff;
+  }
+
+  .logout-btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 15px;
+  }
+
+  .logout-btn:hover {
+    background: #c82333;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-color);
+    opacity: 0.7;
+  }
+
+  .empty-state p {
+    margin: 10px 0;
+  }
+
+  .empty-state a {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 10px 20px;
+    background: var(--accent-color);
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
   }
 
   /* ===== RESPONSIVE ===== */
   @media(max-width: 1024px){
     .dashboard {
-      padding: 20px;
+      padding: 20px 40px;
     }
   }
 
@@ -178,47 +276,10 @@
       flex-direction: column;
       padding: 20px;
     }
-    .clock {
-      font-size: 120px;
+    .stats-grid {
+      grid-template-columns: 1fr;
     }
   }
-
-  /* Minimal Icons (inline SVG) */
-  .icon {
-    width: 16px;
-    height: 16px;
-    vertical-align: middle;
-    margin-right: 6px;
-    fill: var(--card-text);
-  }
-
-
-
-/* ===== TOGGLE BUTTON ===== */
-.toggle-btn {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: var(--card-bg);
-  color: var(--card-text);
-  border: none;
-  padding: 10px 16px;  /* normal size */
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: all 0.3s;
-  display: inline-block;  /* ensures it doesn't stretch vertically */
-  height: auto;           /* prevents full-height stretching */
-}
-
-.toggle-btn:hover {
-  background: var(--accent-color);
-  color: #fff;
-}
-
-
-
-
 </style>
 </head>
 <body>
@@ -227,124 +288,171 @@
 
 <div id="header-placeholder"></div>
 
-<h1>WELCOME {NAME} TO CRM DASHBOARD</h1>
+<div id="loadingState" class="loading">Loading your dashboard...</div>
 
-<div class="dashboard">
+<div id="errorState" class="error" style="display: none;">
+  <h2>⚠️ Failed to Load Dashboard</h2>
+  <p id="errorMessage"></p>
+  <a href="signin.html" style="color: #fff; text-decoration: underline;">Please login again</a>
+</div>
 
-  <!-- COLUMN 1 -->
-  <div class="col">
-    <div class="clock" id="clock">10:32</div>
-
-    <div class="card calendar">
-      <iframe src="https://calendar.google.com/calendar/embed?src=en.uk%23holiday%40group.v.calendar.google.com&ctz=UTC"></iframe>
-    </div>
-
-    <div class="card resources">
-      <h2>Resources</h2>
-      <ul>
-        <li><svg class="icon" viewBox="0 0 16 16"><path d="M2 2h12v12H2z"/></svg><a href="pdf1.pdf" target="_blank">PDF 1</a></li>
-        <li><svg class="icon" viewBox="0 0 16 16"><path d="M2 2h12v12H2z"/></svg><a href="pdf2.pdf" target="_blank">PDF 2</a></li>
-        <li><svg class="icon" viewBox="0 0 16 16"><path d="M2 2h12v12H2z"/></svg><a href="pdf3.pdf" target="_blank">PDF 3</a></li>
-      </ul>
-    </div>
+<div id="contentState" style="display: none;">
+  <div class="welcome-banner">
+    <h1>Welcome, <span id="userName">User</span>!</h1>
+    <p>Your Campus Revival Movement Dashboard</p>
   </div>
 
-  <!-- COLUMN 2 -->
-  <div class="col">
-    <div class="card book">
-      <h2>CRM DASHBOARD</h2>
-      <p>Welcome to your CRM portal. Here you can find essential tools and information.Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+  <div class="dashboard">
+    <!-- Stats Row -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="label">Schools Adopted</div>
+        <div class="number" id="statSchools">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Total Prayers</div>
+        <div class="number" id="statPrayers">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Journal Entries</div>
+        <div class="number" id="statJournals">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Days Active</div>
+        <div class="number" id="statDays">0</div>
+      </div>
     </div>
 
-    <div class="card announcements">
-      <h2>Announcements</h2>
-      <ul>
-        <li>5 Universities added — check the map.</li>
-        <li>Next Onboarding Meeting: <strong>2nd Jan 26</strong> — Book Now.</li>
-      </ul>
+    <!-- Column 1: Adopted Schools -->
+    <div class="col">
+      <div class="card">
+        <h2>My Adopted Universities</h2>
+        <div id="adoptedList"></div>
+      </div>
     </div>
 
-    <div class="card book">
-      <h2>Book a Meeting</h2>
-      <input type="email" placeholder="Your Email">
-      <input type="text" placeholder="Preferred Date & Time">
-      <button>Book Meeting</button>
-    </div>
-  </div>
+    <!-- Column 2: Quick Actions -->
+    <div class="col">
+      <div class="card">
+        <h2>Quick Actions</h2>
+        <div class="quicklinks">
+          <ul>
+            <li><a href="map.html">🗺️ View Map</a></li>
+            <li><a href="map.html">➕ Adopt More Schools</a></li>
+            <li><a href="about.html">ℹ️ About CRM</a></li>
+            <li><a href="contact.html">✉️ Contact Us</a></li>
+          </ul>
+        </div>
+        <button class="logout-btn" onclick="handleLogout()">Logout</button>
+      </div>
 
-  <!-- COLUMN 3 -->
-  <div class="col">
-    <div class="card overview">
-      <h2>Overview</h2>
-      <ul>
-        <li>Total Universities adopted: 5</li>
-        <li>Upcoming Meetings...</li>
-      </ul>
-    </div>
-
-    <div class="card adopted">
-      <h2>Adopted Universities</h2>
-      <ol>
-        <li>Uni 1</li>
-        <li>Uni 2</li>
-        <li>Uni 3</li>
-      </ol>
-    </div>
-
-    <div class="card prayer">
-      <h2>Prayer Journal</h2>
-      <textarea placeholder="prayer request reminder..."></textarea>
-    </div>
-
-    <a href="#" class="card-link">Become a Partner</a>
-    <a href="#" class="card-link">Join a Prayer Group</a>
-  </div>
-
-  <!-- COLUMN 4 -->
-  <div class="col">
-    <div class="profile">
-      <img src="profileicon.png" alt="profile">
-      <div class="name">{FULL NAME}</div>
-    </div>
-
-    <div class="card contact">
-      <h2>Contact</h2>
-      <p>England, UK<br>johndon@gmail.com<br>0756637384</p>
-    </div>
-
-    <div class="card quicklinks">
-      <h2>Quick Links</h2>
-      <ul>
-        <li><a href="map.html">MAP</a></li>
-        <li><a href="about.html">ABOUT CRM</a></li>
-        <li><a href="adoptuni.html">ADOPT A UNI</a></li>
-        <li><a href="adoptchurch.html">ADOPT A CHURCH</a></li>
-        <li><a href="contact.html">CONTACT CRM</a></li>
-        <li><a href="join.html">JOIN THE TEAM</a></li>
-      </ul>
+      <div class="card">
+        <h2>Account Info</h2>
+        <p><strong>Email:</strong> <span id="userEmail"></span></p>
+        <p><strong>Member Since:</strong> <span id="memberSince"></span></p>
+        <p><strong>Role:</strong> <span id="userRole"></span></p>
+      </div>
     </div>
   </div>
 </div>
 
+<script src="utils/api.js"></script>
 <script>
   // Load header
   fetch('header.html')
     .then(r => r.text())
-    .then(h => document.getElementById('header-placeholder').innerHTML = h);
-
-  // Clock
-  function updateClock(){
-    const now = new Date();
-    document.getElementById('clock').textContent =
-      now.toLocaleString('en-GB',{hour:'2-digit',minute:'2-digit',hour12:false});
-  }
-  updateClock();
-  setInterval(updateClock,1000);
+    .then(h => {
+      document.getElementById('header-placeholder').innerHTML = h;
+      const hamburger = document.getElementById('hamburger');
+      const navMenu = document.getElementById('nav-menu');
+      if(hamburger && navMenu){
+        hamburger.addEventListener('click', () => {
+          navMenu.classList.toggle('active');
+          hamburger.classList.toggle('open');
+        });
+      }
+    });
 
   // Dark/Light Mode Toggle
   function toggleMode(){
     document.body.classList.toggle('light-mode');
+    localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
   }
+
+  // Load saved theme
+  if (localStorage.getItem('theme') === 'light') {
+    document.body.classList.add('light-mode');
+  }
+
+  // Check if logged in
+  if (!isLoggedIn()) {
+    window.location.href = 'signin.html';
+  }
+
+  // Load dashboard data
+  async function loadDashboard() {
+    try {
+      const data = await getDashboard();
+      console.log('Dashboard data:', data);
+
+      // Hide loading, show content
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('contentState').style.display = 'block';
+
+      // Populate user info
+      document.getElementById('userName').textContent = data.dashboard.user.name;
+      document.getElementById('userEmail').textContent = data.dashboard.user.email;
+      document.getElementById('userRole').textContent = data.dashboard.user.role;
+      
+      const memberDate = new Date(data.dashboard.user.memberSince);
+      document.getElementById('memberSince').textContent = memberDate.toLocaleDateString();
+
+      // Populate stats
+      document.getElementById('statSchools').textContent = data.dashboard.stats.schoolsCount;
+      document.getElementById('statPrayers').textContent = data.dashboard.stats.totalPrayers;
+      document.getElementById('statJournals').textContent = data.dashboard.stats.journalCount;
+      document.getElementById('statDays').textContent = data.dashboard.stats.daysActive;
+
+      // Populate adopted schools
+      const adoptedList = document.getElementById('adoptedList');
+      
+      if (data.dashboard.adoptions.length === 0) {
+        adoptedList.innerHTML = `
+          <div class="empty-state">
+            <p>You haven't adopted any schools yet.</p>
+            <a href="map.html">Browse Universities</a>
+          </div>
+        `;
+      } else {
+        adoptedList.innerHTML = data.dashboard.adoptions.map(school => `
+          <div class="school-item">
+            <h4>${school.name}</h4>
+            <p><strong>Location:</strong> ${school.address}</p>
+            <p><strong>Adopted:</strong> ${new Date(school.dateAdopted).toLocaleDateString()}</p>
+            <p><strong>Prayers:</strong> ${school.prayerCount || 0} | <strong>Journal Entries:</strong> ${school.journalEntries || 0}</p>
+            <div class="actions">
+              <a href="read-more.html?schoolId=${school.id}">View Details</a>
+            </div>
+          </div>
+        `).join('');
+      }
+
+    } catch (error) {
+      console.error('Dashboard error:', error);
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('errorState').style.display = 'block';
+      document.getElementById('errorMessage').textContent = error.message;
+    }
+  }
+
+  async function handleLogout() {
+    if (confirm('Are you sure you want to logout?')) {
+      await logout();
+    }
+  }
+
+  // Load dashboard on page load
+  window.addEventListener('load', loadDashboard);
 </script>
 </body>
 </html>
