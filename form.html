@@ -2,14 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Add School or University - CRM Admin</title>
+  <title>Add University - CRM Admin</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     :root {
-      --primary: #000000;
+      --primary: #012169;
+      --secondary: #6a00ff;
+      --success: #00aa44;
+      --danger: #dc3545;
+      --warning: #ffc107;
       --text: #000000;
       --bg: #ffffff;
       --gray: #f5f5f5;
+      --border: #e0e0e0;
     }
 
     * {
@@ -20,18 +25,24 @@
 
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: var(--bg);
+      background: linear-gradient(135deg, #000000, #012169);
       color: var(--text);
       line-height: 1.6;
+      min-height: 100vh;
+      padding: 20px;
     }
 
+    /* Header */
     header {
-      background-color: var(--primary);
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
       color: white;
-      padding: 20px 40px;
+      padding: 30px 40px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      border-radius: 16px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
     }
 
     header h1 {
@@ -39,390 +50,974 @@
       margin: 0;
     }
 
-    .user-info {
-      font-size: 1rem;
+    .header-actions {
+      display: flex;
+      gap: 15px;
     }
 
-    .logout-btn {
-      background: #dc3545;
+    .btn-secondary {
+      background: rgba(255,255,255,0.2);
       color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 4px;
+      border: 2px solid white;
+      padding: 10px 20px;
+      border-radius: 8px;
       cursor: pointer;
-      margin-left: 10px;
+      font-weight: bold;
+      text-decoration: none;
+      transition: all 0.3s;
+      font-size: 0.95rem;
     }
 
+    .btn-secondary:hover {
+      background: white;
+      color: var(--primary);
+    }
+
+    /* Main Container */
     main {
       display: flex;
       justify-content: center;
-      padding: 40px;
+      padding: 0 20px;
     }
 
-    .form-wrapper {
+    .form-container {
       width: 100%;
-      max-width: 1000px;
-      background: var(--gray);
+      max-width: 900px;
+      background: var(--bg);
       padding: 40px;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
     }
 
+    .form-header {
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .form-header h2 {
+      color: var(--primary);
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    .form-header p {
+      color: #666;
+      font-size: 1rem;
+    }
+
+    /* Progress Indicator */
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: var(--gray);
+      border-radius: 10px;
+      margin: 20px 0;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    /* Form Sections */
+    .form-section {
+      margin-bottom: 35px;
+      padding: 25px;
+      background: var(--gray);
+      border-radius: 12px;
+      border-left: 4px solid var(--primary);
+    }
+
+    .form-section h3 {
+      color: var(--primary);
+      margin-bottom: 20px;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-icon {
+      font-size: 1.5rem;
+    }
+
+    /* Form Fields */
     .form-grid {
       display: grid;
-      grid-template-columns: 1fr 2fr;
-      gap: 20px 30px;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
     }
 
     label {
       font-weight: 600;
-      padding-top: 10px;
+      color: var(--text);
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    label .required {
+      color: var(--danger);
+    }
+
+    label .optional {
+      color: #999;
+      font-weight: normal;
+      font-size: 0.85rem;
     }
 
     input[type="text"],
     input[type="number"],
+    input[type="url"],
+    input[type="file"],
     select,
     textarea {
       width: 100%;
-      padding: 10px;
+      padding: 12px 15px;
       font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
       background: white;
+      transition: all 0.3s;
+      font-family: inherit;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(1, 33, 105, 0.1);
+    }
+
+    input.error,
+    select.error,
+    textarea.error {
+      border-color: var(--danger);
+      background: #fff5f5;
+    }
+
+    input.success,
+    select.success,
+    textarea.success {
+      border-color: var(--success);
     }
 
     textarea {
       resize: vertical;
-      min-height: 80px;
+      min-height: 120px;
     }
 
-    .full-width {
-      grid-column: 1 / -1;
-    }
-
-    button {
-      background-color: var(--primary);
-      color: white;
-      border: none;
-      padding: 14px 20px;
-      font-size: 1rem;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    button:hover:not(:disabled) {
-      background-color: #000f3a;
-    }
-
-    button:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
-    }
-
-    #message {
-      margin-top: 20px;
-      padding: 12px;
-      border-radius: 4px;
-      font-weight: bold;
-      display: none;
-    }
-
-    #message.success {
-      background: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
-    }
-
-    #message.error {
-      background: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
-    }
-
-    .footer-btn {
-      background-color: #333;
-      color: white;
-      text-align: center;
-      padding: 12px;
-      margin-top: 20px;
-      width: 100%;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .loading {
-      text-align: center;
+    /* Field Helpers */
+    .field-help {
+      font-size: 0.85rem;
       color: #666;
+      font-style: italic;
+    }
+
+    .field-error {
+      font-size: 0.85rem;
+      color: var(--danger);
+      font-weight: 500;
       display: none;
     }
 
+    .field-error.show {
+      display: block;
+    }
+
+    .field-counter {
+      font-size: 0.85rem;
+      color: #999;
+      text-align: right;
+    }
+
+    /* Character Counter */
+    .char-count {
+      text-align: right;
+      font-size: 0.85rem;
+      color: #999;
+      margin-top: 5px;
+    }
+
+    /* Image Preview */
+    .image-preview-container {
+      margin-top: 15px;
+      display: none;
+    }
+
+    .image-preview {
+      width: 100%;
+      max-width: 300px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    /* Coordinate Helper */
+    .coord-helper {
+      background: #e3f2fd;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 10px;
+      font-size: 0.9rem;
+      border-left: 4px solid #2196F3;
+    }
+
+    .coord-helper a {
+      color: #2196F3;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .coord-helper a:hover {
+      text-decoration: underline;
+    }
+
+    /* Buttons */
+    .form-actions {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+    }
+
+    button[type="submit"],
+    .btn-primary {
+      flex: 1;
+      padding: 16px 24px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 1.1rem;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    button[type="submit"]:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(1, 33, 105, 0.3);
+    }
+
+    button[type="submit"]:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-reset {
+      padding: 16px 24px;
+      background: var(--gray);
+      color: var(--text);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+
+    .btn-reset:hover {
+      background: #e0e0e0;
+    }
+
+    /* Messages */
+    .message {
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
+      font-weight: 500;
+      animation: slideIn 0.3s;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .message.success {
+      background: #e6ffe6;
+      color: var(--success);
+      border: 2px solid var(--success);
+    }
+
+    .message.error {
+      background: #ffe6e6;
+      color: var(--danger);
+      border: 2px solid var(--danger);
+    }
+
+    .message.warning {
+      background: #fff8e1;
+      color: #f57c00;
+      border: 2px solid var(--warning);
+    }
+
+    /* Loading Spinner */
+    .spinner {
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top: 3px solid white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Recent Submissions */
+    .recent-submissions {
+      margin-top: 40px;
+      padding: 25px;
+      background: var(--gray);
+      border-radius: 12px;
+    }
+
+    .recent-submissions h3 {
+      color: var(--primary);
+      margin-bottom: 15px;
+    }
+
+    .submission-item {
+      background: white;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      border-left: 4px solid var(--success);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .submission-item .name {
+      font-weight: bold;
+      color: var(--primary);
+    }
+
+    .submission-item .time {
+      font-size: 0.85rem;
+      color: #999;
+    }
+
+    /* Responsive */
     @media (max-width: 768px) {
-      .form-grid { grid-template-columns: 1fr; }
-      header { flex-direction: column; gap: 10px; }
+      body {
+        padding: 10px;
+      }
+
+      header {
+        flex-direction: column;
+        gap: 15px;
+        padding: 20px;
+      }
+
+      .form-container {
+        padding: 25px 20px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-actions {
+        flex-direction: column;
+      }
+
+      button[type="submit"],
+      .btn-reset {
+        width: 100%;
+      }
+    }
+
+    /* Toast Notifications */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 25px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      z-index: 10000;
+      animation: slideInRight 0.3s;
+      max-width: 400px;
+    }
+
+    @keyframes slideInRight {
+      from { transform: translateX(100%); }
+      to { transform: translateX(0); }
+    }
+
+    .toast.success {
+      border-left: 4px solid var(--success);
+    }
+
+    .toast.error {
+      border-left: 4px solid var(--danger);
     }
   </style>
 </head>
 <body>
 
-  <div id="header-placeholder"></div>
-
   <header>
-    <h1>Admin Dashboard – Add School/University</h1>
+    <h1>🎓 Add University to CRM</h1>
+    <div class="header-actions">
+      <a href="records.html" class="btn-secondary">View All Schools</a>
+      <a href="dashboard.html" class="btn-secondary">Dashboard</a>
     </div>
   </header>
 
   <main>
-    <div class="form-wrapper">
-      <form id="schoolForm" class="form-grid">
+    <div class="form-container">
+      <div class="form-header">
+        <h2>Add New University</h2>
+        <p>Fill in the details to add a new university to the Campus Revival Movement database</p>
+      </div>
 
-        <label for="name">School / University Name *:</label>
-        <input type="text" id="name" required />
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
 
-        <label for="address">Address *:</label>
-<input type="text" id="address" placeholder="123 University Road" required />
+      <div id="messageContainer"></div>
 
+      <form id="schoolForm">
+        <!-- Basic Information -->
+        <div class="form-section">
+          <h3><span class="section-icon">📚</span> Basic Information</h3>
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label>
+                University Name <span class="required">*</span>
+              </label>
+              <input 
+                type="text" 
+                id="name" 
+                name="name" 
+                placeholder="e.g., University of Oxford"
+                required 
+                maxlength="200"
+              />
+              <span class="field-error" id="nameError">University name is required</span>
+              <span class="char-count"><span id="nameCount">0</span>/200</span>
+            </div>
 
-        <label for="city">City:</label>
-        <select id="city">
-          <option value="">-- Select --</option>
-          <option value="London">London</option>
-          <option value="Oxford">Oxford</option>
-          <option value="Cambridge">Cambridge</option>
-          <option value="Manchester">Manchester</option>
-          <option value="Birmingham">Birmingham</option>
-          <option value="Glasgow">Glasgow</option>
-          <option value="St Andrews">St Andrews</option>
-          <option value="Edinburgh">Edinburgh</option>
-          <option value="Liverpool">Liverpool</option>
-          <option value="Bristol">Bristol</option>
-          <option value="Leeds">Leeds</option>
-          <option value="Sheffield">Sheffield</option>
-          <option value="Newcastle">Newcastle</option>
-          <option value="Nottingham">Nottingham</option>
-          <option value="Southampton">Southampton</option>
-          <option value="Portsmouth">Portsmouth</option>
-          <option value="Brighton">Brighton</option>
-          <option value="Plymouth">Plymouth</option>
-          <option value="Cardiff">Cardiff</option>
-          <option value="Bangor">Bangor</option>
-          <option value="Aberystwyth">Aberystwyth</option>
-          <option value="Belfast">Belfast</option>
-          <option value="Coventry">Coventry</option>
-          <option value="Hull">Hull</option>
-          <option value="Dundee">Dundee</option>
-          <option value="Aberdeen">Aberdeen</option>
-          <option value="Inverness">Inverness</option>
-          <option value="Swansea">Swansea</option>
-          <option value="Reading">Reading</option>
-          <option value="Leicester">Leicester</option>
-          <option value="Bradford">Bradford</option>
-        </select>
+            <div class="form-group">
+              <label>
+                City <span class="required">*</span>
+              </label>
+              <select id="city" name="city" required>
+                <option value="">-- Select City --</option>
+                <option value="London">London</option>
+                <option value="Oxford">Oxford</option>
+                <option value="Cambridge">Cambridge</option>
+                <option value="Manchester">Manchester</option>
+                <option value="Birmingham">Birmingham</option>
+                <option value="Glasgow">Glasgow</option>
+                <option value="St Andrews">St Andrews</option>
+                <option value="Edinburgh">Edinburgh</option>
+                <option value="Liverpool">Liverpool</option>
+                <option value="Bristol">Bristol</option>
+                <option value="Leeds">Leeds</option>
+                <option value="Sheffield">Sheffield</option>
+                <option value="Newcastle">Newcastle</option>
+                <option value="Nottingham">Nottingham</option>
+                <option value="Southampton">Southampton</option>
+                <option value="Portsmouth">Portsmouth</option>
+                <option value="Brighton">Brighton</option>
+                <option value="Plymouth">Plymouth</option>
+                <option value="Cardiff">Cardiff</option>
+                <option value="Bangor">Bangor</option>
+                <option value="Aberystwyth">Aberystwyth</option>
+                <option value="Belfast">Belfast</option>
+                <option value="Coventry">Coventry</option>
+                <option value="Hull">Hull</option>
+                <option value="Dundee">Dundee</option>
+                <option value="Aberdeen">Aberdeen</option>
+                <option value="Inverness">Inverness</option>
+                <option value="Swansea">Swansea</option>
+                <option value="Reading">Reading</option>
+                <option value="Leicester">Leicester</option>
+                <option value="Bradford">Bradford</option>
+              </select>
+              <span class="field-error" id="cityError">Please select a city</span>
+            </div>
 
-        <label for="lat">Latitude *:</label>
-        <input type="number" id="lat" step="any" placeholder="51.5074" required />
+            <div class="form-group">
+              <label>
+                Website <span class="required">*</span>
+              </label>
+              <input 
+                type="url" 
+                id="website" 
+                name="website" 
+                placeholder="https://www.university.ac.uk"
+                required
+              />
+              <span class="field-error" id="websiteError">Please enter a valid URL</span>
+            </div>
 
-        <label for="lng">Longitude *:</label>
-        <input type="number" id="lng" step="any" placeholder="-0.1278" required />
-
-        <label for="image">Upload School Image *:</label>
-<input type="file" id="image" accept="image/*" required />
-
-<label for="website">University Website Link *:</label>
-<input type="url" id="website" placeholder="https://example.edu" required />
-
-
-        <label for="description">About *:</label>
-        <textarea id="description" required placeholder="Description of the school..."></textarea>
-
-        <div class="full-width">
-          <button type="submit" id="submitBtn">Add to Map</button>
-          <div class="loading" id="loading">Adding school...</div>
-          <div id="message"></div>
+            <div class="form-group full-width">
+              <label>
+                Full Address <span class="required">*</span>
+              </label>
+              <input 
+                type="text" 
+                id="address" 
+                name="address" 
+                placeholder="Street, City, Postcode"
+                required
+                maxlength="500"
+              />
+              <span class="field-help">Include street, city, and postcode</span>
+              <span class="field-error" id="addressError">Address is required</span>
+            </div>
+          </div>
         </div>
 
-        <div class="full-width">
-          <button class="footer-btn" type="button" onclick="window.location.href='records.html'">View All Schools</button>
+        <!-- Location Coordinates -->
+        <div class="form-section">
+          <h3><span class="section-icon">📍</span> Geographic Coordinates</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>
+                Latitude <span class="required">*</span>
+              </label>
+              <input 
+                type="number" 
+                id="lat" 
+                name="lat" 
+                step="any" 
+                placeholder="51.5074"
+                min="-90"
+                max="90"
+                required 
+              />
+              <span class="field-help">Between -90 and 90</span>
+              <span class="field-error" id="latError">Valid latitude required</span>
+            </div>
+
+            <div class="form-group">
+              <label>
+                Longitude <span class="required">*</span>
+              </label>
+              <input 
+                type="number" 
+                id="lng" 
+                name="lng" 
+                step="any" 
+                placeholder="-0.1278"
+                min="-180"
+                max="180"
+                required 
+              />
+              <span class="field-help">Between -180 and 180</span>
+              <span class="field-error" id="lngError">Valid longitude required</span>
+            </div>
+
+            <div class="form-group full-width">
+              <div class="coord-helper">
+                💡 <strong>Need coordinates?</strong> Use 
+                <a href="https://www.latlong.net/" target="_blank">LatLong.net</a> or 
+                <a href="https://www.google.com/maps" target="_blank">Google Maps</a> 
+                (right-click location → copy coordinates)
+              </div>
+            </div>
+          </div>
         </div>
 
+        <!-- Additional Information -->
+        <div class="form-section">
+          <h3><span class="section-icon">📝</span> Additional Information</h3>
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label>
+                Description <span class="required">*</span>
+              </label>
+              <textarea 
+                id="description" 
+                name="description" 
+                placeholder="Brief description of the university, its history, and significance..."
+                required
+                maxlength="5000"
+              ></textarea>
+              <span class="char-count"><span id="descCount">0</span>/5000</span>
+              <span class="field-error" id="descriptionError">Description is required</span>
+            </div>
+
+            <div class="form-group full-width">
+              <label>
+                University Image <span class="required">*</span>
+              </label>
+              <input 
+                type="file" 
+                id="image" 
+                name="image" 
+                accept="image/*"
+                required 
+              />
+              <span class="field-help">JPG, PNG, or WebP (max 5MB)</span>
+              <span class="field-error" id="imageError">Image is required</span>
+              
+              <div class="image-preview-container" id="imagePreviewContainer">
+                <img id="imagePreview" class="image-preview" alt="Preview">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn-reset" onclick="resetForm()">
+            Clear Form
+          </button>
+          <button type="submit" id="submitBtn">
+            <span id="submitText">Add University</span>
+            <span class="spinner" id="submitSpinner" style="display: none;"></span>
+          </button>
+        </div>
       </form>
+
+      <!-- Recent Submissions -->
+      <div class="recent-submissions" id="recentSubmissions" style="display: none;">
+        <h3>✅ Recently Added (This Session)</h3>
+        <div id="recentList"></div>
+      </div>
     </div>
   </main>
 
+  <script src="utils/api.js"></script>
   <script>
-// ===============================
-// CITY → LAT/LNG AUTO-FILL MAP
-// ===============================
-const cityCoordinates = {
-  "London": { lat: 51.5074, lng: -0.1278 },
-  "Oxford": { lat: 51.7520, lng: -1.2577 },
-  "Cambridge": { lat: 52.2053, lng: 0.1218 },
-  "Manchester": { lat: 53.4808, lng: -2.2426 },
-  "Birmingham": { lat: 52.4862, lng: -1.8904 },
-  "Glasgow": { lat: 55.8642, lng: -4.2518 },
-  "St Andrews": { lat: 56.3398, lng: -2.7967 },
-  "Edinburgh": { lat: 55.9533, lng: -3.1883 },
-  "Liverpool": { lat: 53.4084, lng: -2.9916 },
-  "Bristol": { lat: 51.4545, lng: -2.5879 },
-  "Leeds": { lat: 53.8008, lng: -1.5491 },
-  "Sheffield": { lat: 53.3811, lng: -1.4701 },
-  "Newcastle": { lat: 54.9784, lng: -1.6174 },
-  "Nottingham": { lat: 52.9548, lng: -1.1581 },
-  "Southampton": { lat: 50.9097, lng: -1.4044 },
-  "Portsmouth": { lat: 50.8198, lng: -1.0880 },
-  "Brighton": { lat: 50.8225, lng: -0.1372 },
-  "Plymouth": { lat: 50.3755, lng: -4.1427 },
-  "Cardiff": { lat: 51.4816, lng: -3.1791 },
-  "Bangor": { lat: 53.2270, lng: -4.1294 },
-  "Aberystwyth": { lat: 52.4153, lng: -4.0829 },
-  "Belfast": { lat: 54.5973, lng: -5.9301 },
-  "Coventry": { lat: 52.4068, lng: -1.5197 },
-  "Hull": { lat: 53.7676, lng: -0.3274 },
-  "Dundee": { lat: 56.4620, lng: -2.9707 },
-  "Aberdeen": { lat: 57.1497, lng: -2.0943 },
-  "Inverness": { lat: 57.4778, lng: -4.2247 },
-  "Swansea": { lat: 51.6214, lng: -3.9436 },
-  "Reading": { lat: 51.4543, lng: -0.9781 },
-  "Leicester": { lat: 52.6369, lng: -1.1398 },
-  "Bradford": { lat: 53.7950, lng: -1.7594 }
-};
+    // City coordinates map
+    const cityCoordinates = {
+      "London": { lat: 51.5074, lng: -0.1278 },
+      "Oxford": { lat: 51.7520, lng: -1.2577 },
+      "Cambridge": { lat: 52.2053, lng: 0.1218 },
+      "Manchester": { lat: 53.4808, lng: -2.2426 },
+      "Birmingham": { lat: 52.4862, lng: -1.8904 },
+      "Glasgow": { lat: 55.8642, lng: -4.2518 },
+      "St Andrews": { lat: 56.3398, lng: -2.7967 },
+      "Edinburgh": { lat: 55.9533, lng: -3.1883 },
+      "Liverpool": { lat: 53.4084, lng: -2.9916 },
+      "Bristol": { lat: 51.4545, lng: -2.5879 },
+      "Leeds": { lat: 53.8008, lng: -1.5491 },
+      "Sheffield": { lat: 53.3811, lng: -1.4701 },
+      "Newcastle": { lat: 54.9784, lng: -1.6174 },
+      "Nottingham": { lat: 52.9548, lng: -1.1581 },
+      "Southampton": { lat: 50.9097, lng: -1.4044 },
+      "Portsmouth": { lat: 50.8198, lng: -1.0880 },
+      "Brighton": { lat: 50.8225, lng: -0.1372 },
+      "Plymouth": { lat: 50.3755, lng: -4.1427 },
+      "Cardiff": { lat: 51.4816, lng: -3.1791 },
+      "Bangor": { lat: 53.2270, lng: -4.1294 },
+      "Aberystwyth": { lat: 52.4153, lng: -4.0829 },
+      "Belfast": { lat: 54.5973, lng: -5.9301 },
+      "Coventry": { lat: 52.4068, lng: -1.5197 },
+      "Hull": { lat: 53.7676, lng: -0.3274 },
+      "Dundee": { lat: 56.4620, lng: -2.9707 },
+      "Aberdeen": { lat: 57.1497, lng: -2.0943 },
+      "Inverness": { lat: 57.4778, lng: -4.2247 },
+      "Swansea": { lat: 51.6214, lng: -3.9436 },
+      "Reading": { lat: 51.4543, lng: -0.9781 },
+      "Leicester": { lat: 52.6369, lng: -1.1398 },
+      "Bradford": { lat: 53.7950, lng: -1.7594 }
+    };
 
-// ===============================
-// HEADER LOAD (OPTIONAL)
-// ===============================
-fetch('header.html')
-  .then(res => res.text())
-  .then(html => {
-    document.getElementById('header-placeholder').innerHTML = html;
-    const hamburger = document.getElementById('hamburger');
-    const navMenu = document.getElementById('nav-menu');
-    if (hamburger && navMenu) {
-      hamburger.addEventListener('click', () => {
-        navMenu.classList.toggle('active');
-        hamburger.classList.toggle('open');
+    let recentSchools = [];
+    const form = document.getElementById('schoolForm');
+
+    // Auto-fill coordinates when city is selected
+    document.getElementById('city').addEventListener('change', function() {
+      const city = this.value;
+      if (cityCoordinates[city]) {
+        document.getElementById('lat').value = cityCoordinates[city].lat;
+        document.getElementById('lng').value = cityCoordinates[city].lng;
+        clearFieldError('lat');
+        clearFieldError('lng');
+      }
+    });
+
+    // Character counters
+    document.getElementById('name').addEventListener('input', function() {
+      document.getElementById('nameCount').textContent = this.value.length;
+    });
+
+    document.getElementById('description').addEventListener('input', function() {
+      document.getElementById('descCount').textContent = this.value.length;
+    });
+
+    // Image preview
+    document.getElementById('image').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        // Validate file size (5MB max)
+        if (file.size > 5 * 1024 * 1024) {
+          showFieldError('image', 'Image must be less than 5MB');
+          this.value = '';
+          return;
+        }
+
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('imagePreview').src = e.target.result;
+          document.getElementById('imagePreviewContainer').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+        clearFieldError('image');
+      }
+    });
+
+    // Form progress indicator
+    form.addEventListener('input', updateProgress);
+
+    function updateProgress() {
+      const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
+      let filled = 0;
+      inputs.forEach(input => {
+        if (input.type === 'file') {
+          if (input.files.length > 0) filled++;
+        } else if (input.value.trim()) {
+          filled++;
+        }
+      });
+      const progress = (filled / inputs.length) * 100;
+      document.getElementById('progressFill').style.width = progress + '%';
+    }
+
+    // Real-time validation
+    const validators = {
+      name: (value) => value.trim().length >= 2,
+      city: (value) => value.trim().length > 0,
+      address: (value) => value.trim().length >= 5,
+      website: (value) => /^https?:\/\/.+\..+/.test(value),
+      lat: (value) => !isNaN(value) && value >= -90 && value <= 90,
+      lng: (value) => !isNaN(value) && value >= -180 && value <= 180,
+      description: (value) => value.trim().length >= 10,
+      image: (input) => input.files.length > 0
+    };
+
+    // Add blur validation
+    Object.keys(validators).forEach(field => {
+      const element = document.getElementById(field);
+      if (element) {
+        element.addEventListener('blur', function() {
+          validateField(field, this);
+        });
+      }
+    });
+
+    function validateField(field, element) {
+      const value = element.type === 'file' ? element : element.value;
+      const isValid = validators[field](value);
+      
+      if (isValid) {
+        element.classList.remove('error');
+        element.classList.add('success');
+        clearFieldError(field);
+      } else {
+        element.classList.add('error');
+        element.classList.remove('success');
+        const errorEl = document.getElementById(field + 'Error');
+        if (errorEl) {
+          errorEl.classList.add('show');
+        }
+      }
+      return isValid;
+    }
+
+    function showFieldError(field, message) {
+      const errorEl = document.getElementById(field + 'Error');
+      if (errorEl) {
+        errorEl.textContent = message;
+        errorEl.classList.add('show');
+      }
+      document.getElementById(field).classList.add('error');
+    }
+
+    function clearFieldError(field) {
+      const errorEl = document.getElementById(field + 'Error');
+      if (errorEl) {
+        errorEl.classList.remove('show');
+      }
+      document.getElementById(field).classList.remove('error');
+    }
+
+    // Form submission
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      // Validate all fields
+      let isValid = true;
+      Object.keys(validators).forEach(field => {
+        const element = document.getElementById(field);
+        if (!validateField(field, element)) {
+          isValid = false;
+        }
+      });
+
+      if (!isValid) {
+        showMessage('Please fix all errors before submitting', 'error');
+        return;
+      }
+
+      const submitBtn = document.getElementById('submitBtn');
+      const submitText = document.getElementById('submitText');
+      const submitSpinner = document.getElementById('submitSpinner');
+
+      submitBtn.disabled = true;
+      submitText.textContent = 'Adding...';
+      submitSpinner.style.display = 'inline-block';
+
+      try {
+        // Get form data
+        const formData = {
+          name: document.getElementById('name').value.trim(),
+          city: document.getElementById('city').value,
+          address: document.getElementById('address').value.trim(),
+          lat: parseFloat(document.getElementById('lat').value),
+          lng: parseFloat(document.getElementById('lng').value),
+          website: document.getElementById('website').value.trim(),
+          description: document.getElementById('description').value.trim()
+        };
+
+        // Convert image to base64
+        const imageFile = document.getElementById('image').files[0];
+        const imageBase64 = await fileToBase64(imageFile);
+        formData.image = imageBase64;
+
+        // Send to API (if backend is available)
+        // const response = await createSchool(formData);
+
+        // For now, store locally (remove when API is integrated)
+        const cityChildren = JSON.parse(localStorage.getItem('cityChildren')) || {};
+        if (!cityChildren[formData.city]) {
+          cityChildren[formData.city] = [];
+        }
+        cityChildren[formData.city].push(formData);
+        localStorage.setItem('cityChildren', JSON.stringify(cityChildren));
+
+        // Add to recent list
+        recentSchools.unshift(formData);
+        updateRecentList();
+
+        showMessage(`✅ "${formData.name}" has been successfully added!`, 'success');
+        showToast(`${formData.name} added successfully!`, 'success');
+        
+        form.reset();
+        document.getElementById('imagePreviewContainer').style.display = 'none';
+        document.getElementById('progressFill').style.width = '0%';
+        
+        // Clear all success/error states
+        form.querySelectorAll('input, select, textarea').forEach(el => {
+          el.classList.remove('success', 'error');
+        });
+
+      } catch (error) {
+        console.error('Error:', error);
+        showMessage('❌ Failed to add university: ' + error.message, 'error');
+        showToast('Failed to add university', 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitText.textContent = 'Add University';
+        submitSpinner.style.display = 'none';
+      }
+    });
+
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
       });
     }
-  })
-  .catch(err => console.error('Error loading header:', err));
 
-// ===============================
-// MAIN FORM SETUP
-// ===============================
-function setupForm() {
-  const form = document.getElementById("schoolForm");
-  const citySelect = document.getElementById("city");
-  const latInput = document.getElementById("lat");
-  const lngInput = document.getElementById("lng");
-  const submitBtn = document.getElementById("submitBtn");
-  const loading = document.getElementById("loading");
-  const message = document.getElementById("message");
-
-  // --- Auto-fill lat/lng when city changes (set once)
-  citySelect.addEventListener('change', () => {
-    const selected = citySelect.value;
-    if (cityCoordinates[selected]) {
-      latInput.value = cityCoordinates[selected].lat;
-      lngInput.value = cityCoordinates[selected].lng;
-    } else {
-      latInput.value = '';
-      lngInput.value = '';
-    }
-  });
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    // Collect form values correctly with trimmed strings
-    const name = document.getElementById("name").value.trim();
-    const city = citySelect.value;
-    const address = document.getElementById("address").value.trim();
-    const website = document.getElementById("website").value.trim();
-    const lat = parseFloat(latInput.value);
-    const lng = parseFloat(lngInput.value);
-    const description = document.getElementById("description").value.trim();
-    const imageInput = document.getElementById("image");
-    const imageFile = imageInput.files[0];
-
-    // Validation
-    if (!name || !city || !address || !description || isNaN(lat) || isNaN(lng) || !website || !imageFile) {
-      showMessage('⚠️ Please fill in all required fields.', 'error');
-      return;
+    function showMessage(text, type) {
+      const container = document.getElementById('messageContainer');
+      const message = document.createElement('div');
+      message.className = `message ${type}`;
+      message.textContent = text;
+      container.appendChild(message);
+      message.style.display = 'block';
+      
+      setTimeout(() => {
+        message.remove();
+      }, 5000);
     }
 
-    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-      showMessage('Invalid coordinates.', 'error');
-      return;
+    function showToast(text, type) {
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = text;
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.remove();
+      }, 3000);
     }
 
-    submitBtn.disabled = true;
-    loading.style.display = 'block';
-
-    try {
-      // Convert image file to Base64 string
-      const imageBase64 = await toBase64(imageFile);
-
-      const schoolData = {
-        name,
-        city,
-        address,
-        lat,
-        lng,
-        About: description,
-        website,
-        image: imageBase64,
-        JoinedCRMProgram: new Date().toISOString()
-      };
-
-      // Save data grouped by city in localStorage
-      const cityChildren = JSON.parse(localStorage.getItem('cityChildren')) || {};
-      if (!cityChildren[city]) cityChildren[city] = [];
-      cityChildren[city].push(schoolData);
-      localStorage.setItem('cityChildren', JSON.stringify(cityChildren));
-
-      showMessage(`✅ "${name}" added to map successfully!`, 'success');
-      form.reset();
-      latInput.value = '';
-      lngInput.value = '';
-    } catch (error) {
-      console.error(error);
-      showMessage('❌ Failed to add school: ' + error.message, 'error');
-    } finally {
-      submitBtn.disabled = false;
-      loading.style.display = 'none';
+    function updateRecentList() {
+      if (recentSchools.length > 0) {
+        document.getElementById('recentSubmissions').style.display = 'block';
+        const list = document.getElementById('recentList');
+        list.innerHTML = recentSchools.slice(0, 5).map((school, index) => `
+          <div class="submission-item">
+            <div>
+              <div class="name">${school.name}</div>
+              <div class="time">${school.city}</div>
+            </div>
+            <div class="time">Just now</div>
+          </div>
+        `).join('');
+      }
     }
-  });
-}
 
-// ===============================
-// HELPER: Convert file → Base64
-// ===============================
-function toBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
+    function resetForm() {
+      if (confirm('Are you sure you want to clear all fields?')) {
+        form.reset();
+        document.getElementById('imagePreviewContainer').style.display = 'none';
+        document.getElementById('progressFill').style.width = '0%';
+        
+        form.querySelectorAll('input, select, textarea').forEach(el => {
+          el.classList.remove('success', 'error');
+        });
+        
+        document.querySelectorAll('.field-error').forEach(el => {
+          el.classList.remove('show');
+        });
+      }
+    }
 
-// ===============================
-// HELPER: Show success/error
-// ===============================
-function showMessage(text, type) {
-  const message = document.getElementById('message');
-  message.textContent = text;
-  message.className = type;
-  message.style.display = 'block';
-  setTimeout(() => { message.style.display = 'none'; }, 5000);
-}
-
-// ===============================
-// INIT
-// ===============================
-window.addEventListener('load', setupForm);
-</script>
-
-
+    // Check auth on load
+    window.addEventListener('load', function() {
+      if (typeof isLoggedIn === 'function' && !isLoggedIn()) {
+        showMessage('⚠️ You must be logged in to add universities', 'warning');
+        setTimeout(() => {
+          window.location.href = 'signin.html?redirect=' + encodeURIComponent(window.location.href);
+        }, 2000);
+      }
+    });
+  </script>
 </body>
 </html>
