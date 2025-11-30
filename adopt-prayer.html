@@ -28,6 +28,12 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
+    .loading {
+      text-align: center;
+      color: #666;
+      padding: 40px;
+    }
+
     .school-highlight {
       background: #f0f6ff;
       border-left: 4px solid #000;
@@ -36,19 +42,22 @@
       margin-bottom: 25px;
     }
 
-    .school-image {
-      width: 100%;
-      max-height: 250px;
-      object-fit: cover;
-      border-radius: 8px;
-      margin-bottom: 15px;
+    .school-highlight h2 {
+      margin: 0 0 10px 0;
+    }
+
+    .school-highlight p {
+      margin: 5px 0;
+      color: #666;
     }
 
     .choice-buttons {
       display: flex;
       gap: 20px;
       flex-wrap: wrap;
+      margin: 20px 0;
     }
+
     .choice-buttons button {
       flex: 1;
       min-width: 150px;
@@ -58,8 +67,17 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
+      font-weight: bold;
     }
-    .choice-buttons button:hover { background: #333; }
+
+    .choice-buttons button:hover {
+      background: #333;
+    }
+
+    .choice-buttons button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
 
     .back-button {
       display: inline-block;
@@ -72,28 +90,71 @@
       cursor: pointer;
     }
 
+    .back-button:hover {
+      background: #ddd;
+    }
+
     .modal {
       display: none;
       position: fixed;
       z-index: 1000;
-      left: 0; top: 0;
-      width: 100%; height: 100%;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
       background: rgba(0,0,0,0.6);
       justify-content: center;
       align-items: center;
     }
+
     .modal-content {
       background: #fff;
       padding: 30px;
       border-radius: 10px;
       width: 90%;
       max-width: 500px;
+      position: relative;
     }
+
     .close {
       position: absolute;
-      right: 20px; top: 10px;
+      right: 15px;
+      top: 10px;
+      font-size: 1.4rem;
+      font-weight: bold;
       cursor: pointer;
-      font-size: 20px;
+      color: #aaa;
+    }
+
+    .close:hover {
+      color: #000;
+    }
+
+    .modal-content h3 {
+      margin-top: 0;
+      color: #000;
+    }
+
+    .modal-content button {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: none;
+      background: #000;
+      color: #fff;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .modal-content button:hover:not(:disabled) {
+      background: #333;
+    }
+
+    .modal-content button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
     }
 
     .message {
@@ -114,12 +175,6 @@
       color: #00aa44;
       border: 1px solid #ccffcc;
     }
-
-    .loading {
-      text-align: center;
-      color: #666;
-      padding: 40px;
-    }
   </style>
 </head>
 <body>
@@ -128,44 +183,26 @@
     <h1>Adopt A School For Prayer</h1>
   </header>
 
-<<<<<<< HEAD
   <main id="mainContent">
     <div class="loading">Loading school details...</div>
-=======
-  <main>
-    <img id="schoolImage" class="school-image" src="" alt="School Image" />
-    <div class="school-highlight">
-      <h2 id="schoolName">Loading School...</h2>
-      <p id="schoolLocation"></p>
-      <p id="adopterCount"></p>
-    </div>
-
-    <div class="choice-buttons">
-      <button onclick="openModal('individual')">Adopt as Individual</button>
-      <button onclick="openModal('group')">Adopt as Group</button>
-    </div>
-
-    <a class="back-button" href="map.html">← Back to Map</a>
->>>>>>> 4615b5a99aacfc95d17fbdbad3076a73f12a742a
   </main>
 
   <!-- Modal -->
   <div id="registrationModal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeModal()">×</span>
-      <h3 id="modalTitle">Register</h3>
-      <form id="registrationForm">
-        <input type="text" id="fullName" placeholder="Full Name" required />
-        <input type="email" id="email" placeholder="Email" required />
-        <input type="date" id="dob" required />
-        <button type="submit">Submit</button>
-      </form>
+      <h3 id="modalTitle">Adopt School</h3>
+      <div id="modalMessage" class="message"></div>
+      <div id="modalContent">
+        <p>You are about to adopt <strong id="modalSchoolName"></strong> for prayer ministry.</p>
+        <p>Please confirm you are logged in and ready to proceed.</p>
+        <button id="confirmBtn" onclick="confirmAdoption()">Confirm Adoption</button>
+      </div>
     </div>
   </div>
 
   <script src="utils/api.js"></script>
   <script>
-<<<<<<< HEAD
     let currentSchool = null;
     let adoptionMode = 'individual';
 
@@ -186,7 +223,8 @@
 
       try {
         // Fetch school details from API
-        currentSchool = await getSchoolById(schoolId);
+        const response = await getSchoolById(schoolId);
+        currentSchool = response.school || response;
         displaySchool();
       } catch (error) {
         console.error('Failed to load school:', error);
@@ -199,6 +237,7 @@
         <div class="school-highlight">
           <h2 id="schoolName">${currentSchool.name}</h2>
           <p id="schoolLocation">${currentSchool.address}</p>
+          <p id="adopterCount">${currentSchool.name} currently has ${currentSchool.adoptionCount || 0} adopter${currentSchool.adoptionCount === 1 ? '' : 's'}.</p>
         </div>
 
         <p id="instructions">
@@ -238,64 +277,42 @@
       document.getElementById('modalTitle').textContent = modalTitle;
       document.getElementById('modalSchoolName').textContent = currentSchool.name;
       document.getElementById('registrationModal').style.display = 'flex';
-=======
-    function getQueryParams() {
-      const params = {};
-      window.location.search.substring(1).split("&").forEach(p => {
-        const [key, val] = p.split("=");
-        params[decodeURIComponent(key)] = decodeURIComponent(val || "");
-      });
-      return params;
     }
 
-    const { city, index } = getQueryParams();
-    const allCities = JSON.parse(localStorage.getItem("schoolsByCity")) || {};
-    const schoolList = allCities[city] || [];
-    const school = schoolList[parseInt(index)];
-
-    let adoptionMode = 'individual';
-
-    // Display school info
-    if (school) {
-      document.getElementById("schoolName").textContent = school.name;
-      document.getElementById("schoolLocation").textContent = `Location: ${city}`;
-      document.getElementById("adopterCount").textContent = `${school.name} currently has ${school.adopters || 0} adopters.`;
-      document.getElementById("schoolImage").src = school.image ? school.image : "https://via.placeholder.com/800x250?text=No+Image+Available";
-    } else {
-      document.getElementById("schoolName").textContent = "School Not Found";
-    }
-
-    function openModal(type) {
-      document.getElementById("modalTitle").textContent = type === "individual" ? "Register as Individual" : "Register as Group";
-      document.getElementById("registrationModal").style.display = "flex";
->>>>>>> 4615b5a99aacfc95d17fbdbad3076a73f12a742a
-    }
     function closeModal() {
-      document.getElementById("registrationModal").style.display = "none";
+      document.getElementById('registrationModal').style.display = 'none';
+      hideModalMessage();
     }
 
-    document.getElementById("registrationForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      const dob = new Date(document.getElementById("dob").value);
-      const age = new Date().getFullYear() - dob.getFullYear();
-      if (age < 18) return alert("You must be at least 18 years old.");
+    function showModalMessage(text, type) {
+      const messageEl = document.getElementById('modalMessage');
+      messageEl.textContent = text;
+      messageEl.className = 'message ' + type;
+      messageEl.style.display = 'block';
+    }
 
-<<<<<<< HEAD
+    function hideModalMessage() {
+      const messageEl = document.getElementById('modalMessage');
+      messageEl.style.display = 'none';
+    }
+
     async function confirmAdoption() {
       if (!currentSchool || !currentSchool._id) {
-        showMessage('Invalid school selection', 'error');
+        showModalMessage('Invalid school selection', 'error');
         return;
       }
 
       const confirmBtn = document.getElementById('confirmBtn');
       confirmBtn.disabled = true;
       confirmBtn.textContent = 'Processing...';
+      hideModalMessage();
 
       try {
         // Call API to adopt school with 'prayer' type
         const result = await adoptSchool(currentSchool._id, 'prayer');
+        console.log('Adoption successful:', result);
         
-        showMessage('Prayer adoption successful! Redirecting to dashboard...', 'success');
+        showModalMessage('Prayer adoption successful! Redirecting to dashboard...', 'success');
         
         setTimeout(() => {
           window.location.href = 'dashboard.html';
@@ -303,28 +320,22 @@
 
       } catch (error) {
         console.error('Adoption error:', error);
-        showMessage('Adoption failed: ' + error.message, 'error');
+        showModalMessage('Adoption failed: ' + error.message, 'error');
         confirmBtn.disabled = false;
         confirmBtn.textContent = 'Confirm Adoption';
       }
     }
 
-    function showMessage(text, type) {
-      const messageEl = document.getElementById('modalMessage');
-      messageEl.textContent = text;
-      messageEl.className = 'message ' + type;
-      messageEl.style.display = 'block';
-    }
-=======
-      // Increment adopters and save
-      school.adopters = (school.adopters || 0) + 1;
-      allCities[city][index] = school;
-      localStorage.setItem("schoolsByCity", JSON.stringify(allCities));
-
-      alert(`Prayer adoption successful for ${school.name}!`);
-      window.location.href = "map.html";
+    // Close modal on escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
     });
->>>>>>> 4615b5a99aacfc95d17fbdbad3076a73f12a742a
+
+    // Close modal on outside click
+    window.onclick = function(event) {
+      const modal = document.getElementById('registrationModal');
+      if (event.target === modal) closeModal();
+    }
   </script>
 </body>
 </html>
