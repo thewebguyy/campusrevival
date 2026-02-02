@@ -44,6 +44,20 @@ const userSchema = new mongoose.Schema({
   },
   image: {
     type: String
+  },
+  isVerifiedLeader: {
+    type: Boolean,
+    default: false
+  },
+  university: {
+    type: String
+  },
+  universityEmail: {
+    type: String
+  },
+  organization: {
+    type: String,
+    trim: true
   }
 }, {
   timestamps: true

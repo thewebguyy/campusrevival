@@ -6,6 +6,7 @@ const User = require('../models/User');
 const School = require('../models/school');
 const Adoption = require('../models/Adoption');
 const Journal = require('../models/Journal');
+const PrayerRequest = require('../models/PrayerRequest');
 const { protect, adminOnly } = require('../middleware/auth');
 
 // ============== HEALTH CHECK ==============
@@ -140,6 +141,36 @@ router.get('/me', protect, async (req, res) => {
   });
 });
 
+// POST /api/verify-leader - AUTO-VERIFY BY EMAIL DOMAIN
+router.post('/verify-leader', protect, async (req, res) => {
+  try {
+    const { universityEmail } = req.body;
+
+    // Simple verification check (.ac.uk for UK universities)
+    const isAcademic = universityEmail.toLowerCase().endsWith('.ac.uk') ||
+      universityEmail.toLowerCase().endsWith('.edu');
+
+    if (!isAcademic) {
+      return res.status(400).json({
+        success: false,
+        error: 'Verification requires a valid institutional email (.ac.uk or .edu)'
+      });
+    }
+
+    req.user.isVerifiedLeader = true;
+    req.user.universityEmail = universityEmail;
+    await req.user.save();
+
+    res.json({
+      success: true,
+      message: 'You are now a Verified Campus Leader!',
+      user: req.user
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // GET /api/public/activity - LAST 10 ADOPTIONS FOR PULSE
 router.get('/public/activity', async (req, res) => {
   try {
@@ -183,6 +214,72 @@ router.get('/schools', async (req, res) => {
       error: 'Failed to fetch schools',
       message: error.message
     });
+  }
+});
+
+// ============== PRAYER REQUEST ROUTES ==============
+
+// GET /api/prayer-requests/:schoolId
+router.get('/prayer-requests/:schoolId', async (req, res) => {
+  try {
+    const requests = await PrayerRequest.find({ schoolId: req.params.schoolId })
+      .populate('userId', 'name isVerifiedLeader organization')
+      .sort({ createdAt: -1 })
+      .limit(50);
+
+    res.json({ success: true, requests });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST /api/prayer-requests
+router.post('/prayer-requests', protect, async (req, res) => {
+  try {
+    const { schoolId, content, isUrgent, category } = req.body;
+
+    const request = await PrayerRequest.create({
+      userId: req.user._id,
+      schoolId,
+      content,
+      isUrgent,
+      category
+    });
+
+    await request.populate('userId', 'name isVerifiedLeader organization');
+
+    res.status(201).json({ success: true, request });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// GET /api/schools/:id/impact - MONTHLY IMPACT REPORT
+router.get('/schools/:id/impact', async (req, res) => {
+  try {
+    const schoolId = req.params.id;
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    const [adoptionsCount, journalCount, prayerRequests] = await Promise.all([
+      Adoption.countDocuments({ schoolId, dateAdopted: { $gte: startOfMonth } }),
+      Journal.countDocuments({ schoolId, createdAt: { $gte: startOfMonth } }),
+      PrayerRequest.find({ schoolId, isAnswered: true, createdAt: { $gte: startOfMonth } })
+    ]);
+
+    res.json({
+      success: true,
+      report: {
+        month: startOfMonth.toLocaleString('default', { month: 'long', year: 'numeric' }),
+        newAdoptions: adoptionsCount,
+        newJournals: journalCount,
+        answeredPrayers: prayerRequests.length,
+        highlights: prayerRequests.map(r => r.answerNote).filter(Boolean)
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 

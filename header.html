@@ -91,7 +91,7 @@
         top: 60px;
         left: 0;
         width: 100%;
-        background: rgba(0,0,0,0.8);
+        background: rgba(0, 0, 0, 0.8);
         flex-direction: column;
         align-items: flex-end;
         gap: 15px;
@@ -127,8 +127,16 @@
     <ul id="nav-menu">
       <li><a href="about.html">About CRM</a></li>
       <li><a href="map.html">CRM Map</a></li>
-      <li><a href="contact.html">Contact Us</a></li>
-      <li><a href="signin.html" class="sign-in-btn">Login or Create Account</a></li>
+      <li><a href="safeguarding.html">Safeguarding</a></li>
+      <li>
+        <select id="lang-switcher"
+          style="background:#000; color:#fff; border:1px solid #444; border-radius:4px; font-size:0.8rem; padding:2px;">
+          <option value="en">English</option>
+          <option value="es">Español</option>
+          <option value="pt">Português</option>
+        </select>
+      </li>
+      <li><a href="signin.html" id="header-auth-btn" class="sign-in-btn">Login</a></li>
     </ul>
   </nav>
 
@@ -136,9 +144,25 @@
     const hamburger = document.getElementById('hamburger');
     const navMenu = document.getElementById('nav-menu');
 
-    hamburger.addEventListener('click', () => {
-      navMenu.classList.toggle('active');
-      hamburger.classList.toggle('open');
+    if (hamburger) {
+      hamburger.addEventListener('click', () => {
+        navMenu.classList.toggle('active');
+      });
+    }
+
+    // Auth logic in header
+    window.addEventListener('DOMContentLoaded', () => {
+      const authBtn = document.getElementById('header-auth-btn');
+      if (typeof isLoggedIn === 'function' && isLoggedIn()) {
+        authBtn.textContent = 'Dashboard';
+        authBtn.href = 'dashboard.html';
+      }
+    });
+
+    // Language switch placeholder
+    document.getElementById('lang-switcher').addEventListener('change', (e) => {
+      console.log('Language changed to:', e.target.value);
+      // Logic for i18n would go here
     });
   </script>
 </header>

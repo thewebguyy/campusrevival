@@ -144,6 +144,15 @@ const schoolSchema = new mongoose.Schema({
       min: 0
     }
   },
+  timezone: {
+    type: String,
+    default: 'Europe/London'
+  },
+  partnerOrganizations: [{
+    name: String,
+    logo: String,
+    website: String
+  }],
 
   // Admin notes (not visible to users)
   adminNotes: {

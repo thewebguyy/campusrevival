@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safeguarding & Ethics | CRM</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        .safeguarding-content {
+            max-width: 900px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+
+        .policy-section {
+            margin-bottom: 40px;
+            background: var(--glass);
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+        }
+
+        h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+
+        ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="header-placeholder"></div>
+
+    <main class="safeguarding-content">
+        <h1 class="title-gradient" style="font-size: 3rem; margin-bottom: 40px;">Safeguarding & Ethics</h1>
+
+        <div class="policy-section">
+            <h2>Commitment to Safety</h2>
+            <p>The Campus Revival Movement (CRM) is committed to protecting all users, particularly students and young
+                people, from harm and exploitation. We adhere to the UK Data Protection Act 2018 and GDPR standards.</p>
+        </div>
+
+        <div class="policy-section">
+            <h2>Digital Safety & Privacy</h2>
+            <ul>
+                <li><strong>Anonymity:</strong> Real-time adoptions only show first names to maintain privacy.</li>
+                <li><strong>Verification:</strong> High-level campus leaders are verified via institutional email to
+                    ensure authentic representation.</li>
+                <li><strong>Moderation:</strong> All journal entries and prayer requests are subject to automated and
+                    human moderation.</li>
+            </ul>
+        </div>
+
+        <div class="policy-section">
+            <h2>Ethical Outreach</h2>
+            <p>We believe in respectful, consensual spiritual engagement. Our advocates are encouraged to:</p>
+            <ul>
+                <li>Respect institutional rules and campus guidelines.</li>
+                <li>Foster inclusive environments for all faiths and backgrounds.</li>
+                <li>Maintain healthy boundaries in virtual and physical prayer walking.</li>
+            </ul>
+        </div>
+
+        <div class="policy-section">
+            <h2>Report a Concern</h2>
+            <p>If you encounter inappropriate behavior or have concerns about a campus board, please contact our
+                Safeguarding Officer immediately.</p>
+            <button class="btn-premium btn-glow">Submit a Safeguarding Report</button>
+        </div>
+    </main>
+
+    <script src="utils/api.js"></script>
+    <script>
+        fetch('header.html').then(r => r.text()).then(h => document.getElementById('header-placeholder').innerHTML = h);
+    </script>
+</body>
+
+</html>
