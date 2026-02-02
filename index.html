@@ -1,235 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="description"
+    content="Campus Revival Movement (CRM) - The UK's 1st Christian Education Adoption Initiative. Adopt universities for prayer and revival." />
+  <meta name="theme-color" content="#012169" />
+
+  <!-- SEO & Social Media -->
+  <meta property="og:title" content="Campus Revival Movement" />
+  <meta property="og:description" content="Adopt universities for prayer and revival. Join the movement today." />
+  <meta property="og:image" content="crmicon.png" />
+  <meta property="og:url" content="https://campusrevival.org" />
+  <meta name="twitter:card" content="summary_large_image" />
+
   <title>Welcome to Campus Revival Movement</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="crmicon.png" />
+  <link rel="stylesheet" href="css/main.css">
+
   <style>
     body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Arial', sans-serif;
-      overflow-x: hidden; /* Allow vertical scroll but prevent horizontal overflow */
-      background-color: black;
-    }
-
-    .background { 
-      position: fixed; 
-      top: 0; 
-      left: 0; 
-      width: 100%; 
-      height: 100%; 
-      background: url('ukflag.png') no-repeat center center; 
-      background-size: cover; 
-      opacity: 1; 
-      z-index: -2; 
-    }
-
-    .overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.70);
-      z-index: 1;
-    }
-
-    .pin-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 2;
-    }
-
-    .pin {
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      background-color: #ffffff;
-      border: 2px solid white;
-      border-radius: 50% 50% 50% 0;
-      transform: rotate(-45deg);
-      animation: fadeOut 4s forwards;
-      box-shadow: 0 0 8px rgba(255,255,255,0.8);
-    }
-
-    @keyframes fadeOut {
-      0% { opacity: 0; transform: scale(0.5) rotate(-45deg); }
-      10% { opacity: 1; transform: scale(1.2) rotate(-45deg); }
-      100% { opacity: 0; transform: scale(0.5) rotate(-45deg); }
-    }
-
-    .logo-icon {
-  width: 100px;              /* adjust size as needed */
-  height: auto;
-  display: block;
-  margin: 0 auto 20px auto;  /* center it and add space below */
-}
-
-    .container {
-      position: relative;
-      max-width: 800px;
-      margin: auto;
-      padding: 250px 20px;
-      border-radius: 15px;
+      background: #000;
       color: white;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, var(--primary-dark) 0%, #000 100%);
+      z-index: -1;
+    }
+
+    .glass-hero {
+      max-width: 800px;
+      padding: 60px 40px;
       text-align: center;
-      opacity: 0;
-      animation: fadeIn 2s forwards;
-      z-index: 3;
+      animation: fadeIn 1.5s ease-out;
+    }
+
+    .logo-container {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 30px;
+      background: var(--glass);
+      border-radius: 30px;
+      padding: 20px;
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 40px;
+      flex-wrap: wrap;
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    h1 { font-size: 2.5rem; margin-bottom: 20px; white-space: normal; }
-    h2 { font-size: 1.8rem; margin-bottom: 20px; }
-    p { font-size: 1.1rem; line-height: 1.6; margin-bottom: 30px; padding: 0 10px; }
-
-    .enter-button,
-    .about-button {
-      display: inline-block;
-      padding: 14px 26px;
-      font-size: 1rem;
-      color: #000000;
-      border: none;
-      cursor: pointer;
-      text-decoration: none;
-      font-weight: bold;
-      margin: 8px;
-      border-radius: 5px;
-      background: white;
-      transition: background 0.3s ease, transform 0.2s ease;
-    }
-
-    .enter-button:hover,
-    .about-button:hover {
-      background: #9f9f9f;
-      transform: translateY(-2px);
-    }
-
-    .signin-button {
-  display: block;              /* makes it appear on a new line under the others */
-  margin: 15px auto 0 auto;    /* centers it and adds spacing from buttons above */
-  background: none;            /* remove background */
-  border: none;                /* remove border */
-  color: #ffffff;              /* white text */
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  text-decoration: none;       /* no underline by default */
-  transition: text-decoration 0.3s ease, color 0.3s ease;
-}
-
-.signin-button:hover {
-  text-decoration: underline;  /* underline on hover */
-  color: #dcdcdc;              /* optional: slight color change on hover */
-}
-
-
-    /* --- Responsive adjustments --- */
-    @media (max-width: 768px) {
-      .container {
-        padding: 180px 15px;
+      from {
+        opacity: 0;
+        transform: translateY(30px);
       }
-      h1 { font-size: 2rem; }
-      h2 { font-size: 1.4rem; }
-      p { font-size: 1rem; }
-      .enter-button, .about-button {
-        width: 90%;
-        max-width: 300px;
-        font-size: 1rem;
-      }
-    }
 
-    @media (max-width: 480px) {
-      .container {
-        padding: 150px 10px;
-      }
-      h1 { font-size: 1.6rem; }
-      h2 { font-size: 1.2rem; }
-      p { font-size: 0.95rem; }
-      .enter-button, .about-button {
-        padding: 12px 20px;
-        width: 100%;
-        font-size: 0.95rem;
+      to {
+        opacity: 1;
+        transform: translateY(0);
       }
     }
   </style>
 </head>
-<body>
-  <div class="background"></div>
-  <div class="pin-container" id="pinContainer"></div>
-  <div class="overlay"></div>
 
-  <div class="container">
-     <img src="crmicon.png" alt="Campus Revival Movement Logo" class="logo-icon">
-    <h2>WELCOME TO</h2>
-    <h1>CAMPUS REVIVAL MOVEMENT</h1>
-    <h3>The UK's 1st Christian Education Adoption Initiative</h3>
-    <p>
-      Here, you can adopt a school, church, or individual for prayer and revival. Our mission is to empower young people to boldly live out their faith while finding strength, support, and encouragement within the body of Christ.
-    </p>
-    
-    <div id="loginStatus" style="margin-bottom: 20px; font-size: 1rem;">
-      <span id="welcomeMsg">Join the movement today!</span>
+<body>
+  <div class="hero-bg"></div>
+
+  <div class="glass-hero glass-card">
+    <div class="logo-container">
+      <img src="crmicon.png" alt="CRM" style="width: 100%; height: 100%; object-fit: contain;">
     </div>
-    
-    <button class="about-button" onclick="window.location.href='about.html'">About CRM</button>
-    <button class="enter-button" onclick="window.location.href='map.html'">CRM Map</button>
-    <button class="signin-button" id="loginBtn" onclick="window.location.href='signin.html'">Login or Create Account </button>
+    <h2 style="font-size: 1.2rem; letter-spacing: 4px; opacity: 0.8; margin-bottom: 10px;">WELCOME TO</h2>
+    <h1 class="title-gradient" style="font-size: 3.5rem; line-height: 1.1; margin-bottom: 20px;">CAMPUS REVIVAL MOVEMENT
+    </h1>
+    <p style="font-size: 1.1rem; color: var(--text-muted); max-width: 600px; margin: 0 auto;">
+      The UK's 1st Christian Education Adoption Initiative.
+      Join a global army of advocates praying for spiritual awakening in our universities.
+    </p>
+
+    <div class="btn-group">
+      <button class="btn-premium btn-glow" onclick="location.href='map.html'">Explore CRM Map</button>
+      <button class="btn-premium" style="background: var(--glass); border: 1px solid var(--glass-border);"
+        onclick="location.href='about.html'">About the Mission</button>
+    </div>
+
+    <div style="margin-top: 30px;">
+      <a href="signin.html" id="dash-link"
+        style="color: var(--text-main); text-decoration: none; font-weight: 600; font-size: 0.9rem;">
+        Login or Create Account <i class="fas fa-arrow-right" style="margin-left: 8px;"></i>
+      </a>
+    </div>
   </div>
 
-  <!-- Pin animation -->
-  <script>
-    const pinContainer = document.getElementById('pinContainer');
-    const pinPositions = [
-      { left: "45vw", top: "30vh" },
-      { left: "50vw", top: "15vh" },
-      { left: "40vw", top: "50vh" },
-      { left: "35vw", top: "65vh" },
-      { left: "55vw", top: "70vh" },
-      { left: "58vw", top: "80vh" },
-      { left: "65vw", top: "70vh" }  
-    ];
-
-    function createPin(x, y) {
-      const pin = document.createElement('div');
-      pin.classList.add('pin');
-      pin.style.left = x;
-      pin.style.top = y;
-      pinContainer.appendChild(pin);
-      setTimeout(() => { pin.remove(); }, 4000);
-    }
-
-    let currentIndex = 0;
-    function cyclePins() {
-      const pos = pinPositions[currentIndex];
-      createPin(pos.left, pos.top);
-      currentIndex = (currentIndex + 1) % pinPositions.length;
-    }
-    setInterval(cyclePins, 500);
-  </script>
-
-  <!-- Login Integration -->
   <script src="utils/api.js"></script>
   <script>
     window.addEventListener('load', async () => {
-      if (typeof isLoggedIn === 'function' && isLoggedIn()) {
+      // Register Service Worker for PWA
+      if ('serviceWorker' in navigator) {
+        try { await navigator.serviceWorker.register('sw.js'); } catch (e) { }
+      }
+
+      if (isLoggedIn()) {
         const user = getCurrentUser();
-        document.getElementById('welcomeMsg').innerHTML = 
-          `Welcome back, <strong>${user.name}</strong>!`;
-        const btn = document.getElementById('loginBtn');
-        btn.textContent = 'Dashboard';
-        btn.onclick = () => window.location.href = 'dashboard.html';
+        document.getElementById('dash-link').innerHTML = `Go to Dashboard (<strong>${user.name}</strong>) <i class="fas fa-arrow-right"></i>`;
+        document.getElementById('dash-link').onclick = (e) => {
+          e.preventDefault();
+          location.href = 'dashboard.html';
+        };
       }
     });
   </script>
 </body>
+
 </html>

@@ -3,7 +3,7 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
-const School = require('../models/School');
+const School = require('../models/school');
 const Adoption = require('../models/Adoption');
 const Journal = require('../models/Journal');
 const { protect, adminOnly } = require('../middleware/auth');
@@ -140,6 +140,29 @@ router.get('/me', protect, async (req, res) => {
   });
 });
 
+// GET /api/public/activity - LAST 10 ADOPTIONS FOR PULSE
+router.get('/public/activity', async (req, res) => {
+  try {
+    const adoptions = await Adoption.find()
+      .populate('userId', 'name')
+      .populate('schoolId', 'name city')
+      .sort({ dateAdopted: -1 })
+      .limit(10);
+
+    const activity = adoptions.map(a => ({
+      userName: a.userId?.name || 'Someone',
+      schoolName: a.schoolId?.name || 'a university',
+      city: a.schoolId?.city || 'the UK',
+      type: a.adoptionType,
+      time: a.dateAdopted
+    }));
+
+    res.json({ success: true, activity });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // ============== SCHOOL ROUTES ==============
 
 // GET /api/schools
@@ -167,6 +190,32 @@ router.get('/schools', async (req, res) => {
 router.get('/schools/:id', async (req, res) => {
   try {
     const school = await School.findById(req.params.id)
+      .populate('adopters.userId', 'name email');
+
+    if (!school) {
+      return res.status(404).json({
+        success: false,
+        error: 'School not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      school
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch school',
+      message: error.message
+    });
+  }
+});
+
+// GET /api/schools/slug/:slug
+router.get('/schools/slug/:slug', async (req, res) => {
+  try {
+    const school = await School.findOne({ slug: req.params.slug })
       .populate('adopters.userId', 'name email');
 
     if (!school) {
@@ -312,6 +361,9 @@ router.post('/adoptions', protect, async (req, res) => {
     school.addAdopter(req.user._id, type);
     await school.save();
 
+    // Update user streak
+    await req.user.updateStreak();
+
     // Populate school data before returning
     await adoption.populate('schoolId');
 
@@ -371,7 +423,7 @@ router.get('/journal', protect, async (req, res) => {
 // POST /api/journal - PROTECTED
 router.post('/journal', protect, async (req, res) => {
   try {
-    const { entryText, schoolId } = req.body;
+    const { entryText, schoolId, mediaUrl, mediaType } = req.body;
 
     if (!entryText || entryText.trim().length === 0) {
       return res.status(400).json({
@@ -383,8 +435,13 @@ router.post('/journal', protect, async (req, res) => {
     const entry = await Journal.create({
       userId: req.user._id,
       entryText: entryText.trim(),
-      schoolId: schoolId || null
+      schoolId: schoolId || null,
+      mediaUrl: mediaUrl || null,
+      mediaType: mediaType || 'none'
     });
+
+    // Update user streak
+    await req.user.updateStreak();
 
     await entry.populate('schoolId', 'name');
 
@@ -462,7 +519,7 @@ router.get('/dashboard', protect, async (req, res) => {
     const totalPrayers = adoptions.reduce((sum, adoption) => sum + adoption.prayerCount, 0);
     const journalCount = await Journal.countDocuments({ userId: req.user._id });
     const totalJournalEntries = adoptions.reduce(
-      (sum, adoption) => sum + (adoption.journalEntries?.length || 0), 
+      (sum, adoption) => sum + (adoption.journalEntries?.length || 0),
       0
     );
 
@@ -497,6 +554,7 @@ router.get('/dashboard', protect, async (req, res) => {
           totalPrayers,
           journalCount,
           totalJournalEntries,
+          streakCount: req.user.streakCount || 0,
           daysActive: Math.floor((Date.now() - new Date(req.user.createdAt)) / (1000 * 60 * 60 * 24))
         },
         adoptions: adoptedSchools,

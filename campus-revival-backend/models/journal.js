@@ -20,6 +20,14 @@ const journalSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'School',
     default: null
+  },
+  mediaUrl: {
+    type: String
+  },
+  mediaType: {
+    type: String,
+    enum: ['image', 'audio', 'none'],
+    default: 'none'
   }
 }, {
   timestamps: true

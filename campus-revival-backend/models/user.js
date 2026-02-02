@@ -30,15 +30,29 @@ const userSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
+  },
+  streakCount: {
+    type: Number,
+    default: 0
+  },
+  lastPrayerDate: {
+    type: Date
+  },
+  bio: {
+    type: String,
+    maxlength: 500
+  },
+  image: {
+    type: String
   }
 }, {
   timestamps: true
 });
 
 // Hash password before saving
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
-  
+
   try {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
@@ -49,15 +63,38 @@ userSchema.pre('save', async function(next) {
 });
 
 // Method to compare passwords
-userSchema.methods.comparePassword = async function(candidatePassword) {
+userSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
 // Remove password from JSON
-userSchema.methods.toJSON = function() {
+userSchema.methods.toJSON = function () {
   const user = this.toObject();
   delete user.password;
   return user;
+};
+
+// Update streak logic
+userSchema.methods.updateStreak = async function () {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  if (!this.lastPrayerDate) {
+    this.streakCount = 1;
+  } else {
+    const lastDate = new Date(this.lastPrayerDate.getFullYear(), this.lastPrayerDate.getMonth(), this.lastPrayerDate.getDate());
+    const diffDays = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 1) {
+      this.streakCount += 1;
+    } else if (diffDays > 1) {
+      this.streakCount = 1;
+    }
+    // if diffDays === 0, keep same streak
+  }
+
+  this.lastPrayerDate = now;
+  return await this.save();
 };
 
 // Prevent duplicate model compilation

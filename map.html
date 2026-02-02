@@ -1,537 +1,312 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CRM Map - UK Universities</title>
+
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
   <style>
     /* ===== General Styles ===== */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Inter', system-ui, sans-serif;
       background-color: #000;
       color: #fff;
       min-height: 100vh;
     }
-    a { text-decoration: none; color: inherit; }
 
-    /* ===== Header Placeholder ===== */
-    #header-placeholder { width: 100%; }
-
-    /* ===== Loading & Error States ===== */
-    .loading-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.9);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 10000;
+    #map {
+      height: 75vh;
+      width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--glass-border);
     }
 
-    .loading-content {
-      text-align: center;
-      color: white;
-    }
-
-    .spinner {
-      border: 4px solid rgba(255, 255, 255, 0.3);
-      border-top: 4px solid white;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 20px;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* ===== Hero Section ===== */
     .hero {
       background: linear-gradient(135deg, #000000, #012169);
       text-align: center;
       padding: 60px 20px;
     }
-    .hero h1 {
-      font-family: "Baskerville Old Face";
-      font-size: 2.5rem;
-      margin-bottom: 20px;
-      color: #ffffff;
-    }
+
     .stats-bar {
-      background-color: rgba(255, 255, 255, 0.1);
-      padding: 20px;
-      border-radius: 12px;
       display: flex;
       justify-content: center;
       gap: 50px;
       margin: 20px auto;
-      max-width: 800px;
-      font-size: 1.2rem;
+      background: var(--glass);
       backdrop-filter: blur(10px);
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 800px;
     }
-    .stats-bar .stat {
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--primary);
+      text-shadow: var(--shadow-glow);
+    }
+
+    /* ===== Map Controls ===== */
+    .map-controls {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
       display: flex;
       flex-direction: column;
-      align-items: center;
-    }
-    .stats-bar .number {
-      font-size: 2rem;
-      font-weight: bold;
-      color: #6a00ff;
-    }
-    .stats-bar .label {
-      font-size: 0.9rem;
-      color: #ccc;
-    }
-    .hero p { 
-      font-size: 1.1rem; 
-      color: #ccc; 
-      max-width: 800px;
-      margin: 20px auto 0;
-      line-height: 1.6;
+      gap: 10px;
     }
 
-    /* ===== Container & Map ===== */
-    .container { 
-      max-width: 1400px; 
-      margin: 30px auto; 
-      padding: 0 20px; 
-    }
-    
-    #map { 
-      height: 75vh; 
-      width: 100%; 
-      border-radius: 12px; 
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      border: 2px solid rgba(255,255,255,0.1);
-    }
-
-    /* Custom marker styling */
-    .custom-marker {
-      background: linear-gradient(135deg, #012169, #6a00ff);
-      width: 30px;
-      height: 30px;
-      border-radius: 50% 50% 50% 0;
-      transform: rotate(-45deg);
-      border: 3px solid white;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      transition: all 0.3s ease;
-    }
-
-    .custom-marker:hover {
-      transform: rotate(-45deg) scale(1.2);
-      box-shadow: 0 6px 20px rgba(106, 0, 255, 0.6);
-    }
-
-    /* Leaflet popup customization */
-    .leaflet-popup-content-wrapper {
-      background: #1a1a1a;
-      color: white;
-      border-radius: 12px;
-      padding: 10px;
-    }
-
-    .leaflet-popup-content {
-      margin: 15px;
-      font-size: 0.95rem;
-    }
-
-    .leaflet-popup-content h3 {
-      margin: 0 0 10px 0;
-      color: #6a00ff;
-    }
-
-    .leaflet-popup-tip {
-      background: #1a1a1a;
-    }
-
-    .popup-btn {
-      display: inline-block;
-      padding: 8px 16px;
-      background: linear-gradient(135deg, #012169, #6a00ff);
-      color: white;
-      text-decoration: none;
-      border-radius: 6px;
-      margin-top: 10px;
-      font-weight: bold;
-      transition: all 0.3s;
-    }
-
-    .popup-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(106, 0, 255, 0.4);
-    }
-
-    /* ===== Side Panel ===== */
-    #side-panel {
-      position: fixed;
-      top: 0;
-      right: -500px;
-      width: 500px;
-      height: 100%;
-      background: linear-gradient(180deg, #1a1a1a, #0a0a0a);
+    .control-btn {
+      background: rgba(0, 0, 0, 0.8);
       color: #fff;
-      box-shadow: -6px 0 24px rgba(0,0,0,0.5);
-      transition: right 0.4s ease;
-      overflow-y: auto;
-      padding: 30px;
-      border-left: 2px solid rgba(106, 0, 255, 0.3);
-      z-index: 10000;
-    }
-    
-    #side-panel.active { right: 0; }
-    
-    #side-panel header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 25px;
-      padding-bottom: 15px;
-      border-bottom: 2px solid rgba(106, 0, 255, 0.3);
-    }
-
-    #side-panel h2 {
-      font-size: 1.8rem;
-      color: #6a00ff;
-      margin: 0;
-    }
-
-    .close-panel-btn { 
-      background: rgba(255, 255, 255, 0.1);
-      border: none; 
-      font-size: 28px; 
-      cursor: pointer; 
-      color: #ccc; 
-      transition: all 0.3s;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
+      border: 1px solid var(--glass-border);
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-
-    .close-panel-btn:hover {
-      background: rgba(255, 255, 255, 0.2);
-      color: #fff;
-      transform: rotate(90deg);
-    }
-
-    .school-info {
-      background: rgba(255, 255, 255, 0.05);
-      padding: 20px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .school-info h3 {
-      color: #6a00ff;
-      margin-bottom: 15px;
-      font-size: 1.5rem;
-    }
-
-    .school-info p {
-      margin: 12px 0;
-      line-height: 1.6;
-      color: #ddd;
-    }
-
-    .school-info .label {
-      color: #888;
-      font-size: 0.9rem;
-      margin-bottom: 5px;
-    }
-
-    .adopter-badge {
-      display: inline-block;
-      background: linear-gradient(135deg, #6a00ff, #012169);
-      color: white;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-weight: bold;
-      margin: 10px 0;
-      font-size: 0.9rem;
-    }
-
-    .action-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-top: 20px;
-    }
-
-    .btn {
-      padding: 14px 20px;
-      font-size: 1rem;
-      font-weight: bold;
-      border: none;
-      border-radius: 8px;
       cursor: pointer;
-      transition: all 0.3s ease;
-      text-align: center;
-      text-decoration: none;
-      display: block;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s;
     }
 
-    .btn-primary {
-      background: linear-gradient(135deg, #012169, #6a00ff);
-      color: white;
+    .control-btn:hover,
+    .control-btn.active {
+      background: var(--primary);
     }
 
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(106, 0, 255, 0.4);
+    /* ===== Ticker ===== */
+    .activity-ticker {
+      position: fixed;
+      left: 20px;
+      bottom: 20px;
+      width: 320px;
+      z-index: 1000;
     }
 
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+    .ticker-item {
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      padding: 12px;
+      border-radius: 12px;
+      margin-top: 10px;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      animation: slideUp 0.4s ease-out;
     }
 
-    .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 40px 20px;
-      color: #999;
-    }
-
-    /* ===== Responsive ===== */
-    @media (max-width: 900px) {
-      #side-panel { width: 100%; right: -100%; }
-      #side-panel.active { right: 0; }
-      #map { height: 60vh; }
-      .stats-bar { 
-        flex-direction: column; 
-        gap: 15px;
-        padding: 15px;
+    @keyframes slideUp {
+      from {
+        transform: translateY(20px);
+        opacity: 0;
       }
-      .hero h1 { font-size: 2rem; }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .custom-marker {
+      background: linear-gradient(135deg, #012169, #6a00ff);
+      width: 24px;
+      height: 24px;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      border: 2px solid white;
+      box-shadow: var(--shadow-glow);
+    }
+
+    .leaflet-popup-content-wrapper {
+      background: #111;
+      color: #fff;
+      border-radius: 12px;
+      border: 1px solid var(--glass-border);
+    }
+
+    .popup-btn {
+      display: block;
+      margin-top: 10px;
+      padding: 8px;
+      background: var(--primary);
+      color: white;
+      text-align: center;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
     }
   </style>
 </head>
-<body>
 
-  <!-- Loading Overlay -->
-  <div id="loadingOverlay" class="loading-overlay">
-    <div class="loading-content">
-      <div class="spinner"></div>
-      <p>Loading universities...</p>
+<body>
+  <div id="loadingOverlay"
+    style="position:fixed; inset:0; background:#000; z-index:9999; display:flex; align-items:center; justify-content:center;">
+    <div style="text-align:center;">
+      <div class="pulse"
+        style="width:60px; height:60px; background:var(--primary); border-radius:50%; margin-bottom:20px;"></div>
+      <p>Mapping Revival Momentum...</p>
     </div>
   </div>
 
-  <!-- ===== HEADER PLACEHOLDER ===== -->
   <div id="header-placeholder"></div>
 
-  <!-- ===== HERO SECTION ===== -->
   <section class="hero">
-    <h1>🎓 CAMPUS REVIVAL MAP</h1>
-    <h2>Adopt UK Universities for Prayer & Revival</h2>
+    <h1 class="title-gradient" style="font-size: 3rem;">GLOBAL CAMPUS MAP</h1>
     <div class="stats-bar">
       <div class="stat">
-        <div class="number" id="totalSchools">0</div>
-        <div class="label">Universities</div>
+        <div class="stat-number" id="totalSchools">0</div>
+        <div style="font-size: 0.8rem; opacity: 0.7;">INSTITUTIONS</div>
       </div>
       <div class="stat">
-        <div class="number" id="adoptedCount">0</div>
-        <div class="label">Total Adoptions</div>
+        <div class="stat-number" id="adoptedCount">0</div>
+        <div style="font-size: 0.8rem; opacity: 0.7;">ADOPTIONS</div>
       </div>
     </div>
-    <p>Click on any university marker to view details and adopt for prayer or revival ministry. Join us in praying for spiritual awakening on campuses across the UK.</p>
   </section>
 
-  <!-- ===== MAP CONTAINER ===== -->
-  <div class="container">
+  <div class="container" style="max-width: 1400px; margin: 0 auto 40px; position: relative;">
+    <div class="map-controls">
+      <button class="control-btn" onclick="toggleHeatmap()" id="heatmap-btn" title="Density Heatmap">
+        <i class="fas fa-fire"></i>
+      </button>
+      <button class="control-btn" onclick="toggleGlobalView()" id="global-btn" title="Global View">
+        <i class="fas fa-globe"></i>
+      </button>
+      <button class="control-btn" onclick="toggleNeedFilter()" id="needs-btn" title="Schools in Need">
+        <i class="fas fa-hand-holding-heart"></i>
+      </button>
+    </div>
     <div id="map"></div>
   </div>
 
-  <!-- ===== SIDE PANEL ===== -->
-  <aside id="side-panel" aria-hidden="true">
-    <header>
-      <h2 id="panel-title">University Details</h2>
-      <button class="close-panel-btn" onclick="closePanel()" aria-label="Close panel">×</button>
-    </header>
-    <div id="panel-content">
-      <p class="empty-state">Select a university on the map...</p>
-    </div>
-  </aside>
+  <div class="activity-ticker" id="activity-ticker"></div>
 
-  <!-- ===== SCRIPTS ===== -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
   <script src="utils/api.js"></script>
   <script>
-    // ===== FETCH HEADER =====
-    fetch('header.html')
-      .then(response => response.text())
-      .then(html => {
-        document.getElementById('header-placeholder').innerHTML = html;
-        const hamburger = document.getElementById('hamburger');
-        const navMenu = document.getElementById('nav-menu');
-        if (hamburger && navMenu) {
-          hamburger.addEventListener('click', () => {
-            navMenu.classList.toggle('active');
-            hamburger.classList.toggle('open');
-          });
-        }
-      })
-      .catch(err => console.error('Error loading header:', err));
+    let map, schoolsData = [], markers = [], heatmapLayer;
+    let showingHeatmap = false, isGlobal = false, filterActive = false;
 
-    let map;
-    let schoolsData = [];
-
-    // ===== INITIALIZE MAP =====
-    async function initMap() {
+    async function init() {
       try {
-        // Fetch schools from API
-        const response = await getAllSchools();
-        schoolsData = response.schools || [];
-
-        console.log('Loaded schools:', schoolsData.length);
-
-        // Hide loading overlay
+        schoolsData = await getAllSchools();
         document.getElementById('loadingOverlay').style.display = 'none';
 
-        // Update stats
         document.getElementById('totalSchools').textContent = schoolsData.length;
-        
-        const totalAdoptions = schoolsData.reduce((sum, school) => 
-          sum + (school.adoptionCount || 0), 0
-        );
+        const totalAdoptions = schoolsData.reduce((sum, s) => sum + (s.adoptionCount || 0), 0);
         document.getElementById('adoptedCount').textContent = totalAdoptions;
 
-        // Create map
         map = L.map('map').setView([54.5, -2], 6);
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          maxZoom: 18,
-          attribution: '© OpenStreetMap contributors'
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+          attribution: '&copy; OpenStreetMap authors'
         }).addTo(map);
 
-        // Add markers for each school
-        schoolsData.forEach(school => {
-          if (school.lat && school.lng) {
-            const marker = L.marker([school.lat, school.lng], {
-              icon: L.divIcon({
-                className: 'custom-marker',
-                iconSize: [30, 30],
-                iconAnchor: [15, 30]
-              })
-            }).addTo(map);
+        updateMarkers();
+        startTicker();
 
-            const adoptionText = school.adoptionCount > 0 
-              ? `${school.adoptionCount} adopter${school.adoptionCount === 1 ? '' : 's'}`
-              : 'Not yet adopted';
+        // Load header
+        fetch('header.html').then(r => r.text()).then(h => document.getElementById('header-placeholder').innerHTML = h);
 
-            marker.bindPopup(`
-              <h3>${school.name}</h3>
-              <p><strong>${adoptionText}</strong></p>
-              <p>${school.address || 'Location unavailable'}</p>
-              <a href="#" onclick="openSchoolPanel('${school._id}'); return false;" class="popup-btn">View Details →</a>
-            `);
-          }
-        });
-
-      } catch (error) {
-        console.error('Failed to load map:', error);
-        document.getElementById('loadingOverlay').innerHTML = `
-          <div class="loading-content">
-            <h2 style="color: #ff6b6b;">⚠️ Failed to Load</h2>
-            <p>${error.message}</p>
-            <p>Please ensure the backend is running.</p>
-            <button onclick="window.location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #6a00ff; color: white; border: none; border-radius: 8px; cursor: pointer;">
-              Retry
-            </button>
-          </div>
-        `;
+      } catch (err) {
+        console.error(err);
       }
     }
 
-    // ===== OPEN SCHOOL PANEL =====
-    async function openSchoolPanel(schoolId) {
-      try {
-        const school = schoolsData.find(s => s._id === schoolId);
-        
-        if (!school) {
-          console.error('School not found:', schoolId);
-          return;
+    function updateMarkers() {
+      markers.forEach(m => map.removeLayer(m));
+      markers = [];
+
+      const filtered = filterActive
+        ? schoolsData.filter(s => (s.adoptionCount || 0) === 0)
+        : schoolsData;
+
+      filtered.forEach(school => {
+        if (school.lat && school.lng) {
+          const marker = L.marker([school.lat, school.lng], {
+            icon: L.divIcon({
+              className: 'custom-marker',
+              iconSize: [24, 24],
+              iconAnchor: [12, 24]
+            })
+          }).addTo(map);
+
+          marker.bindPopup(`
+            <h3 style="margin-bottom:5px;">${school.name}</h3>
+            <p style="font-size:0.9rem; margin-bottom:10px;">${school.adoptionCount || 0} Adopters</p>
+            <a href="campus.html?id=${school._id}" class="popup-btn">View Campus Dashboard</a>
+          `);
+          markers.push(marker);
         }
+      });
+    }
 
-        const content = `
-          <div class="school-info">
-            <h3>${school.name}</h3>
-            <p class="label">Location</p>
-            <p>${school.address}</p>
-            
-            <p class="label">Adopters</p>
-            <p class="adopter-badge">${school.adoptionCount || 0} Adopter${school.adoptionCount === 1 ? '' : 's'}</p>
-            
-            ${school.description ? `
-              <p class="label">About</p>
-              <p>${school.description}</p>
-            ` : ''}
-          </div>
-
-          <div class="action-buttons">
-            <a href="read-more.html?schoolId=${school._id}" class="btn btn-secondary">
-              📖 Read More
-            </a>
-            <a href="adopt-prayer.html?schoolId=${school._id}" class="btn btn-primary">
-              🙏 Adopt for Prayer
-            </a>
-            <a href="adopt-revival.html?schoolId=${school._id}" class="btn btn-primary">
-              ⛪ Adopt for Revival
-            </a>
-          </div>
-        `;
-
-        document.getElementById('panel-title').textContent = school.name;
-        document.getElementById('panel-content').innerHTML = content;
-        
-        const panel = document.getElementById('side-panel');
-        panel.classList.add('active');
-        panel.setAttribute('aria-hidden', 'false');
-
-      } catch (error) {
-        console.error('Failed to load school details:', error);
+    function toggleHeatmap() {
+      showingHeatmap = !showingHeatmap;
+      document.getElementById('heatmap-btn').classList.toggle('active');
+      if (showingHeatmap) {
+        const points = schoolsData.filter(s => s.lat).map(s => [s.lat, s.lng, (s.adoptionCount || 1) * 3]);
+        heatmapLayer = L.heatLayer(points, { radius: 25, blur: 15 }).addTo(map);
+      } else {
+        map.removeLayer(heatmapLayer);
       }
     }
 
-    // ===== CLOSE PANEL =====
-    function closePanel() {
-      const panel = document.getElementById('side-panel');
-      panel.classList.remove('active');
-      panel.setAttribute('aria-hidden', 'true');
+    function toggleGlobalView() {
+      isGlobal = !isGlobal;
+      document.getElementById('global-btn').classList.toggle('active');
+      if (isGlobal) map.flyTo([20, 0], 2);
+      else map.flyTo([54.5, -2], 6);
     }
 
-    // ===== EVENT LISTENERS =====
-    document.addEventListener('keydown', e => { 
-      if (e.key === 'Escape') closePanel(); 
-    });
+    function toggleNeedFilter() {
+      filterActive = !filterActive;
+      document.getElementById('needs-btn').classList.toggle('active');
+      updateMarkers();
+    }
 
-    document.addEventListener('click', e => {
-      const panel = document.getElementById('side-panel');
-      if (panel.classList.contains('active') && 
-          !panel.contains(e.target) && 
-          !e.target.closest('.leaflet-popup')) {
-        closePanel();
-      }
-    });
+    function startTicker() {
+      const ticker = document.getElementById('activity-ticker');
+      const update = async () => {
+        const pulse = await getPublicActivity();
+        if (pulse && pulse.length > 0) {
+          const item = pulse[0];
+          const div = document.createElement('div');
+          div.className = 'ticker-item';
+          div.innerHTML = `
+            <div class="pulse" style="width:10px; height:10px; background:#00ff88; border-radius:50%;"></div>
+            <div>
+              <strong>${item.userName}</strong> adopted <strong>${item.schoolName}</strong>
+              <div style="font-size:0.75rem; opacity:0.6;">Just now in ${item.city}</div>
+            </div>
+          `;
+          ticker.prepend(div);
+          if (ticker.children.length > 3) ticker.removeChild(ticker.lastChild);
+        }
+      };
+      update();
+      setInterval(update, 15000);
+    }
 
-    // ===== INITIALIZE =====
-    window.addEventListener('load', initMap);
+    window.onload = init;
   </script>
 </body>
+
 </html>

@@ -7,13 +7,13 @@ function getApiUrl() {
     // Production: use the same domain as the frontend
     return `${window.location.protocol}//${window.location.hostname}:5000/api`;
   }
-  
+
   // Development: check if accessing via network IP
   if (window.location.hostname.match(/^\d+\.\d+\.\d+\.\d+$/)) {
     // Accessing via IP address (mobile on same network)
     return `${window.location.protocol}//${window.location.hostname}:5000/api`;
   }
-  
+
   // Default: localhost for desktop development
   return 'http://localhost:5000/api';
 }
@@ -26,7 +26,7 @@ console.log('API URL configured as:', API_URL);
 function isLoggedIn() {
   const token = localStorage.getItem('authToken');
   if (!token) return false;
-  
+
   try {
     // Check if token is expired (basic check)
     const payload = JSON.parse(atob(token.split('.')[1]));
@@ -57,7 +57,7 @@ function clearAuthToken() {
 // ===== API Request Helper =====
 async function apiRequest(endpoint, options = {}) {
   const token = getAuthToken();
-  
+
   const headers = {
     'Content-Type': 'application/json',
     ...options.headers
@@ -117,13 +117,25 @@ async function getSchoolById(schoolId) {
   }
 }
 
-// Get school adopters
-async function getSchoolAdopters(schoolId) {
+// Get school by slug
+async function getSchoolBySlug(slug) {
   try {
-    return await apiRequest(`/schools/${schoolId}/adopters`);
+    const data = await apiRequest(`/schools/slug/${slug}`);
+    return data.school || data;
   } catch (error) {
-    console.error('Error fetching adopters:', error);
+    console.error('Error fetching school by slug:', error);
     throw error;
+  }
+}
+
+// Get public activity pulse
+async function getPublicActivity() {
+  try {
+    const data = await apiRequest('/public/activity');
+    return data.activity || [];
+  } catch (error) {
+    console.error('Error fetching pulse:', error);
+    return [];
   }
 }
 
@@ -138,9 +150,9 @@ async function adoptSchool(schoolId, adoptionType = 'prayer') {
   try {
     return await apiRequest('/adoptions', {
       method: 'POST',
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         schoolId,
-        adoptionType 
+        adoptionType
       })
     });
   } catch (error) {

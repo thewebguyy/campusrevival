@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Campus Profile | CRM</title>
+
+    <!-- Dynamic SEO Meta Tags -->
+    <meta name="description" id="meta-desc" content="Join the prayer movement for this university.">
+    <meta property="og:title" id="og-title" content="Pray for this Campus">
+    <meta property="og:description" id="og-desc" content="Join 100s of others in praying for spiritual revival.">
+    <meta property="og:image" id="og-image" content="crmicon.png">
+
+    <link rel="stylesheet" href="css/main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+    <style>
+        .campus-hero {
+            height: 50vh;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), var(--bg-dark)), url('bg.jpg');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 40px;
+            position: relative;
+        }
+
+        .campus-header {
+            max-width: 1200px;
+            margin: -60px auto 0;
+            padding: 0 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .campus-card {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+        }
+
+        .stat-ring {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .glow-number {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-shadow: 0 0 15px rgba(106, 0, 255, 0.5);
+        }
+
+        .prayer-points {
+            margin-top: 30px;
+        }
+
+        .prayer-item {
+            padding: 15px;
+            border-left: 3px solid var(--primary);
+            background: rgba(255, 255, 255, 0.05);
+            margin-bottom: 10px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .street-view-container {
+            margin-top: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+        }
+
+        .pulse-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #00ff88;
+            border-radius: 50%;
+            margin-right: 8px;
+            box-shadow: 0 0 10px #00ff88;
+        }
+
+        @media (max-width: 900px) {
+            .campus-card {
+                grid-template-columns: 1fr;
+            }
+
+            .campus-hero {
+                height: 35vh;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="campus-hero" id="hero-bg">
+        <div class="campus-header">
+            <h1 class="title-gradient" id="school-name" style="font-size: 3.5rem; margin-bottom: 10px;">...</h1>
+            <p id="school-city" style="font-size: 1.2rem; opacity: 0.8;"><i class="fas fa-map-marker-alt"></i> Loading
+                location...</p>
+        </div>
+    </div>
+
+    <main class="container" style="max-width: 1200px; margin: 40px auto; padding: 0 20px;">
+        <div class="campus-card">
+            <section>
+                <div class="glass-card">
+                    <div class="stat-ring">
+                        <span class="glow-number" id="adoption-count">0</span>
+                        <div>
+                            <p style="font-weight: 600; font-size: 1.1rem;">Active Adopters</p>
+                            <p style="color: var(--text-muted); font-size: 0.9rem;"><span
+                                    class="pulse-indicator pulse"></span> Live momentum focus</p>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-bottom: 15px;">Vision & Impact</h3>
+                    <p id="school-desc" style="color: var(--text-muted); font-size: 1.1rem;">
+                        Loading institution mission statement...
+                    </p>
+
+                    <div class="prayer-guides">
+                        <h3 style="margin: 30px 0 15px; display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-pray" style="color: var(--primary);"></i> Current Prayer Points
+                        </h3>
+                        <div id="prayer-points-list">
+                            <div class="prayer-item">Mental health and well-being of students during exam season.</div>
+                            <div class="prayer-item">Spiritual hunger and openness among faculty and staff.</div>
+                            <div class="prayer-item">Growth of the Christian Union and local church engagement.</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <aside>
+                <div class="glass-card" style="position: sticky; top: 20px;">
+                    <h3 style="margin-bottom: 20px;">Take Action</h3>
+                    <button class="btn-premium btn-glow" style="width: 100%; margin-bottom: 15px;"
+                        onclick="adopt('prayer')">
+                        <i class="fas fa-heart"></i> Adopt for Prayer
+                    </button>
+                    <button class="btn-premium"
+                        style="width: 100%; background: var(--glass); border: 1px solid var(--glass-border);"
+                        onclick="adopt('revival')">
+                        <i class="fas fa-fire"></i> Adopt for Revival
+                    </button>
+
+                    <div class="street-view-container">
+                        <img src="https://images.unsplash.com/photo-1541339907198-e08759df9a13?auto=format&fit=crop&w=500&q=80"
+                            alt="Campus View" style="width: 100%; height: 150px; object-fit: cover;">
+                        <div style="padding: 15px; background: rgba(0,0,0,0.5);">
+                            <p style="font-size: 0.8rem; margin-bottom: 10px;">Experience the campus virtually</p>
+                            <button id="streetview-btn" class="btn-premium"
+                                style="font-size: 0.8rem; padding: 8px 16px; width: 100%; border: 1px solid var(--primary);">
+                                <i class="fas fa-walking"></i> Virtual Prayer Walk
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px; text-align: center;">
+                        <a href="map.html" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">
+                            <i class="fas fa-arrow-left"></i> Return to Map
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <script src="utils/api.js"></script>
+    <script>
+        async function init() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const schoolId = urlParams.get('id');
+            const slug = urlParams.get('slug');
+
+            if (!schoolId && !slug) {
+                window.location.href = 'map.html';
+                return;
+            }
+
+            try {
+                let school;
+                if (schoolId) {
+                    school = await getSchoolById(schoolId);
+                } else {
+                    // Add API for slug lookup later
+                    school = await getSchoolBySlug(slug);
+                }
+
+                if (!school) throw new Error('School not found');
+
+                // Update UI
+                document.getElementById('school-name').textContent = school.name;
+                document.getElementById('school-city').innerHTML = `<i class="fas fa-map-marker-alt"></i> ${school.city || school.address}`;
+                document.getElementById('adoption-count').textContent = school.adoptionCount || 0;
+                document.getElementById('school-desc').textContent = school.description || "Building a legacy of faith and revival on this campus.";
+                document.getElementById('page-title').textContent = `${school.name} | Campus Revival Movement`;
+
+                // Update Meta Tags for SEO
+                document.getElementById('meta-desc').content = `Join the movement praying for ${school.name}. Currently has ${school.adoptionCount} adopters.`;
+                document.getElementById('og-title').content = `Pray for ${school.name}`;
+
+                // Street View Logic
+                const svBtn = document.getElementById('streetview-btn');
+                svBtn.onclick = () => {
+                    const url = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${school.lat},${school.lng}`;
+                    window.open(url, '_blank');
+                };
+
+                // Hero Background
+                if (school.image) {
+                    document.getElementById('hero-bg').style.backgroundImage = `linear-gradient(to bottom, rgba(0,0,0,0.3), var(--bg-dark)), url('${school.image}')`;
+                }
+
+            } catch (err) {
+                console.error(err);
+                alert('Could not load institution details.');
+            }
+        }
+
+        function adopt(type) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const schoolId = urlParams.get('id');
+            window.location.href = `adopt-${type}.html?schoolId=${schoolId}`;
+        }
+
+        window.onload = init;
+    </script>
+</body>
+
+</html>
