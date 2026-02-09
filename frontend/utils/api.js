@@ -2,15 +2,14 @@
 // This automatically detects the correct API URL for mobile and desktop
 
 function getApiUrl() {
-  // Check if we're in production (you'll set this when deploying)
+  // Check if we're in production (Vercel deployment)
   if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-    // Production: use the same domain as the frontend
-    return `${window.location.protocol}//${window.location.hostname}:5000/api`;
+    // In production, we use the root /api because of our Vercel rewrites
+    return '/api';
   }
 
-  // Development: check if accessing via network IP
+  // Development: check if accessing via network IP (mobile on same network)
   if (window.location.hostname.match(/^\d+\.\d+\.\d+\.\d+$/)) {
-    // Accessing via IP address (mobile on same network)
     return `${window.location.protocol}//${window.location.hostname}:5000/api`;
   }
 
