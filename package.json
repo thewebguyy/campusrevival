@@ -1,0 +1,9 @@
+{
+    "name": "crm-project",
+    "version": "1.0.0",
+    "private": true,
+    "workspaces": [
+        "campus-revival-backend"
+    ],
+    "dependencies": {}
+}
