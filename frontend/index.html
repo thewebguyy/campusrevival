@@ -68,7 +68,7 @@
     .logo-img {
       width: 100px;
       margin-bottom: 20px;
-      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
     }
 
     .main-title {
@@ -117,7 +117,7 @@
       background: transparent;
       color: var(--primary);
       transform: translateY(-3px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     }
 
     .btn-outline-crm {
@@ -130,17 +130,29 @@
       background: var(--primary);
       color: white;
       transform: translateY(-3px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     }
 
     @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(40px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     @media (max-width: 768px) {
-      .main-title { font-size: 2.8rem; }
-      .subtitle { font-size: 1.1rem; }
+      .main-title {
+        font-size: 2.8rem;
+      }
+
+      .subtitle {
+        font-size: 1.1rem;
+      }
     }
   </style>
 </head>
@@ -150,12 +162,15 @@
 
   <main class="hero-section">
     <div class="hero-content">
-      <img src="crmicon.png" alt="CRM Logo" class="logo-img">
-      <h2 style="font-size: 1rem; letter-spacing: 5px; color: var(--text-muted); margin-bottom: 10px; font-weight: 600;">ENGLAND | WALES | SCOTLAND | NI</h2>
+      <img src="/crmicon.png" alt="CRM Logo" class="logo-img">
+      <h2
+        style="font-size: 1rem; letter-spacing: 5px; color: var(--text-muted); margin-bottom: 10px; font-weight: 600;">
+        ENGLAND | WALES | SCOTLAND | NI</h2>
       <h1 class="main-title">Campus Revival Movement</h1>
       <p class="subtitle">
-        The UK's 1st Christian Education Adoption Initiative. 
-        Join a movement of advocates dedicated to praying for spiritual awakening and transformation in our universities.
+        The UK's 1st Christian Education Adoption Initiative.
+        Join a movement of advocates dedicated to praying for spiritual awakening and transformation in our
+        universities.
       </p>
 
       <div class="cta-group">
@@ -164,7 +179,8 @@
       </div>
 
       <div style="margin-top: 40px;">
-        <a href="signin.html" id="dash-link" style="color: var(--primary); text-decoration: none; font-weight: 700; font-size: 1rem; border-bottom: 2px solid var(--primary); padding-bottom: 4px;">
+        <a href="signin.html" id="dash-link"
+          style="color: var(--primary); text-decoration: none; font-weight: 700; font-size: 1rem; border-bottom: 2px solid var(--primary); padding-bottom: 4px;">
           Login or Create Account <i class="fas fa-arrow-right" style="margin-left: 10px;"></i>
         </a>
       </div>
@@ -173,6 +189,28 @@
 
   <script src="utils/api.js"></script>
   <script>
+    // Load Header
+    fetch('header.html')
+      .then(r => r.text())
+      .then(html => {
+        document.getElementById('header-placeholder').innerHTML = html;
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('nav-menu');
+        if (hamburger && navMenu) {
+          hamburger.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+          });
+        }
+
+        // Update header auth button if logged in
+        const authBtn = document.getElementById('header-auth-btn');
+        if (authBtn && isLoggedIn()) {
+          authBtn.textContent = 'Dashboard';
+          authBtn.href = 'dashboard.html';
+        }
+      })
+      .catch(e => console.error('Header load error:', e));
+
     window.addEventListener('load', async () => {
       // Register Service Worker for PWA
       if ('serviceWorker' in navigator) {
@@ -181,11 +219,14 @@
 
       if (isLoggedIn()) {
         const user = getCurrentUser();
-        document.getElementById('dash-link').innerHTML = `Go to Dashboard (<strong>${user.name}</strong>) <i class="fas fa-arrow-right"></i>`;
-        document.getElementById('dash-link').onclick = (e) => {
-          e.preventDefault();
-          location.href = 'dashboard.html';
-        };
+        const dashLink = document.getElementById('dash-link');
+        if (dashLink) {
+          dashLink.innerHTML = `Go to Dashboard (<strong>${user.name}</strong>) <i class="fas fa-arrow-right"></i>`;
+          dashLink.onclick = (e) => {
+            e.preventDefault();
+            location.href = 'dashboard.html';
+          };
+        }
       }
     });
   </script>

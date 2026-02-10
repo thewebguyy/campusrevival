@@ -99,6 +99,8 @@
 </head>
 
 <body>
+    <div id="header-placeholder"></div>
+
     <div class="campus-hero" id="hero-bg">
         <div class="campus-header">
             <h1 class="title-gradient" id="school-name" style="font-size: 3.5rem; margin-bottom: 10px;">...</h1>
@@ -212,6 +214,25 @@
 
     <script src="utils/api.js"></script>
     <script>
+        // Load Header
+        fetch('header.html')
+            .then(r => r.text())
+            .then(html => {
+                document.getElementById('header-placeholder').innerHTML = html;
+                const authBtn = document.getElementById('header-auth-btn');
+                if (authBtn && isLoggedIn()) {
+                    authBtn.textContent = 'Dashboard';
+                    authBtn.href = '/dashboard.html';
+                }
+                const hamburger = document.getElementById('hamburger');
+                const navMenu = document.getElementById('nav-menu');
+                if (hamburger && navMenu) {
+                    hamburger.addEventListener('click', () => {
+                        navMenu.classList.toggle('active');
+                    });
+                }
+            });
+
         async function init() {
             const urlParams = new URLSearchParams(window.location.search);
             const schoolId = urlParams.get('id');
@@ -278,7 +299,7 @@
 
         async function loadPrayerRequests(schoolId) {
             try {
-                const response = await fetch(`${API_BASE_URL}/prayer-requests/${schoolId}`);
+                const response = await fetch(`${API_URL}/prayer-requests/${schoolId}`);
                 const data = await response.json();
                 const container = document.getElementById('board-requests');
                 const leadersContainer = document.getElementById('verified-leaders');
@@ -321,7 +342,7 @@
 
         async function loadImpactReport(schoolId) {
             try {
-                const response = await fetch(`${API_BASE_URL}/schools/${schoolId}/impact`);
+                const response = await fetch(`${API_URL}/schools/${schoolId}/impact`);
                 const data = await response.json();
                 if (data.success && (data.report.newAdoptions > 0 || data.report.newJournals > 0)) {
                     const card = document.getElementById('impact-card');

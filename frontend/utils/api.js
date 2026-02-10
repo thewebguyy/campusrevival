@@ -1,10 +1,9 @@
-// ===== Dynamic API URL Configuration =====
-// This automatically detects the correct API URL for mobile and desktop
+console.log('CRM API Client Initializing...');
+console.log('Hostname detected:', window.location.hostname);
 
 function getApiUrl() {
   // Check if we're in production (Vercel deployment)
   if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-    // In production, we use the root /api because of our Vercel rewrites
     return '/api';
   }
 
@@ -18,8 +17,7 @@ function getApiUrl() {
 }
 
 const API_URL = getApiUrl();
-
-console.log('API URL configured as:', API_URL);
+console.log('Final API_URL chosen:', API_URL);
 
 // ===== Authentication Helper Functions =====
 function isLoggedIn() {

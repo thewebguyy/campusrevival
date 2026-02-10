@@ -17,7 +17,11 @@
             "destination": "/campus-revival-backend/app.js"
         },
         {
-            "source": "/(.*)",
+            "source": "/",
+            "destination": "/frontend/index.html"
+        },
+        {
+            "source": "/((?!api/|frontend/).*)",
             "destination": "/frontend/$1"
         }
     ]

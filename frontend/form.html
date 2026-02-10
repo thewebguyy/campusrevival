@@ -499,13 +499,7 @@
 
 <body>
 
-  <header>
-    <h1>🎓 Add University to CRM</h1>
-    <div class="header-actions">
-      <a href="records.html" class="btn-secondary">View All Schools</a>
-      <a href="dashboard.html" class="btn-secondary">Dashboard</a>
-    </div>
-  </header>
+  <div id="header-placeholder"></div>
 
   <main>
     <div class="form-container">
@@ -681,6 +675,24 @@
 
   <script src="utils/api.js"></script>
   <script>
+    // Load Header
+    fetch('header.html')
+      .then(r => r.text())
+      .then(html => {
+        document.getElementById('header-placeholder').innerHTML = html;
+        const authBtn = document.getElementById('header-auth-btn');
+        if (authBtn && isLoggedIn()) {
+          authBtn.textContent = 'Dashboard';
+          authBtn.href = '/dashboard.html';
+        }
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('nav-menu');
+        if (hamburger && navMenu) {
+          hamburger.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+          });
+        }
+      });
     // City coordinates map
     const cityCoordinates = {
       "London": { lat: 51.5074, lng: -0.1278 },

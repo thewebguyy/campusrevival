@@ -246,6 +246,11 @@
           .then(r => r.text())
           .then(h => {
             document.getElementById('header-placeholder').innerHTML = h;
+            const authBtn = document.getElementById('header-auth-btn');
+            if (authBtn && isLoggedIn()) {
+              authBtn.textContent = 'Dashboard';
+              authBtn.href = '/dashboard.html';
+            }
           })
           .catch(e => console.warn('Header failed to load', e));
 
