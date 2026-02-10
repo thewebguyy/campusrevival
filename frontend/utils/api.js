@@ -218,6 +218,15 @@ async function loginUser(email, password) {
   }
 }
 
+// Attach to window for global access
+window.registerUser = registerUser;
+window.loginUser = loginUser;
+window.isLoggedIn = isLoggedIn;
+window.getCurrentUser = getCurrentUser;
+window.getAllSchools = getAllSchools;
+window.getPublicActivity = getPublicActivity;
+window.apiRequest = apiRequest;
+
 // Logout
 async function logout() {
   try {

@@ -19,102 +19,104 @@
     }
 
     body {
-      font-family: 'Inter', system-ui, sans-serif;
-      background-color: #000;
-      color: #fff;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-main);
       min-height: 100vh;
     }
 
     #map {
-      height: 75vh;
+      height: 70vh;
       width: 100%;
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      border-radius: 20px;
+      box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
       border: 1px solid var(--glass-border);
     }
 
     .hero {
-      background: linear-gradient(135deg, #000000, #012169);
+      background: var(--bg-light);
       text-align: center;
-      padding: 60px 20px;
+      padding: 80px 20px 40px;
     }
 
     .stats-bar {
       display: flex;
       justify-content: center;
       gap: 50px;
-      margin: 20px auto;
-      background: var(--glass);
-      backdrop-filter: blur(10px);
-      padding: 20px;
-      border-radius: 12px;
-      max-width: 800px;
+      margin: 30px auto;
+      background: var(--gray);
+      padding: 25px;
+      border-radius: 50px;
+      max-width: 700px;
+      box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05);
     }
 
     .stat-number {
-      font-size: 2.5rem;
+      font-size: 3rem;
       font-weight: 800;
       color: var(--primary);
-      text-shadow: var(--shadow-glow);
     }
 
     /* ===== Map Controls ===== */
     .map-controls {
       position: absolute;
-      top: 20px;
-      right: 20px;
+      top: 30px;
+      right: 30px;
       z-index: 1000;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 15px;
     }
 
     .control-btn {
-      background: rgba(0, 0, 0, 0.8);
-      color: #fff;
-      border: 1px solid var(--glass-border);
-      width: 44px;
-      height: 44px;
-      border-radius: 8px;
+      background: #ffffff;
+      color: #000;
+      border: 1px solid #ddd;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       transition: all 0.3s;
     }
 
     .control-btn:hover,
     .control-btn.active {
       background: var(--primary);
+      color: white;
+      transform: scale(1.1);
     }
 
     /* ===== Ticker ===== */
     .activity-ticker {
       position: fixed;
-      left: 20px;
-      bottom: 20px;
-      width: 320px;
+      left: 30px;
+      bottom: 30px;
+      width: 350px;
       z-index: 1000;
     }
 
     .ticker-item {
-      background: rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--glass-border);
-      padding: 12px;
-      border-radius: 12px;
-      margin-top: 10px;
-      font-size: 0.9rem;
+      background: #ffffff;
+      border: 1px solid #eee;
+      padding: 15px;
+      border-radius: 16px;
+      margin-top: 12px;
+      font-size: 0.95rem;
       display: flex;
       align-items: center;
-      gap: 12px;
-      animation: slideUp 0.4s ease-out;
+      gap: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      animation: slideUp 0.5s ease-out;
+      color: #000;
     }
 
     @keyframes slideUp {
       from {
-        transform: translateY(20px);
+        transform: translateY(30px);
         opacity: 0;
       }
 
@@ -125,43 +127,48 @@
     }
 
     .custom-marker {
-      background: linear-gradient(135deg, #012169, #6a00ff);
+      background: var(--primary);
       width: 24px;
       height: 24px;
       border-radius: 50% 50% 50% 0;
       transform: rotate(-45deg);
-      border: 2px solid white;
-      box-shadow: var(--shadow-glow);
+      border: 3px solid white;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
 
     .leaflet-popup-content-wrapper {
-      background: #111;
-      color: #fff;
-      border-radius: 12px;
-      border: 1px solid var(--glass-border);
+      background: #ffffff;
+      color: #000;
+      border-radius: 16px;
+      padding: 5px;
     }
 
     .popup-btn {
       display: block;
-      margin-top: 10px;
-      padding: 8px;
+      margin-top: 15px;
+      padding: 12px;
       background: var(--primary);
       color: white;
       text-align: center;
-      border-radius: 6px;
+      border-radius: 8px;
       text-decoration: none;
-      font-weight: 600;
+      font-weight: 700;
+      font-size: 0.9rem;
     }
   </style>
 </head>
 
 <body>
   <div id="loadingOverlay"
-    style="position:fixed; inset:0; background:#000; z-index:9999; display:flex; align-items:center; justify-content:center;">
+    style="position:fixed; inset:0; background:#fff; z-index:9999; display:flex; align-items:center; justify-content:center; flex-direction: column;">
     <div style="text-align:center;">
-      <div class="pulse"
-        style="width:60px; height:60px; background:var(--primary); border-radius:50%; margin-bottom:20px;"></div>
-      <p>Mapping Revival Momentum...</p>
+      <div class="spinner"
+        style="width:50px; height:50px; border-width: 5px; border-color: #eee; border-top-color: var(--primary); margin-bottom:20px;">
+      </div>
+      <p style="font-weight: 600; letter-spacing: 1px;">MAPPING REVIVAL MOMENTUM...</p>
+      <button onclick="document.getElementById('loadingOverlay').style.display='none'"
+        style="margin-top: 20px; background: none; border: 1px solid #ccc; padding: 5px 15px; border-radius: 4px; cursor: pointer; color: #666; font-size: 0.8rem;">Skip
+        Loading</button>
     </div>
   </div>
 
@@ -207,26 +214,44 @@
 
     async function init() {
       try {
+        // Set a timeout to hide loader even if API fails
+        setTimeout(() => {
+          const overlay = document.getElementById('loadingOverlay');
+          if (overlay && overlay.style.display !== 'none') {
+            overlay.style.display = 'none';
+          }
+        }, 8000);
+
         schoolsData = await getAllSchools();
         document.getElementById('loadingOverlay').style.display = 'none';
 
-        document.getElementById('totalSchools').textContent = schoolsData.length;
-        const totalAdoptions = schoolsData.reduce((sum, s) => sum + (s.adoptionCount || 0), 0);
-        document.getElementById('adoptedCount').textContent = totalAdoptions;
+        if (document.getElementById('totalSchools')) {
+          document.getElementById('totalSchools').textContent = schoolsData.length;
+          const totalAdoptions = schoolsData.reduce((sum, s) => sum + (s.adoptionCount || 0), 0);
+          document.getElementById('adoptedCount').textContent = totalAdoptions;
+        }
 
-        map = L.map('map').setView([54.5, -2], 6);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        map = L.map('map', { zoomControl: false }).setView([54.5, -2], 6);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
           attribution: '&copy; OpenStreetMap authors'
         }).addTo(map);
+
+        L.control.zoom({ position: 'bottomright' }).addTo(map);
 
         updateMarkers();
         startTicker();
 
         // Load header
-        fetch('header.html').then(r => r.text()).then(h => document.getElementById('header-placeholder').innerHTML = h);
+        fetch('header.html')
+          .then(r => r.text())
+          .then(h => {
+            document.getElementById('header-placeholder').innerHTML = h;
+          })
+          .catch(e => console.warn('Header failed to load', e));
 
       } catch (err) {
-        console.error(err);
+        console.error('Map Init Error:', err);
+        document.getElementById('loadingOverlay').style.display = 'none';
       }
     }
 

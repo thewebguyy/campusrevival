@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Add University - CRM Admin</title>
@@ -25,24 +26,24 @@
 
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #000000, #012169);
+      background: #fbfbfb;
       color: var(--text);
       line-height: 1.6;
       min-height: 100vh;
-      padding: 20px;
+      padding: 40px 20px;
     }
 
     /* Header */
     header {
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      background: #000;
       color: white;
       padding: 30px 40px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       border-radius: 16px;
-      margin-bottom: 30px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      margin-bottom: 40px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     }
 
     header h1 {
@@ -56,7 +57,7 @@
     }
 
     .btn-secondary {
-      background: rgba(255,255,255,0.2);
+      background: rgba(255, 255, 255, 0.2);
       color: white;
       border: 2px solid white;
       padding: 10px 20px;
@@ -86,7 +87,7 @@
       background: var(--bg);
       padding: 40px;
       border-radius: 16px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     }
 
     .form-header {
@@ -264,7 +265,7 @@
       width: 100%;
       max-width: 300px;
       border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
     /* Coordinate Helper */
@@ -349,8 +350,15 @@
     }
 
     @keyframes slideIn {
-      from { transform: translateY(-20px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
+      from {
+        transform: translateY(-20px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
     }
 
     .message.success {
@@ -382,8 +390,13 @@
     }
 
     @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
     }
 
     /* Recent Submissions */
@@ -458,15 +471,20 @@
       padding: 15px 25px;
       background: white;
       border-radius: 8px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
       z-index: 10000;
       animation: slideInRight 0.3s;
       max-width: 400px;
     }
 
     @keyframes slideInRight {
-      from { transform: translateX(100%); }
-      to { transform: translateX(0); }
+      from {
+        transform: translateX(100%);
+      }
+
+      to {
+        transform: translateX(0);
+      }
     }
 
     .toast.success {
@@ -478,6 +496,7 @@
     }
   </style>
 </head>
+
 <body>
 
   <header>
@@ -510,14 +529,8 @@
               <label>
                 University Name <span class="required">*</span>
               </label>
-              <input 
-                type="text" 
-                id="name" 
-                name="name" 
-                placeholder="e.g., University of Oxford"
-                required 
-                maxlength="200"
-              />
+              <input type="text" id="name" name="name" placeholder="e.g., University of Oxford" required
+                maxlength="200" />
               <span class="field-error" id="nameError">University name is required</span>
               <span class="char-count"><span id="nameCount">0</span>/200</span>
             </div>
@@ -567,13 +580,7 @@
               <label>
                 Website <span class="required">*</span>
               </label>
-              <input 
-                type="url" 
-                id="website" 
-                name="website" 
-                placeholder="https://www.university.ac.uk"
-                required
-              />
+              <input type="url" id="website" name="website" placeholder="https://www.university.ac.uk" required />
               <span class="field-error" id="websiteError">Please enter a valid URL</span>
             </div>
 
@@ -581,14 +588,8 @@
               <label>
                 Full Address <span class="required">*</span>
               </label>
-              <input 
-                type="text" 
-                id="address" 
-                name="address" 
-                placeholder="Street, City, Postcode"
-                required
-                maxlength="500"
-              />
+              <input type="text" id="address" name="address" placeholder="Street, City, Postcode" required
+                maxlength="500" />
               <span class="field-help">Include street, city, and postcode</span>
               <span class="field-error" id="addressError">Address is required</span>
             </div>
@@ -603,16 +604,7 @@
               <label>
                 Latitude <span class="required">*</span>
               </label>
-              <input 
-                type="number" 
-                id="lat" 
-                name="lat" 
-                step="any" 
-                placeholder="51.5074"
-                min="-90"
-                max="90"
-                required 
-              />
+              <input type="number" id="lat" name="lat" step="any" placeholder="51.5074" min="-90" max="90" required />
               <span class="field-help">Between -90 and 90</span>
               <span class="field-error" id="latError">Valid latitude required</span>
             </div>
@@ -621,25 +613,16 @@
               <label>
                 Longitude <span class="required">*</span>
               </label>
-              <input 
-                type="number" 
-                id="lng" 
-                name="lng" 
-                step="any" 
-                placeholder="-0.1278"
-                min="-180"
-                max="180"
-                required 
-              />
+              <input type="number" id="lng" name="lng" step="any" placeholder="-0.1278" min="-180" max="180" required />
               <span class="field-help">Between -180 and 180</span>
               <span class="field-error" id="lngError">Valid longitude required</span>
             </div>
 
             <div class="form-group full-width">
               <div class="coord-helper">
-                💡 <strong>Need coordinates?</strong> Use 
-                <a href="https://www.latlong.net/" target="_blank">LatLong.net</a> or 
-                <a href="https://www.google.com/maps" target="_blank">Google Maps</a> 
+                💡 <strong>Need coordinates?</strong> Use
+                <a href="https://www.latlong.net/" target="_blank">LatLong.net</a> or
+                <a href="https://www.google.com/maps" target="_blank">Google Maps</a>
                 (right-click location → copy coordinates)
               </div>
             </div>
@@ -654,13 +637,9 @@
               <label>
                 Description <span class="required">*</span>
               </label>
-              <textarea 
-                id="description" 
-                name="description" 
-                placeholder="Brief description of the university, its history, and significance..."
-                required
-                maxlength="5000"
-              ></textarea>
+              <textarea id="description" name="description"
+                placeholder="Brief description of the university, its history, and significance..." required
+                maxlength="5000"></textarea>
               <span class="char-count"><span id="descCount">0</span>/5000</span>
               <span class="field-error" id="descriptionError">Description is required</span>
             </div>
@@ -669,16 +648,10 @@
               <label>
                 University Image <span class="required">*</span>
               </label>
-              <input 
-                type="file" 
-                id="image" 
-                name="image" 
-                accept="image/*"
-                required 
-              />
+              <input type="file" id="image" name="image" accept="image/*" required />
               <span class="field-help">JPG, PNG, or WebP (max 5MB)</span>
               <span class="field-error" id="imageError">Image is required</span>
-              
+
               <div class="image-preview-container" id="imagePreviewContainer">
                 <img id="imagePreview" class="image-preview" alt="Preview">
               </div>
@@ -747,7 +720,7 @@
     const form = document.getElementById('schoolForm');
 
     // Auto-fill coordinates when city is selected
-    document.getElementById('city').addEventListener('change', function() {
+    document.getElementById('city').addEventListener('change', function () {
       const city = this.value;
       if (cityCoordinates[city]) {
         document.getElementById('lat').value = cityCoordinates[city].lat;
@@ -758,16 +731,16 @@
     });
 
     // Character counters
-    document.getElementById('name').addEventListener('input', function() {
+    document.getElementById('name').addEventListener('input', function () {
       document.getElementById('nameCount').textContent = this.value.length;
     });
 
-    document.getElementById('description').addEventListener('input', function() {
+    document.getElementById('description').addEventListener('input', function () {
       document.getElementById('descCount').textContent = this.value.length;
     });
 
     // Image preview
-    document.getElementById('image').addEventListener('change', function(e) {
+    document.getElementById('image').addEventListener('change', function (e) {
       const file = e.target.files[0];
       if (file) {
         // Validate file size (5MB max)
@@ -779,7 +752,7 @@
 
         // Show preview
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = function (e) {
           document.getElementById('imagePreview').src = e.target.result;
           document.getElementById('imagePreviewContainer').style.display = 'block';
         };
@@ -821,7 +794,7 @@
     Object.keys(validators).forEach(field => {
       const element = document.getElementById(field);
       if (element) {
-        element.addEventListener('blur', function() {
+        element.addEventListener('blur', function () {
           validateField(field, this);
         });
       }
@@ -830,7 +803,7 @@
     function validateField(field, element) {
       const value = element.type === 'file' ? element : element.value;
       const isValid = validators[field](value);
-      
+
       if (isValid) {
         element.classList.remove('error');
         element.classList.add('success');
@@ -864,7 +837,7 @@
     }
 
     // Form submission
-    form.addEventListener('submit', async function(e) {
+    form.addEventListener('submit', async function (e) {
       e.preventDefault();
 
       // Validate all fields
@@ -923,11 +896,11 @@
 
         showMessage(`✅ "${formData.name}" has been successfully added!`, 'success');
         showToast(`${formData.name} added successfully!`, 'success');
-        
+
         form.reset();
         document.getElementById('imagePreviewContainer').style.display = 'none';
         document.getElementById('progressFill').style.width = '0%';
-        
+
         // Clear all success/error states
         form.querySelectorAll('input, select, textarea').forEach(el => {
           el.classList.remove('success', 'error');
@@ -960,7 +933,7 @@
       message.textContent = text;
       container.appendChild(message);
       message.style.display = 'block';
-      
+
       setTimeout(() => {
         message.remove();
       }, 5000);
@@ -971,7 +944,7 @@
       toast.className = `toast ${type}`;
       toast.textContent = text;
       document.body.appendChild(toast);
-      
+
       setTimeout(() => {
         toast.remove();
       }, 3000);
@@ -998,11 +971,11 @@
         form.reset();
         document.getElementById('imagePreviewContainer').style.display = 'none';
         document.getElementById('progressFill').style.width = '0%';
-        
+
         form.querySelectorAll('input, select, textarea').forEach(el => {
           el.classList.remove('success', 'error');
         });
-        
+
         document.querySelectorAll('.field-error').forEach(el => {
           el.classList.remove('show');
         });
@@ -1010,7 +983,7 @@
     }
 
     // Check auth on load
-    window.addEventListener('load', function() {
+    window.addEventListener('load', function () {
       if (typeof isLoggedIn === 'function' && !isLoggedIn()) {
         showMessage('⚠️ You must be logged in to add universities', 'warning');
         setTimeout(() => {
@@ -1020,4 +993,5 @@
     });
   </script>
 </body>
+
 </html>

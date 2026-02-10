@@ -22,90 +22,154 @@
 
   <style>
     body {
-      background: #000;
-      color: white;
+      background: var(--bg-light);
+      color: var(--text-main);
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    #header-placeholder {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+
+    .hero-section {
       height: 100vh;
+      width: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
+      position: relative;
+      background: url('https://images.unsplash.com/photo-1541339907198-e08756ebafe1?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
     }
 
-    .hero-bg {
-      position: fixed;
+    .hero-section::before {
+      content: '';
+      position: absolute;
       inset: 0;
-      background: radial-gradient(circle at center, var(--primary-dark) 0%, #000 100%);
-      z-index: -1;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(5px);
     }
 
-    .glass-hero {
-      max-width: 800px;
-      padding: 60px 40px;
+    .hero-content {
+      position: relative;
+      z-index: 10;
       text-align: center;
-      animation: fadeIn 1.5s ease-out;
+      max-width: 900px;
+      padding: 40px;
+      animation: fadeInUp 1s ease-out;
     }
 
-    .logo-container {
-      width: 120px;
-      height: 120px;
-      margin: 0 auto 30px;
-      background: var(--glass);
-      border-radius: 30px;
-      padding: 20px;
-      border: 1px solid var(--glass-border);
-      box-shadow: var(--shadow-glow);
+    .logo-img {
+      width: 100px;
+      margin-bottom: 20px;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
     }
 
-    .btn-group {
+    .main-title {
+      font-size: 4.5rem;
+      font-weight: 800;
+      letter-spacing: -2px;
+      line-height: 1;
+      margin-bottom: 20px;
+      color: var(--primary);
+    }
+
+    .subtitle {
+      font-size: 1.25rem;
+      color: var(--text-muted);
+      margin-bottom: 40px;
+      max-width: 650px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+    }
+
+    .cta-group {
       display: flex;
-      gap: 15px;
+      gap: 20px;
       justify-content: center;
-      margin-top: 40px;
       flex-wrap: wrap;
     }
 
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
+    .btn-main {
+      padding: 16px 36px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-decoration: none;
+      border-radius: 50px;
+      transition: var(--transition);
+      cursor: pointer;
+    }
 
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+    .btn-primary-crm {
+      background: var(--primary);
+      color: white;
+      border: 2px solid var(--primary);
+    }
+
+    .btn-primary-crm:hover {
+      background: transparent;
+      color: var(--primary);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    .btn-outline-crm {
+      background: transparent;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+
+    .btn-outline-crm:hover {
+      background: var(--primary);
+      color: white;
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+      .main-title { font-size: 2.8rem; }
+      .subtitle { font-size: 1.1rem; }
     }
   </style>
 </head>
 
 <body>
-  <div class="hero-bg"></div>
+  <div id="header-placeholder"></div>
 
-  <div class="glass-hero glass-card">
-    <div class="logo-container">
-      <img src="crmicon.png" alt="CRM" style="width: 100%; height: 100%; object-fit: contain;">
-    </div>
-    <h2 style="font-size: 1.2rem; letter-spacing: 4px; opacity: 0.8; margin-bottom: 10px;">WELCOME TO</h2>
-    <h1 class="title-gradient" style="font-size: 3.5rem; line-height: 1.1; margin-bottom: 20px;">CAMPUS REVIVAL MOVEMENT
-    </h1>
-    <p style="font-size: 1.1rem; color: var(--text-muted); max-width: 600px; margin: 0 auto;">
-      The UK's 1st Christian Education Adoption Initiative.
-      Join a global army of advocates praying for spiritual awakening in our universities.
-    </p>
+  <main class="hero-section">
+    <div class="hero-content">
+      <img src="crmicon.png" alt="CRM Logo" class="logo-img">
+      <h2 style="font-size: 1rem; letter-spacing: 5px; color: var(--text-muted); margin-bottom: 10px; font-weight: 600;">ENGLAND | WALES | SCOTLAND | NI</h2>
+      <h1 class="main-title">Campus Revival Movement</h1>
+      <p class="subtitle">
+        The UK's 1st Christian Education Adoption Initiative. 
+        Join a movement of advocates dedicated to praying for spiritual awakening and transformation in our universities.
+      </p>
 
-    <div class="btn-group">
-      <button class="btn-premium btn-glow" onclick="location.href='map.html'">Explore CRM Map</button>
-      <button class="btn-premium" style="background: var(--glass); border: 1px solid var(--glass-border);"
-        onclick="location.href='about.html'">About the Mission</button>
-    </div>
+      <div class="cta-group">
+        <a href="map.html" class="btn-main btn-primary-crm">Explore the Map</a>
+        <a href="about.html" class="btn-main btn-outline-crm">Our Mission</a>
+      </div>
 
-    <div style="margin-top: 30px;">
-      <a href="signin.html" id="dash-link"
-        style="color: var(--text-main); text-decoration: none; font-weight: 600; font-size: 0.9rem;">
-        Login or Create Account <i class="fas fa-arrow-right" style="margin-left: 8px;"></i>
-      </a>
+      <div style="margin-top: 40px;">
+        <a href="signin.html" id="dash-link" style="color: var(--primary); text-decoration: none; font-weight: 700; font-size: 1rem; border-bottom: 2px solid var(--primary); padding-bottom: 4px;">
+          Login or Create Account <i class="fas fa-arrow-right" style="margin-left: 10px;"></i>
+        </a>
+      </div>
     </div>
-  </div>
+  </main>
 
   <script src="utils/api.js"></script>
   <script>
