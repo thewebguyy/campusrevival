@@ -208,6 +208,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
   <script src="utils/api.js"></script>
+  <script src="utils/ui.js"></script>
   <script>
     let map, schoolsData = [], markers = [], heatmapLayer;
     let showingHeatmap = false, isGlobal = false, filterActive = false;
@@ -242,17 +243,7 @@
         startTicker();
 
         // Load header
-        fetch('header.html')
-          .then(r => r.text())
-          .then(h => {
-            document.getElementById('header-placeholder').innerHTML = h;
-            const authBtn = document.getElementById('header-auth-btn');
-            if (authBtn && isLoggedIn()) {
-              authBtn.textContent = 'Dashboard';
-              authBtn.href = '/dashboard.html';
-            }
-          })
-          .catch(e => console.warn('Header failed to load', e));
+        // Header loaded by utils/ui.js
 
       } catch (err) {
         console.error('Map Init Error:', err);

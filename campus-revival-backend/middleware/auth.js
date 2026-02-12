@@ -1,16 +1,17 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const User = require('../models/user');
 
 // Token blacklist (in production, use Redis or database)
 const tokenBlacklist = new Set();
+// TODO: Implement Redis-based blacklist for production
 
 // ============== REQUEST LOGGING MIDDLEWARE ==============
 exports.requestLogger = (req, res, next) => {
   const start = Date.now();
-  
+
   // Log request
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
-  
+
   // Log response when finished
   res.on('finish', () => {
     const duration = Date.now() - start;
@@ -20,14 +21,17 @@ exports.requestLogger = (req, res, next) => {
       `${statusColor}[${status}]\x1b[0m ${req.method} ${req.path} - ${duration}ms`
     );
   });
-  
+
   next();
 };
 
 // ============== RATE LIMITING (Simple In-Memory) ==============
-const rateLimitStore = new Map();
+// const rateLimitStore = new Map();
 
 exports.rateLimit = (options = {}) => {
+  // TODO: Implement Redis-based rate limiting for production
+  return (req, res, next) => next(); // Pass through for MVP
+  /* 
   const windowMs = options.windowMs || 15 * 60 * 1000; // 15 minutes
   const max = options.max || 100; // 100 requests per window
   
@@ -59,9 +63,11 @@ exports.rateLimit = (options = {}) => {
     data.count++;
     next();
   };
+  */
 };
 
 // Clean up old rate limit entries every hour
+/*
 setInterval(() => {
   const now = Date.now();
   for (const [key, data] of rateLimitStore.entries()) {
@@ -70,6 +76,7 @@ setInterval(() => {
     }
   }
 }, 60 * 60 * 1000);
+*/
 
 // ============== AUTHENTICATION MIDDLEWARE ==============
 exports.protect = async (req, res, next) => {
@@ -98,10 +105,10 @@ exports.protect = async (req, res, next) => {
     try {
       // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      
+
       // Get user from token
       req.user = await User.findById(decoded.id).select('-password');
-      
+
       if (!req.user) {
         return res.status(401).json({
           success: false,
@@ -111,7 +118,7 @@ exports.protect = async (req, res, next) => {
 
       // Attach token to request for potential logout
       req.token = token;
-      
+
       next();
     } catch (err) {
       if (err.name === 'TokenExpiredError') {
@@ -120,7 +127,7 @@ exports.protect = async (req, res, next) => {
           error: 'Token expired. Please login again.'
         });
       }
-      
+
       return res.status(401).json({
         success: false,
         error: 'Invalid token. Please login again.'
@@ -171,7 +178,7 @@ exports.optionalAuth = async (req, res, next) => {
 // ============== TOKEN BLACKLIST MANAGEMENT ==============
 exports.blacklistToken = (token) => {
   tokenBlacklist.add(token);
-  
+
   // Auto-remove after 7 days (typical JWT expiry)
   setTimeout(() => {
     tokenBlacklist.delete(token);
@@ -241,27 +248,27 @@ exports.notFound = (req, res, next) => {
 exports.bodySizeLimit = (req, res, next) => {
   const contentLength = req.headers['content-length'];
   const maxSize = 10 * 1024 * 1024; // 10MB
-  
+
   if (contentLength && parseInt(contentLength) > maxSize) {
     return res.status(413).json({
       success: false,
       error: 'Request entity too large. Maximum size is 10MB.'
     });
   }
-  
+
   next();
 };
 
 // ============== CORS CONFIGURATION ==============
 exports.corsOptions = {
   origin: function (origin, callback) {
-    const allowedOrigins = process.env.CORS_ORIGIN 
+    const allowedOrigins = process.env.CORS_ORIGIN
       ? process.env.CORS_ORIGIN.split(',')
       : ['*'];
-    
+
     // Allow requests with no origin (mobile apps, Postman, etc.)
     if (!origin) return callback(null, true);
-    
+
     if (allowedOrigins.includes('*') || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
@@ -278,27 +285,27 @@ exports.corsOptions = {
 exports.securityHeaders = (req, res, next) => {
   // Prevent clickjacking
   res.setHeader('X-Frame-Options', 'DENY');
-  
+
   // Prevent MIME sniffing
   res.setHeader('X-Content-Type-Options', 'nosniff');
-  
+
   // Enable XSS filter
   res.setHeader('X-XSS-Protection', '1; mode=block');
-  
+
   // Strict transport security (HTTPS only in production)
   if (process.env.NODE_ENV === 'production') {
     res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   }
-  
+
   // Referrer policy
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  
+
   // Content security policy
   res.setHeader(
     'Content-Security-Policy',
     "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
   );
-  
+
   next();
 };
 
@@ -316,13 +323,13 @@ exports.maintenanceMode = (req, res, next) => {
 
 // ============== UTILITY: CLEAN UP FUNCTIONS ==============
 exports.clearExpiredTokens = () => {
-  console.log(`🧹 Token blacklist size: ${tokenBlacklist.size}`);
+  // console.log(`🧹 Token blacklist size: ${tokenBlacklist.size}`);
 };
 
 exports.clearRateLimits = () => {
-  const size = rateLimitStore.size;
-  rateLimitStore.clear();
-  console.log(`🧹 Cleared ${size} rate limit entries`);
+  // const size = rateLimitStore.size;
+  // rateLimitStore.clear();
+  // console.log(`🧹 Cleared ${size} rate limit entries`);
 };
 
 module.exports = exports;

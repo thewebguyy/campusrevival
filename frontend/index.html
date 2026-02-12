@@ -188,28 +188,9 @@
   </main>
 
   <script src="utils/api.js"></script>
+  <script src="utils/ui.js"></script>
   <script>
-    // Load Header
-    fetch('header.html')
-      .then(r => r.text())
-      .then(html => {
-        document.getElementById('header-placeholder').innerHTML = html;
-        const hamburger = document.getElementById('hamburger');
-        const navMenu = document.getElementById('nav-menu');
-        if (hamburger && navMenu) {
-          hamburger.addEventListener('click', () => {
-            navMenu.classList.toggle('active');
-          });
-        }
-
-        // Update header auth button if logged in
-        const authBtn = document.getElementById('header-auth-btn');
-        if (authBtn && isLoggedIn()) {
-          authBtn.textContent = 'Dashboard';
-          authBtn.href = 'dashboard.html';
-        }
-      })
-      .catch(e => console.error('Header load error:', e));
+    // Header is loaded by utils/ui.js automatically on DOMContentLoaded
 
     window.addEventListener('load', async () => {
       // Register Service Worker for PWA

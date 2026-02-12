@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -15,7 +16,12 @@
     }
 
     /* ===== Reset & Base Styles ===== */
-    * { margin:0; padding:0; box-sizing:border-box; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: var(--background-light);
@@ -25,48 +31,90 @@
     }
 
     /* ===== Header Placeholder ===== */
-    #header-placeholder { width: 100%; }
+    #header-placeholder {
+      width: 100%;
+    }
 
     /* ===== Main Content ===== */
-    main { max-width: 1000px; margin: 40px auto; padding: 20px; }
+    main {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 20px;
+    }
 
-    section { margin-bottom: 60px; display:flex; align-items:center; gap:30px; flex-wrap:wrap; }
-    section:nth-child(even) { flex-direction: row-reverse; }
+    section {
+      margin-bottom: 60px;
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
 
-    section img { width:100%; max-width:400px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1); transition: transform var(--transition);}
-    section img:hover { transform: scale(1.05); }
+    section:nth-child(even) {
+      flex-direction: row-reverse;
+    }
 
-    section div.text { flex:1; }
+    section img {
+      width: 100%;
+      max-width: 400px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      transition: transform var(--transition);
+    }
+
+    section img:hover {
+      transform: scale(1.05);
+    }
+
+    section div.text {
+      flex: 1;
+    }
 
     section h2 {
       color: var(--primary-color);
       margin-bottom: 10px;
-      font-size:1.8rem;
+      font-size: 1.8rem;
       border-left: 5px solid var(--secondary-color);
       padding-left: 10px;
     }
 
-    section p { font-size:1.1rem; line-height:1.8; }
+    section p {
+      font-size: 1.1rem;
+      line-height: 1.8;
+    }
 
     /* ===== Footer ===== */
     footer {
-      text-align:center;
+      text-align: center;
       background: var(--background-light);
       color: #000000;
       padding: 20px 10px;
       font-size: 0.95rem;
-      margin-top:40px;
+      margin-top: 40px;
     }
 
     /* ===== Responsive Styles ===== */
-    @media(max-width:768px){
-      section { flex-direction:column; text-align:center; }
-      section img { max-width: 100%; }
-      section h2 { font-size:1.5rem; }
-      section p { font-size:1rem; }
+    @media(max-width:768px) {
+      section {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      section img {
+        max-width: 100%;
+      }
+
+      section h2 {
+        font-size: 1.5rem;
+      }
+
+      section p {
+        font-size: 1rem;
+      }
     }
   </style>
 </head>
+
 <body>
   <!-- ===== HEADER PLACEHOLDER ===== -->
   <div id="header-placeholder"></div>
@@ -74,35 +122,38 @@
   <!-- ===== MAIN CONTENT ===== -->
   <main>
     <section id="introduction">
-      <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80" alt="Team working together">
+      <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80"
+        alt="Team working together">
       <div class="text">
         <h2>Introduction</h2>
         <p>
-          Welcome to our organization! We are a passionate team dedicated to delivering innovative solutions 
-          that make a real difference. Our journey began with a simple idea — to create value and impact through 
+          Welcome to our organization! We are a passionate team dedicated to delivering innovative solutions
+          that make a real difference. Our journey began with a simple idea — to create value and impact through
           creativity, collaboration, and commitment.
         </p>
       </div>
     </section>
 
     <section id="vision">
-      <img src="https://images.unsplash.com/photo-1506784365847-bbad939e9335?auto=format&fit=crop&w=800&q=80" alt="Vision for the future">
+      <img src="https://images.unsplash.com/photo-1506784365847-bbad939e9335?auto=format&fit=crop&w=800&q=80"
+        alt="Vision for the future">
       <div class="text">
         <h2>Our Vision</h2>
         <p>
-          To be a leading force in driving positive change, inspiring innovation, and building a future 
+          To be a leading force in driving positive change, inspiring innovation, and building a future
           where technology and human creativity work hand in hand to improve lives globally.
         </p>
       </div>
     </section>
 
     <section id="mission">
-      <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80" alt="Mission driven work">
+      <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80"
+        alt="Mission driven work">
       <div class="text">
         <h2>Our Mission</h2>
         <p>
-          Our mission is to provide high-quality services and products that empower individuals and 
-          organizations to reach their fullest potential. We strive to foster a culture of excellence, 
+          Our mission is to provide high-quality services and products that empower individuals and
+          organizations to reach their fullest potential. We strive to foster a culture of excellence,
           sustainability, and integrity in everything we do.
         </p>
       </div>
@@ -115,27 +166,9 @@
   </footer>
 
   <!-- ===== JavaScript for Fetching Header & Hamburger ===== -->
-  <script>
-    // Load header.html into the placeholder
-    fetch('header.html')
-      .then(response => {
-        if(!response.ok) throw new Error('Header fetch failed');
-        return response.text();
-      })
-      .then(html => {
-        document.getElementById('header-placeholder').innerHTML = html;
-
-        // After loading header, setup hamburger menu
-        const hamburger = document.querySelector('.hamburger');
-        const navMenu = document.querySelector('nav ul');
-        if(hamburger && navMenu){
-          hamburger.addEventListener('click', () => {
-            navMenu.classList.toggle('active');
-            hamburger.classList.toggle('open');
-          });
-        }
-      })
-      .catch(err => console.error(err));
-  </script>
+  <!-- ===== Scripts ===== -->
+  <script src="utils/api.js"></script>
+  <script src="utils/ui.js"></script>
 </body>
+
 </html>
