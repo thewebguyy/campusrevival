@@ -675,179 +675,177 @@
 
   <script src="utils/api.js"></script>
   <script src="utils/ui.js"></script>
-  <script>
-    // Header loaded by utils/ui.js
-    // City coordinates map
-    const cityCoordinates = {
-      "London": { lat: 51.5074, lng: -0.1278 },
-      "Oxford": { lat: 51.7520, lng: -1.2577 },
-      "Cambridge": { lat: 52.2053, lng: 0.1218 },
-      "Manchester": { lat: 53.4808, lng: -2.2426 },
-      "Birmingham": { lat: 52.4862, lng: -1.8904 },
-      "Glasgow": { lat: 55.8642, lng: -4.2518 },
-      "St Andrews": { lat: 56.3398, lng: -2.7967 },
-      "Edinburgh": { lat: 55.9533, lng: -3.1883 },
-      "Liverpool": { lat: 53.4084, lng: -2.9916 },
-      "Bristol": { lat: 51.4545, lng: -2.5879 },
-      "Leeds": { lat: 53.8008, lng: -1.5491 },
-      "Sheffield": { lat: 53.3811, lng: -1.4701 },
-      "Newcastle": { lat: 54.9784, lng: -1.6174 },
-      "Nottingham": { lat: 52.9548, lng: -1.1581 },
-      "Southampton": { lat: 50.9097, lng: -1.4044 },
-      "Portsmouth": { lat: 50.8198, lng: -1.0880 },
-      "Brighton": { lat: 50.8225, lng: -0.1372 },
-      "Plymouth": { lat: 50.3755, lng: -4.1427 },
-      "Cardiff": { lat: 51.4816, lng: -3.1791 },
-      "Bangor": { lat: 53.2270, lng: -4.1294 },
-      "Aberystwyth": { lat: 52.4153, lng: -4.0829 },
-      "Belfast": { lat: 54.5973, lng: -5.9301 },
-      "Coventry": { lat: 52.4068, lng: -1.5197 },
-      "Hull": { lat: 53.7676, lng: -0.3274 },
-      "Dundee": { lat: 56.4620, lng: -2.9707 },
-      "Aberdeen": { lat: 57.1497, lng: -2.0943 },
-      "Inverness": { lat: 57.4778, lng: -4.2247 },
-      "Swansea": { lat: 51.6214, lng: -3.9436 },
-      "Reading": { lat: 51.4543, lng: -0.9781 },
-      "Leicester": { lat: 52.6369, lng: -1.1398 },
-      "Bradford": { lat: 53.7950, lng: -1.7594 }
-    };
 
-    let recentSchools = [];
-    const form = document.getElementById('schoolForm');
+  // City coordinates map
+  const cityCoordinates = {
+  "London": { lat: 51.5074, lng: -0.1278 },
+  "Oxford": { lat: 51.7520, lng: -1.2577 },
+  "Cambridge": { lat: 52.2053, lng: 0.1218 },
+  "Manchester": { lat: 53.4808, lng: -2.2426 },
+  "Birmingham": { lat: 52.4862, lng: -1.8904 },
+  "Glasgow": { lat: 55.8642, lng: -4.2518 },
+  "St Andrews": { lat: 56.3398, lng: -2.7967 },
+  "Edinburgh": { lat: 55.9533, lng: -3.1883 },
+  "Liverpool": { lat: 53.4084, lng: -2.9916 },
+  "Bristol": { lat: 51.4545, lng: -2.5879 },
+  "Leeds": { lat: 53.8008, lng: -1.5491 },
+  "Sheffield": { lat: 53.3811, lng: -1.4701 },
+  "Newcastle": { lat: 54.9784, lng: -1.6174 },
+  "Nottingham": { lat: 52.9548, lng: -1.1581 },
+  "Southampton": { lat: 50.9097, lng: -1.4044 },
+  "Portsmouth": { lat: 50.8198, lng: -1.0880 },
+  "Brighton": { lat: 50.8225, lng: -0.1372 },
+  "Plymouth": { lat: 50.3755, lng: -4.1427 },
+  "Cardiff": { lat: 51.4816, lng: -3.1791 },
+  "Bangor": { lat: 53.2270, lng: -4.1294 },
+  "Aberystwyth": { lat: 52.4153, lng: -4.0829 },
+  "Belfast": { lat: 54.5973, lng: -5.9301 },
+  "Coventry": { lat: 52.4068, lng: -1.5197 },
+  "Hull": { lat: 53.7676, lng: -0.3274 },
+  "Dundee": { lat: 56.4620, lng: -2.9707 },
+  "Aberdeen": { lat: 57.1497, lng: -2.0943 },
+  "Inverness": { lat: 57.4778, lng: -4.2247 },
+  "Swansea": { lat: 51.6214, lng: -3.9436 },
+  "Reading": { lat: 51.4543, lng: -0.9781 },
+  "Leicester": { lat: 52.6369, lng: -1.1398 },
+  "Bradford": { lat: 53.7950, lng: -1.7594 }
+  };
 
-    // Auto-fill coordinates when city is selected
-    document.getElementById('city').addEventListener('change', function () {
-      const city = this.value;
-      if (cityCoordinates[city]) {
-        document.getElementById('lat').value = cityCoordinates[city].lat;
-        document.getElementById('lng').value = cityCoordinates[city].lng;
-        clearFieldError('lat');
-        clearFieldError('lng');
-      }
-    });
+  let recentSchools = [];
+  const form = document.getElementById('schoolForm');
 
-    // Character counters
-    document.getElementById('name').addEventListener('input', function () {
-      document.getElementById('nameCount').textContent = this.value.length;
-    });
+  // Auto-fill coordinates when city is selected
+  document.getElementById('city').addEventListener('change', function () {
+  const city = this.value;
+  if (cityCoordinates[city]) {
+  document.getElementById('lat').value = cityCoordinates[city].lat;
+  document.getElementById('lng').value = cityCoordinates[city].lng;
+  clearFieldError('lat');
+  clearFieldError('lng');
+  }
+  });
 
-    document.getElementById('description').addEventListener('input', function () {
-      document.getElementById('descCount').textContent = this.value.length;
-    });
+  // Character counters
+  document.getElementById('name').addEventListener('input', function () {
+  document.getElementById('nameCount').textContent = this.value.length;
+  });
 
-    // Image preview
-    document.getElementById('image').addEventListener('change', function (e) {
-      const file = e.target.files[0];
-      if (file) {
-        // Validate file size (5MB max)
-        if (file.size > 5 * 1024 * 1024) {
-          showFieldError('image', 'Image must be less than 5MB');
-          this.value = '';
-          return;
-        }
+  document.getElementById('description').addEventListener('input', function () {
+  document.getElementById('descCount').textContent = this.value.length;
+  });
 
-        // Show preview
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          document.getElementById('imagePreview').src = e.target.result;
-          document.getElementById('imagePreviewContainer').style.display = 'block';
-        };
-        reader.readAsDataURL(file);
-        clearFieldError('image');
-      }
-    });
+  // Image preview
+  document.getElementById('image').addEventListener('change', function (e) {
+  const file = e.target.files[0];
+  if (file) {
+  // Validate file size (5MB max)
+  if (file.size > 5 * 1024 * 1024) {
+  showFieldError('image', 'Image must be less than 5MB');
+  this.value = '';
+  return;
+  }
 
-    // Form progress indicator
-    form.addEventListener('input', updateProgress);
+  // Show preview
+  const reader = new FileReader();
+  reader.onload = function (e) {
+  document.getElementById('imagePreview').src = e.target.result;
+  document.getElementById('imagePreviewContainer').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+  clearFieldError('image');
+  }
+  });
 
-    function updateProgress() {
-      const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
-      let filled = 0;
-      inputs.forEach(input => {
-        if (input.type === 'file') {
-          if (input.files.length > 0) filled++;
-        } else if (input.value.trim()) {
-          filled++;
-        }
-      });
-      const progress = (filled / inputs.length) * 100;
-      document.getElementById('progressFill').style.width = progress + '%';
-    }
+  // Form progress indicator
+  form.addEventListener('input', updateProgress);
 
-    // Real-time validation
-    const validators = {
-      name: (value) => value.trim().length >= 2,
-      city: (value) => value.trim().length > 0,
-      address: (value) => value.trim().length >= 5,
-      website: (value) => /^https?:\/\/.+\..+/.test(value),
-      lat: (value) => !isNaN(value) && value >= -90 && value <= 90,
-      lng: (value) => !isNaN(value) && value >= -180 && value <= 180,
-      description: (value) => value.trim().length >= 10,
+  function updateProgress() {
+  const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
+  let filled = 0;
+  inputs.forEach(input => {
+  if (input.type === 'file') {
+  if (input.files.length > 0) filled++;
+  } else if (input.value.trim()) {
+  filled++;
+  }
+  });
+  const progress = (filled / inputs.length) * 100;
+  document.getElementById('progressFill').style.width = progress + '%';
+  }
+
+  // Real-time validation
+  const validators = {
+  name: (value) => value.trim().length >= 2,
+  city: (value) => value.trim().length > 0,
+  address: (value) => value.trim().length >= 5,
+  website: (value) => /^https?:\/\/.+\..+/.test(value),
+  lat: (value) => !isNaN(value) && value >= -90 && value <= 90, lng: (value)=> !isNaN(value) && value >= -180 && value
+    <= 180, description: (value)=> value.trim().length >= 10,
       image: (input) => input.files.length > 0
-    };
+      };
 
-    // Add blur validation
-    Object.keys(validators).forEach(field => {
+      // Add blur validation
+      Object.keys(validators).forEach(field => {
       const element = document.getElementById(field);
       if (element) {
-        element.addEventListener('blur', function () {
-          validateField(field, this);
-        });
+      element.addEventListener('blur', function () {
+      validateField(field, this);
+      });
       }
-    });
+      });
 
-    function validateField(field, element) {
+      function validateField(field, element) {
       const value = element.type === 'file' ? element : element.value;
       const isValid = validators[field](value);
 
       if (isValid) {
-        element.classList.remove('error');
-        element.classList.add('success');
-        clearFieldError(field);
+      element.classList.remove('error');
+      element.classList.add('success');
+      clearFieldError(field);
       } else {
-        element.classList.add('error');
-        element.classList.remove('success');
-        const errorEl = document.getElementById(field + 'Error');
-        if (errorEl) {
-          errorEl.classList.add('show');
-        }
+      element.classList.add('error');
+      element.classList.remove('success');
+      const errorEl = document.getElementById(field + 'Error');
+      if (errorEl) {
+      errorEl.classList.add('show');
+      }
       }
       return isValid;
-    }
+      }
 
-    function showFieldError(field, message) {
+      function showFieldError(field, message) {
       const errorEl = document.getElementById(field + 'Error');
       if (errorEl) {
-        errorEl.textContent = message;
-        errorEl.classList.add('show');
+      errorEl.textContent = message;
+      errorEl.classList.add('show');
       }
       document.getElementById(field).classList.add('error');
-    }
+      }
 
-    function clearFieldError(field) {
+      function clearFieldError(field) {
       const errorEl = document.getElementById(field + 'Error');
       if (errorEl) {
-        errorEl.classList.remove('show');
+      errorEl.classList.remove('show');
       }
       document.getElementById(field).classList.remove('error');
-    }
+      }
 
-    // Form submission
-    form.addEventListener('submit', async function (e) {
+      // Form submission
+      form.addEventListener('submit', async function (e) {
       e.preventDefault();
 
       // Validate all fields
       let isValid = true;
       Object.keys(validators).forEach(field => {
-        const element = document.getElementById(field);
-        if (!validateField(field, element)) {
-          isValid = false;
-        }
+      const element = document.getElementById(field);
+      if (!validateField(field, element)) {
+      isValid = false;
+      }
       });
 
       if (!isValid) {
-        showMessage('Please fix all errors before submitting', 'error');
-        return;
+      showMessage('Please fix all errors before submitting', 'error');
+      return;
       }
 
       const submitBtn = document.getElementById('submitBtn');
@@ -859,70 +857,70 @@
       submitSpinner.style.display = 'inline-block';
 
       try {
-        // Get form data
-        const formData = {
-          name: document.getElementById('name').value.trim(),
-          city: document.getElementById('city').value,
-          address: document.getElementById('address').value.trim(),
-          lat: parseFloat(document.getElementById('lat').value),
-          lng: parseFloat(document.getElementById('lng').value),
-          website: document.getElementById('website').value.trim(),
-          description: document.getElementById('description').value.trim()
-        };
+      // Get form data
+      const formData = {
+      name: document.getElementById('name').value.trim(),
+      city: document.getElementById('city').value,
+      address: document.getElementById('address').value.trim(),
+      lat: parseFloat(document.getElementById('lat').value),
+      lng: parseFloat(document.getElementById('lng').value),
+      website: document.getElementById('website').value.trim(),
+      description: document.getElementById('description').value.trim()
+      };
 
-        // Convert image to base64
-        const imageFile = document.getElementById('image').files[0];
-        const imageBase64 = await fileToBase64(imageFile);
-        formData.image = imageBase64;
+      // Convert image to base64
+      const imageFile = document.getElementById('image').files[0];
+      const imageBase64 = await fileToBase64(imageFile);
+      formData.image = imageBase64;
 
-        // Send to API (if backend is available)
-        // const response = await createSchool(formData);
+      // Send to API (if backend is available)
+      // const response = await createSchool(formData);
 
-        // For now, store locally (remove when API is integrated)
-        const cityChildren = JSON.parse(localStorage.getItem('cityChildren')) || {};
-        if (!cityChildren[formData.city]) {
-          cityChildren[formData.city] = [];
-        }
-        cityChildren[formData.city].push(formData);
-        localStorage.setItem('cityChildren', JSON.stringify(cityChildren));
+      // For now, store locally (remove when API is integrated)
+      const cityChildren = JSON.parse(localStorage.getItem('cityChildren')) || {};
+      if (!cityChildren[formData.city]) {
+      cityChildren[formData.city] = [];
+      }
+      cityChildren[formData.city].push(formData);
+      localStorage.setItem('cityChildren', JSON.stringify(cityChildren));
 
-        // Add to recent list
-        recentSchools.unshift(formData);
-        updateRecentList();
+      // Add to recent list
+      recentSchools.unshift(formData);
+      updateRecentList();
 
-        showMessage(`✅ "${formData.name}" has been successfully added!`, 'success');
-        showToast(`${formData.name} added successfully!`, 'success');
+      showMessage(`✅ "${formData.name}" has been successfully added!`, 'success');
+      showToast(`${formData.name} added successfully!`, 'success');
 
-        form.reset();
-        document.getElementById('imagePreviewContainer').style.display = 'none';
-        document.getElementById('progressFill').style.width = '0%';
+      form.reset();
+      document.getElementById('imagePreviewContainer').style.display = 'none';
+      document.getElementById('progressFill').style.width = '0%';
 
-        // Clear all success/error states
-        form.querySelectorAll('input, select, textarea').forEach(el => {
-          el.classList.remove('success', 'error');
-        });
+      // Clear all success/error states
+      form.querySelectorAll('input, select, textarea').forEach(el => {
+      el.classList.remove('success', 'error');
+      });
 
       } catch (error) {
-        console.error('Error:', error);
-        showMessage('❌ Failed to add university: ' + error.message, 'error');
-        showToast('Failed to add university', 'error');
+      console.error('Error:', error);
+      showMessage('❌ Failed to add university: ' + error.message, 'error');
+      showToast('Failed to add university', 'error');
       } finally {
-        submitBtn.disabled = false;
-        submitText.textContent = 'Add University';
-        submitSpinner.style.display = 'none';
+      submitBtn.disabled = false;
+      submitText.textContent = 'Add University';
+      submitSpinner.style.display = 'none';
       }
-    });
-
-    function fileToBase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
       });
-    }
 
-    function showMessage(text, type) {
+      function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+      });
+      }
+
+      function showMessage(text, type) {
       const container = document.getElementById('messageContainer');
       const message = document.createElement('div');
       message.className = `message ${type}`;
@@ -931,63 +929,63 @@
       message.style.display = 'block';
 
       setTimeout(() => {
-        message.remove();
+      message.remove();
       }, 5000);
-    }
+      }
 
-    function showToast(text, type) {
+      function showToast(text, type) {
       const toast = document.createElement('div');
       toast.className = `toast ${type}`;
       toast.textContent = text;
       document.body.appendChild(toast);
 
       setTimeout(() => {
-        toast.remove();
+      toast.remove();
       }, 3000);
-    }
+      }
 
-    function updateRecentList() {
+      function updateRecentList() {
       if (recentSchools.length > 0) {
-        document.getElementById('recentSubmissions').style.display = 'block';
-        const list = document.getElementById('recentList');
-        list.innerHTML = recentSchools.slice(0, 5).map((school, index) => `
-          <div class="submission-item">
-            <div>
-              <div class="name">${school.name}</div>
-              <div class="time">${school.city}</div>
-            </div>
-            <div class="time">Just now</div>
-          </div>
-        `).join('');
+      document.getElementById('recentSubmissions').style.display = 'block';
+      const list = document.getElementById('recentList');
+      list.innerHTML = recentSchools.slice(0, 5).map((school, index) => `
+      <div class="submission-item">
+        <div>
+          <div class="name">${school.name}</div>
+          <div class="time">${school.city}</div>
+        </div>
+        <div class="time">Just now</div>
+      </div>
+      `).join('');
       }
-    }
+      }
 
-    function resetForm() {
+      function resetForm() {
       if (confirm('Are you sure you want to clear all fields?')) {
-        form.reset();
-        document.getElementById('imagePreviewContainer').style.display = 'none';
-        document.getElementById('progressFill').style.width = '0%';
+      form.reset();
+      document.getElementById('imagePreviewContainer').style.display = 'none';
+      document.getElementById('progressFill').style.width = '0%';
 
-        form.querySelectorAll('input, select, textarea').forEach(el => {
-          el.classList.remove('success', 'error');
-        });
+      form.querySelectorAll('input, select, textarea').forEach(el => {
+      el.classList.remove('success', 'error');
+      });
 
-        document.querySelectorAll('.field-error').forEach(el => {
-          el.classList.remove('show');
-        });
+      document.querySelectorAll('.field-error').forEach(el => {
+      el.classList.remove('show');
+      });
       }
-    }
+      }
 
-    // Check auth on load
-    window.addEventListener('load', function () {
+      // Check auth on load
+      window.addEventListener('load', function () {
       if (typeof isLoggedIn === 'function' && !isLoggedIn()) {
-        showMessage('⚠️ You must be logged in to add universities', 'warning');
-        setTimeout(() => {
-          window.location.href = 'signin.html?redirect=' + encodeURIComponent(window.location.href);
-        }, 2000);
+      showMessage('⚠️ You must be logged in to add universities', 'warning');
+      setTimeout(() => {
+      window.location.href = 'signin.html?redirect=' + encodeURIComponent(window.location.href);
+      }, 2000);
       }
-    });
-  </script>
+      });
+      </script>
 </body>
 
 </html>

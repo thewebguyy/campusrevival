@@ -214,143 +214,154 @@
 
     <script src="utils/api.js"></script>
     <script src="utils/ui.js"></script>
-    <script>
-        // Header loaded by utils/ui.js
 
-        async function init() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const schoolId = urlParams.get('id');
-            const slug = urlParams.get('slug');
 
-            if (!schoolId && !slug) {
-                window.location.href = 'map.html';
-                return;
-            }
+    async function init() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const schoolId = urlParams.get('id');
+    const slug = urlParams.get('slug');
 
-            try {
-                let school;
-                if (schoolId) {
-                    school = await getSchoolById(schoolId);
-                } else {
-                    // Add API for slug lookup later
-                    school = await getSchoolBySlug(slug);
-                }
+    if (!schoolId && !slug) {
+    window.location.href = 'map.html';
+    return;
+    }
 
-                if (!school) throw new Error('School not found');
+    try {
+    let school;
+    if (schoolId) {
+    school = await getSchoolById(schoolId);
+    } else {
+    // Add API for slug lookup later
+    school = await getSchoolBySlug(slug);
+    }
 
-                // Update UI
-                document.getElementById('school-name').textContent = school.name;
-                document.getElementById('school-city').innerHTML = `<i class="fas fa-map-marker-alt"></i> ${school.city || school.address}`;
-                document.getElementById('adoption-count').textContent = school.adoptionCount || 0;
-                document.getElementById('school-desc').textContent = school.description || "Building a legacy of faith and revival on this campus.";
-                document.getElementById('page-title').textContent = `${school.name} | Campus Revival Movement`;
+    if (!school) throw new Error('School not found');
 
-                // Update Meta Tags for SEO
-                document.getElementById('meta-desc').content = `Join the movement praying for ${school.name}. Currently has ${school.adoptionCount} adopters.`;
-                document.getElementById('og-title').content = `Pray for ${school.name}`;
+    // Update UI
+    document.getElementById('school-name').textContent = school.name;
+    document.getElementById('school-city').innerHTML = `<i class="fas fa-map-marker-alt"></i> ${school.city ||
+    school.address}`;
+    document.getElementById('adoption-count').textContent = school.adoptionCount || 0;
+    document.getElementById('school-desc').textContent = school.description || "Building a legacy of faith and revival
+    on this campus.";
+    document.getElementById('page-title').textContent = `${school.name} | Campus Revival Movement`;
 
-                // Street View Logic
-                const svBtn = document.getElementById('streetview-btn');
-                svBtn.onclick = () => {
-                    const url = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${school.lat},${school.lng}`;
-                    window.open(url, '_blank');
-                };
+    // Update Meta Tags for SEO
+    document.getElementById('meta-desc').content = `Join the movement praying for ${school.name}. Currently has
+    ${school.adoptionCount} adopters.`;
+    document.getElementById('og-title').content = `Pray for ${school.name}`;
 
-                // Hero Background
-                if (school.image) {
-                    document.getElementById('hero-bg').style.backgroundImage = `linear-gradient(to bottom, rgba(0,0,0,0.3), var(--bg-dark)), url('${school.image}')`;
-                }
+    // Street View Logic
+    const svBtn = document.getElementById('streetview-btn');
+    svBtn.onclick = () => {
+    const url = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${school.lat},${school.lng}`;
+    window.open(url, '_blank');
+    };
 
-                // Load Partners
-                if (school.partnerOrganizations && school.partnerOrganizations.length > 0) {
-                    const partnersList = document.getElementById('partners-list');
-                    partnersList.innerHTML = school.partnerOrganizations.map(p => `
-                        <div style="background:white; padding:5px; border-radius:4px;" title="${p.name}">
-                            <img src="${p.logo}" alt="${p.name}" style="height:30px; width:auto;">
-                        </div>
-                    `).join('');
-                }
+    // Hero Background
+    if (school.image) {
+    document.getElementById('hero-bg').style.backgroundImage = `linear-gradient(to bottom, rgba(0,0,0,0.3),
+    var(--bg-dark)), url('${school.image}')`;
+    }
 
-                // Load Prayer Requests
-                loadPrayerRequests(school._id);
-                loadImpactReport(school._id);
+    // Load Partners
+    if (school.partnerOrganizations && school.partnerOrganizations.length > 0) {
+    const partnersList = document.getElementById('partners-list');
+    partnersList.innerHTML = school.partnerOrganizations.map(p => `
+    <div style="background:white; padding:5px; border-radius:4px;" title="${p.name}">
+        <img src="${p.logo}" alt="${p.name}" style="height:30px; width:auto;">
+    </div>
+    `).join('');
+    }
 
-            } catch (err) {
-                console.error(err);
-                alert('Could not load institution details.');
-            }
-        }
+    // Load Prayer Requests
+    loadPrayerRequests(school._id);
+    loadImpactReport(school._id);
 
-        async function loadPrayerRequests(schoolId) {
-            try {
-                const response = await fetch(`${API_URL}/prayer-requests/${schoolId}`);
-                const data = await response.json();
-                const container = document.getElementById('board-requests');
-                const leadersContainer = document.getElementById('verified-leaders');
+    } catch (err) {
+    console.error(err);
+    alert('Could not load institution details.');
+    }
+    }
 
-                if (data.success && data.requests.length > 0) {
-                    container.innerHTML = data.requests.map(req => `
-                        <div class="prayer-item" style="border-left: 2px solid ${req.isUrgent ? '#ff3e3e' : 'var(--primary)'}; position: relative;">
-                            ${req.isUrgent ? '<span style="color:#ff3e3e; font-size:0.7rem; font-weight:bold; position:absolute; top:5px; right:10px;">URGENT</span>' : ''}
-                            <p style="font-size: 0.95rem; margin-bottom: 8px;">${req.content}</p>
-                            <div style="font-size: 0.75rem; opacity: 0.7; display: flex; align-items: center; gap: 8px;">
-                                <strong>${req.userId.name}</strong>
-                                ${req.userId.isVerifiedLeader ? '<span style="color:var(--primary); background:rgba(106,0,255,0.1); padding:2px 6px; border-radius:4px;"><i class="fas fa-check-circle"></i> Verified</span>' : ''}
-                                <span>• ${new Date(req.createdAt).toLocaleDateString()}</span>
-                            </div>
-                        </div>
-                    `).join('');
+    async function loadPrayerRequests(schoolId) {
+    try {
+    const response = await fetch(`${API_URL}/prayer-requests/${schoolId}`);
+    const data = await response.json();
+    const container = document.getElementById('board-requests');
+    const leadersContainer = document.getElementById('verified-leaders');
 
-                    // Populate leaders
-                    const uniqueLeaders = Array.from(new Set(data.requests.filter(r => r.userId.isVerifiedLeader).map(r => r.userId._id)))
-                        .map(id => data.requests.find(r => r.userId._id === id).userId);
+    if (data.success && data.requests.length > 0) {
+    container.innerHTML = data.requests.map(req => `
+    <div class="prayer-item"
+        style="border-left: 2px solid ${req.isUrgent ? '#ff3e3e' : 'var(--primary)'}; position: relative;">
+        ${req.isUrgent ? '<span
+            style="color:#ff3e3e; font-size:0.7rem; font-weight:bold; position:absolute; top:5px; right:10px;">URGENT</span>'
+        : ''}
+        <p style="font-size: 0.95rem; margin-bottom: 8px;">${req.content}</p>
+        <div style="font-size: 0.75rem; opacity: 0.7; display: flex; align-items: center; gap: 8px;">
+            <strong>${req.userId.name}</strong>
+            ${req.userId.isVerifiedLeader ? '<span
+                style="color:var(--primary); background:rgba(106,0,255,0.1); padding:2px 6px; border-radius:4px;"><i
+                    class="fas fa-check-circle"></i> Verified</span>' : ''}
+            <span>• ${new Date(req.createdAt).toLocaleDateString()}</span>
+        </div>
+    </div>
+    `).join('');
 
-                    if (uniqueLeaders.length > 0) {
-                        leadersContainer.innerHTML = uniqueLeaders.map(l => `
-                            <div style="display: flex; align-items: center; gap: 10px; font-size: 0.85rem;">
-                                <div style="width:30px; height:30px; background:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white;">
-                                    ${l.name.charAt(0)}
-                                </div>
-                                <div>
-                                    <div style="font-weight:600;">${l.name} <i class="fas fa-check-circle" style="color:var(--primary);"></i></div>
-                                    <div style="font-size:0.7rem; opacity:0.6;">${l.organization || 'Campus Leader'}</div>
-                                </div>
-                            </div>
-                        `).join('');
-                    }
-                }
-            } catch (err) {
-                console.error('Error loading board:', err);
-            }
-        }
+    // Populate leaders
+    const uniqueLeaders = Array.from(new Set(data.requests.filter(r => r.userId.isVerifiedLeader).map(r =>
+    r.userId._id)))
+    .map(id => data.requests.find(r => r.userId._id === id).userId);
 
-        async function loadImpactReport(schoolId) {
-            try {
-                const response = await fetch(`${API_URL}/schools/${schoolId}/impact`);
-                const data = await response.json();
-                if (data.success && (data.report.newAdoptions > 0 || data.report.newJournals > 0)) {
-                    const card = document.getElementById('impact-card');
-                    const stats = document.getElementById('impact-stats');
-                    card.style.display = 'block';
-                    stats.innerHTML = `
-                        This month (${data.report.month}):<br>
-                        • <strong>${data.report.newAdoptions}</strong> new advocates<br>
-                        • <strong>${data.report.newJournals}</strong> testimonies recorded<br>
-                        ${data.report.answeredPrayers > 0 ? `• <strong>${data.report.answeredPrayers}</strong> answered prayers!` : ''}
-                    `;
-                }
-            } catch (err) {
-                console.error('Impact report error:', err);
-            }
-        }
+    if (uniqueLeaders.length > 0) {
+    leadersContainer.innerHTML = uniqueLeaders.map(l => `
+    <div style="display: flex; align-items: center; gap: 10px; font-size: 0.85rem;">
+        <div
+            style="width:30px; height:30px; background:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white;">
+            ${l.name.charAt(0)}
+        </div>
+        <div>
+            <div style="font-weight:600;">${l.name} <i class="fas fa-check-circle" style="color:var(--primary);"></i>
+            </div>
+            <div style="font-size:0.7rem; opacity:0.6;">${l.organization || 'Campus Leader'}</div>
+        </div>
+    </div>
+    `).join('');
+    }
+    }
+    } catch (err) {
+    console.error('Error loading board:', err);
+    }
+    }
 
-        function adopt(type) {
-            const urlParams = new URLSearchParams(window.location.search);
-            const schoolId = urlParams.get('id');
-            window.location.href = `adopt-${type}.html?schoolId=${schoolId}`;
-        }
+    async function loadImpactReport(schoolId) {
+    try {
+    const response = await fetch(`${API_URL}/schools/${schoolId}/impact`);
+    const data = await response.json();
+    if (data.success && (data.report.newAdoptions > 0 || data.report.newJournals > 0)) {
+    const card = document.getElementById('impact-card');
+    const stats = document.getElementById('impact-stats');
+    card.style.display = 'block';
+    stats.innerHTML = `
+    This month (${data.report.month}):<br>
+    • <strong>${data.report.newAdoptions}</strong> new advocates<br>
+    • <strong>${data.report.newJournals}</strong> testimonies recorded<br>
+    ${data.report.answeredPrayers > 0 ? `• <strong>${data.report.answeredPrayers}</strong> answered prayers!` : ''}
+    `;
+    }
+    } catch (err) {
+    console.error('Impact report error:', err);
+    }
+    }
 
-        window.onload = init;
+    function adopt(type) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const schoolId = urlParams.get('id');
+    window.location.href = `adopt-${type}.html?schoolId=${schoolId}`;
+    }
+
+    window.onload = init;
     </script>
 </body>
 

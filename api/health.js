@@ -1,5 +1,5 @@
-const { cors, runMiddleware } = require('../../lib/cors');
-const dbConnect = require('../../lib/mongodb');
+const { cors, runMiddleware } = require('../lib/cors');
+const dbConnect = require('../lib/mongodb');
 
 module.exports = async function handler(req, res) {
     // Run CORS
