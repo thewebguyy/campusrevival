@@ -1,18 +1,17 @@
 {
     "version": 2,
-    "cleanUrls": true,
     "rewrites": [
         {
-            "source": "/api/(.*)",
-            "destination": "/campus-revival-backend/app.js"
-        },
-        {
-            "source": "/((?!api/|campus-revival-backend/).*)",
-            "destination": "/frontend/$1"
+            "source": "/api/:path*",
+            "destination": "/api/:path*"
         },
         {
             "source": "/",
             "destination": "/frontend/index.html"
+        },
+        {
+            "source": "/:path*",
+            "destination": "/frontend/:path*"
         }
     ]
 }

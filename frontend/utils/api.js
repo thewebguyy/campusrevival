@@ -3,20 +3,6 @@ console.log('Hostname detected:', window.location.hostname);
 
 // ===== CONFIGURATION =====
 function getApiUrl() {
-  // If we are on Vercel (or any non-localhost domain), use relative path
-  // This ensures it works regardless of the domain name
-  const hostname = window.location.hostname;
-
-  if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    return 'http://localhost:5000/api';
-  }
-
-  // Handle local network testing (e.g. 192.168.x.x)
-  if (hostname.match(/^\d+\.\d+\.\d+\.\d+$/)) {
-    return `${window.location.protocol}//${hostname}:5000/api`;
-  }
-
-  // Production / Vercel
   return '/api';
 }
 
