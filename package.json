@@ -2,9 +2,9 @@
     "name": "crm-fullstack",
     "version": "1.0.0",
     "scripts": {
-        "dev": "vercel dev",
-        "build": "vercel build",
-        "start": "vercel start"
+        "dev": "echo 'Run vercel dev locally'",
+        "build": "echo 'No build step required'",
+        "start": "node api/health.js"
     },
     "dependencies": {
         "bcryptjs": "^2.4.3",
