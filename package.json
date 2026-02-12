@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "scripts": {
         "dev": "echo 'Run vercel dev locally'",
-        "build": "echo 'No build step required'",
+        "build": "mkdir -p public && cp -r frontend/* public/",
         "start": "node api/health.js"
     },
     "dependencies": {
