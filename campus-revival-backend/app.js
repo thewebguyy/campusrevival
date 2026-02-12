@@ -7,6 +7,16 @@ const apiRoutes = require('./routes/api');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Check critical environment variables
+if (!process.env.MONGODB_URI) {
+  console.error('FATAL ERROR: Mongoose URI (MONGODB_URI) is missing');
+  process.exit(1);
+}
+if (!process.env.JWT_SECRET) {
+  console.error('FATAL ERROR: JWT Secret (JWT_SECRET) is missing');
+  process.exit(1);
+}
+
 // ============== MIDDLEWARE ==============
 app.use(cors({
   origin: process.env.CORS_ORIGIN || '*',
@@ -66,25 +76,24 @@ app.use((err, req, res, next) => {
 
 // ============== DATABASE CONNECTION ==============
 mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+  // Mongoose 6+ defaults are sufficient
 })
-.then(() => {
-  console.log('✅ MongoDB connected successfully');
-  console.log(`📍 Database: ${mongoose.connection.name}`);
-  
-  // Start server after DB connection
-  app.listen(PORT, () => {
-    console.log(`\n🚀 Server running on port ${PORT}`);
-    console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`📡 API: http://localhost:${PORT}/api`);
-    console.log(`📊 Health: http://localhost:${PORT}/api/health\n`);
+  .then(() => {
+    console.log('✅ MongoDB connected successfully');
+    console.log(`📍 Database: ${mongoose.connection.name}`);
+
+    // Start server after DB connection
+    app.listen(PORT, () => {
+      console.log(`\n🚀 Server running on port ${PORT}`);
+      console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`📡 API: http://localhost:${PORT}/api`);
+      console.log(`📊 Health: http://localhost:${PORT}/api/health\n`);
+    });
+  })
+  .catch((err) => {
+    console.error('❌ MongoDB connection error:', err.message);
+    process.exit(1);
   });
-})
-.catch((err) => {
-  console.error('❌ MongoDB connection error:', err.message);
-  process.exit(1);
-});
 
 // Graceful shutdown
 process.on('SIGINT', async () => {

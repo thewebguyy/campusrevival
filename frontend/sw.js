@@ -7,8 +7,7 @@ const ASSETS = [
     '/signin.html',
     '/crmicon.png',
     '/ukflag.png',
-    '/utils/api.js',
-    '/utils/auth.js'
+    '/utils/api.js'
 ];
 
 self.addEventListener('install', event => {

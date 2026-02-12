@@ -1,28 +1,18 @@
 {
     "version": 2,
     "cleanUrls": true,
-    "builds": [
-        {
-            "src": "campus-revival-backend/app.js",
-            "use": "@vercel/node"
-        },
-        {
-            "src": "frontend/**",
-            "use": "@vercel/static"
-        }
-    ],
     "rewrites": [
         {
             "source": "/api/(.*)",
             "destination": "/campus-revival-backend/app.js"
         },
         {
-            "source": "/",
-            "destination": "/frontend/index.html"
+            "source": "/((?!api/|campus-revival-backend/).*)",
+            "destination": "/frontend/$1"
         },
         {
-            "source": "/((?!api/|frontend/).*)",
-            "destination": "/frontend/$1"
+            "source": "/",
+            "destination": "/frontend/index.html"
         }
     ]
 }

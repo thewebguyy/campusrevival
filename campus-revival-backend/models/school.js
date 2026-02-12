@@ -220,8 +220,8 @@ schoolSchema.methods.addAdopter = async function (userId, adoptionType = 'prayer
 
     this.stats.lastAdoptedAt = new Date();
 
-    await this.save();
-    return true;
+    const savedSchool = await this.save();
+    return savedSchool;
   }
   return false;
 };

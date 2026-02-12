@@ -1,19 +1,23 @@
 console.log('CRM API Client Initializing...');
 console.log('Hostname detected:', window.location.hostname);
 
+// ===== CONFIGURATION =====
 function getApiUrl() {
-  // Check if we're in production (Vercel deployment)
-  if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-    return '/api';
+  // If we are on Vercel (or any non-localhost domain), use relative path
+  // This ensures it works regardless of the domain name
+  const hostname = window.location.hostname;
+
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return 'http://localhost:5000/api';
   }
 
-  // Development: check if accessing via network IP (mobile on same network)
-  if (window.location.hostname.match(/^\d+\.\d+\.\d+\.\d+$/)) {
-    return `${window.location.protocol}//${window.location.hostname}:5000/api`;
+  // Handle local network testing (e.g. 192.168.x.x)
+  if (hostname.match(/^\d+\.\d+\.\d+\.\d+$/)) {
+    return `${window.location.protocol}//${hostname}:5000/api`;
   }
 
-  // Default: localhost for desktop development
-  return 'http://localhost:5000/api';
+  // Production / Vercel
+  return '/api';
 }
 
 const API_URL = getApiUrl();
@@ -25,10 +29,18 @@ function isLoggedIn() {
   if (!token) return false;
 
   try {
-    // Check if token is expired (basic check)
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.exp * 1000 > Date.now();
+    const parts = token.split('.');
+    if (parts.length !== 3) return false;
+
+    const payload = JSON.parse(atob(parts[1]));
+
+    // If exp is present, check it. If not, assume valid (some tokens dont have exp)
+    if (payload.exp) {
+      return payload.exp * 1000 > Date.now();
+    }
+    return true;
   } catch (e) {
+    console.error('Token validation error:', e);
     return false;
   }
 }

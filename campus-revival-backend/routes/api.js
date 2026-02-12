@@ -2,10 +2,10 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
-const User = require('../models/User');
+const User = require('../models/user');
 const School = require('../models/school');
-const Adoption = require('../models/Adoption');
-const Journal = require('../models/Journal');
+const Adoption = require('../models/adoption');
+const Journal = require('../models/journal');
 const PrayerRequest = require('../models/PrayerRequest');
 const { protect, adminOnly } = require('../middleware/auth');
 
