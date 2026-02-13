@@ -69,11 +69,20 @@ module.exports = async function handler(req, res) {
         const accessToken = generateAccessToken(user);
         const refreshToken = generateRefreshToken(user);
 
+        // Security: Set httpOnly cookies
+        const isProd = process.env.NODE_ENV === 'production';
+        const cookieOptions = `Path=/; HttpOnly; ${isProd ? 'Secure;' : ''} SameSite=Strict; Max-Age=${7 * 24 * 60 * 60}`;
+
+        res.setHeader('Set-Cookie', [
+            `authToken=${accessToken}; ${cookieOptions}`,
+            `refreshToken=${refreshToken}; ${cookieOptions}`
+        ]);
+
         return res.status(200).json({
             success: true,
             data: {
                 message: 'Login successful',
-                token: accessToken,
+                token: accessToken, // Still return for legacy frontend support if needed
                 refreshToken,
                 user: {
                     id: user._id,
@@ -81,6 +90,7 @@ module.exports = async function handler(req, res) {
                     name: user.name,
                     role: user.role,
                     isVerifiedLeader: user.isVerifiedLeader,
+                    isEmailVerified: user.isEmailVerified,
                 },
             },
         });

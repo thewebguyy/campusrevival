@@ -207,7 +207,60 @@
             Loading your adoptions...
           </div>
         </div>
+
+        <div class="journal-section" style="margin-top: 60px;">
+          <h3 style="margin-bottom: 20px; font-size: 1.5rem; font-weight: 800;">Spiritual Journal</h3>
+          <div class="glass-card" style="margin-bottom: 30px; background: #fff;">
+            <p style="font-weight: 600; margin-bottom: 12px; font-size: 1rem;">Record what God is speaking today</p>
+            <form id="journal-form" onsubmit="handleJournalSubmit(event)">
+              <textarea id="journal-text" placeholder="I'm praying for... / I feel led to..."
+                style="width: 100%; min-height: 100px; border: 1px solid #ddd; border-radius: 12px; padding: 15px; margin-bottom: 15px; font-family: inherit; resize: vertical;"></textarea>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <select id="journal-school"
+                  style="padding: 8px 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 0.9rem;">
+                  <option value="">General Journal</option>
+                </select>
+                <button type="submit" class="btn-action" style="padding: 10px 20px;">Save Entry</button>
+              </div>
+            </form>
+          </div>
+          <div id="journal-list">
+            <p style="color: #666;">Loading your journal entries...</p>
+          </div>
+        </div>
       </section>
+
+      <style>
+        .journal-item {
+          background: #fff;
+          border: 1px solid #eee;
+          border-radius: 16px;
+          padding: 20px;
+          margin-bottom: 15px;
+          transition: var(--transition);
+        }
+
+        .journal-item:hover {
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .journal-date {
+          font-size: 0.8rem;
+          color: #999;
+          font-weight: 600;
+          text-transform: uppercase;
+        }
+
+        .journal-school-tag {
+          font-size: 0.7rem;
+          background: #f0f0f0;
+          color: #666;
+          padding: 2px 8px;
+          border-radius: 4px;
+          font-weight: 700;
+          margin-left: 10px;
+        }
+      </style>
 
       <aside>
         <div
@@ -290,10 +343,86 @@
               </a>
             </div>
           `).join('');
+
+          // Populate journal school dropdown
+          const schoolSelect = document.getElementById('journal-school');
+          data.dashboard.adoptions.forEach(item => {
+            const opt = document.createElement('option');
+            opt.value = item.id;
+            opt.textContent = item.name;
+            schoolSelect.appendChild(opt);
+          });
         }
+
+        // Load Journals
+        loadJournals();
 
       } catch (err) {
         console.error(err);
+      }
+    }
+
+    async function loadJournals() {
+      const list = document.getElementById('journal-list');
+      try {
+        const response = await getJournalEntries();
+        const entries = response.entries || [];
+
+        if (entries.length === 0) {
+          list.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">No journal entries yet. Start recording your journey!</p>';
+          return;
+        }
+
+        list.innerHTML = entries.map(entry => `
+          <div class="journal-item">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+              <div>
+                <span class="journal-date">${new Date(entry.date).toLocaleDateString()}</span>
+                ${entry.schoolId ? `<span class="journal-school-tag">${entry.schoolId.name}</span>` : ''}
+              </div>
+              <button onclick="handleDeleteJournal('${entry._id}')" style="background:none; border:none; color:#ff4d4d; cursor:pointer; font-size: 0.8rem;">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+            <p style="white-space: pre-wrap; font-size: 0.95rem;">${entry.entryText}</p>
+          </div>
+        `).join('');
+      } catch (err) {
+        list.innerHTML = '<p style="color: #ff4d4d;">Failed to load journal entries.</p>';
+      }
+    }
+
+    async function handleJournalSubmit(e) {
+      e.preventDefault();
+      const text = document.getElementById('journal-text').value.trim();
+      const schoolId = document.getElementById('journal-school').value;
+
+      if (!text) return;
+
+      try {
+        await createJournalEntry(text, schoolId || null);
+        document.getElementById('journal-text').value = '';
+        showToast('Journal entry saved!', 'success');
+        loadJournals();
+        // Update stats
+        const journalCountEl = document.getElementById('stat-journals');
+        journalCountEl.textContent = parseInt(journalCountEl.textContent) + 1;
+      } catch (err) {
+        showApiError(err, 'Failed to save entry');
+      }
+    }
+
+    async function handleDeleteJournal(id) {
+      if (!confirm('Are you sure you want to delete this entry?')) return;
+      try {
+        await deleteJournalEntry(id);
+        showToast('Entry deleted', 'success');
+        loadJournals();
+        // Update stats
+        const journalCountEl = document.getElementById('stat-journals');
+        journalCountEl.textContent = Math.max(0, parseInt(journalCountEl.textContent) - 1);
+      } catch (err) {
+        showApiError(err, 'Failed to delete entry');
       }
     }
 

@@ -48,6 +48,12 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    emailVerificationToken: String,
+    emailVerificationExpires: Date,
     university: {
       type: String,
       trim: true,

@@ -111,11 +111,24 @@ function setRefreshToken(token) {
   localStorage.setItem(REFRESH_TOKEN_KEY, token);
 }
 
-function clearAuthTokens() {
+/**
+ * Log out the current user.
+ */
+async function logout() {
+  try {
+    await apiRequest('/auth/logout', { method: 'POST' });
+  } catch (err) {
+    console.error('API Logout failed, clearing local state anyway', err);
+  }
+
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
+  window.location.href = 'signin.html';
 }
+
+// Expose logout globally for easy access from HTML
+window.logout = logout;
 
 /**
  * Check whether the user is logged in by inspecting the JWT expiry.
@@ -479,6 +492,50 @@ async function getPrayerRequests(schoolId) {
   return data?.data ?? data;
 }
 
+/**
+ * Mark a prayer request as answered.
+ */
+async function answerPrayerRequest(requestId, answerNote = '') {
+  if (!isLoggedIn()) throw new ApiError('Please log in first.', ErrorType.AUTH, 401);
+
+  return apiRequest('/prayer-requests/answer', {
+    method: 'PATCH',
+    body: JSON.stringify({ requestId, answerNote }),
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+//  School Submission & Search
+// ═══════════════════════════════════════════════════════════
+
+/**
+ * Submit a new school for admin review.
+ */
+async function submitSchool(schoolData) {
+  if (!isLoggedIn()) throw new ApiError('Please log in first.', ErrorType.AUTH, 401);
+
+  return apiRequest('/schools/submit', {
+    method: 'POST',
+    body: JSON.stringify(schoolData),
+  });
+}
+
+/**
+ * Search for schools by name or city.
+ */
+async function searchSchools(query) {
+  const data = await apiRequest(`/schools?search=${encodeURIComponent(query)}`);
+  return data?.schools ?? data?.data?.schools ?? [];
+}
+
+// ═══════════════════════════════════════════════════════════
+//  Email Verification
+// ═══════════════════════════════════════════════════════════
+
+async function verifyEmail(token) {
+  return apiRequest(`/auth/verify-email?token=${token}`);
+}
+
 // ═══════════════════════════════════════════════════════════
 //  Health Check
 // ═══════════════════════════════════════════════════════════
@@ -516,6 +573,10 @@ window.createJournalEntry = createJournalEntry;
 window.deleteJournalEntry = deleteJournalEntry;
 window.createPrayerRequest = createPrayerRequest;
 window.getPrayerRequests = getPrayerRequests;
+window.answerPrayerRequest = answerPrayerRequest;
+window.submitSchool = submitSchool;
+window.searchSchools = searchSchools;
+window.verifyEmail = verifyEmail;
 window.checkAPIHealth = checkAPIHealth;
 window.apiRequest = apiRequest;
 

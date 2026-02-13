@@ -873,23 +873,16 @@
       const imageBase64 = await fileToBase64(imageFile);
       formData.image = imageBase64;
 
-      // Send to API (if backend is available)
-      // const response = await createSchool(formData);
-
-      // For now, store locally (remove when API is integrated)
-      const cityChildren = JSON.parse(localStorage.getItem('cityChildren')) || {};
-      if (!cityChildren[formData.city]) {
-      cityChildren[formData.city] = [];
-      }
-      cityChildren[formData.city].push(formData);
-      localStorage.setItem('cityChildren', JSON.stringify(cityChildren));
+      // Send to API
+      const response = await submitSchool(formData);
 
       // Add to recent list
       recentSchools.unshift(formData);
       updateRecentList();
 
-      showMessage(`✅ "${formData.name}" has been successfully added!`, 'success');
-      showToast(`${formData.name} added successfully!`, 'success');
+      showMessage(`✅ "${formData.name}" has been successfully submitted! It will appear on the map once approved.`,
+      'success');
+      showToast(`${formData.name} submitted successfully!`, 'success');
 
       form.reset();
       document.getElementById('imagePreviewContainer').style.display = 'none';
@@ -900,10 +893,16 @@
       el.classList.remove('success', 'error');
       });
 
+      setTimeout(() => {
+      if (confirm('Submission successful! View your dashboard?')) {
+      window.location.href = 'dashboard.html';
+      }
+      }, 2000);
+
       } catch (error) {
       console.error('Error:', error);
+      showApiError(error, 'Failed to submit university');
       showMessage('❌ Failed to add university: ' + error.message, 'error');
-      showToast('Failed to add university', 'error');
       } finally {
       submitBtn.disabled = false;
       submitText.textContent = 'Add University';

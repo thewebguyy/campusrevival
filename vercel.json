@@ -36,12 +36,20 @@
             "destination": "/api/auth/register"
         },
         {
+            "source": "/api/auth/logout",
+            "destination": "/api/auth/logout"
+        },
+        {
             "source": "/api/auth/me",
             "destination": "/api/auth/me"
         },
         {
             "source": "/api/auth/verify-leader",
             "destination": "/api/auth/verify-leader"
+        },
+        {
+            "source": "/api/auth/verify-email",
+            "destination": "/api/auth/verify-email"
         },
         {
             "source": "/api/auth/refresh",
@@ -64,12 +72,24 @@
             "destination": "/api/journal/index"
         },
         {
+            "source": "/api/prayer-requests/answer",
+            "destination": "/api/prayer-requests/answer"
+        },
+        {
             "source": "/api/prayer-requests/:schoolId",
             "destination": "/api/prayer-requests/[schoolId]"
         },
         {
             "source": "/api/prayer-requests",
             "destination": "/api/prayer-requests/index"
+        },
+        {
+            "source": "/api/schools/submit",
+            "destination": "/api/schools/submit"
+        },
+        {
+            "source": "/api/schools/slug/:slug",
+            "destination": "/api/schools/slug/[slug]"
         },
         {
             "source": "/api/public/activity",

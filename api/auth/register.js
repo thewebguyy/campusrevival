@@ -77,8 +77,29 @@ module.exports = async function handler(req, res) {
             name: cleanName,
         });
 
+        // ── Email Verification Token ───────────────────────
+        const crypto = require('crypto');
+        const verificationToken = crypto.randomBytes(32).toString('hex');
+        user.emailVerificationToken = crypto.createHash('sha256').update(verificationToken).digest('hex');
+        user.emailVerificationExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+        await user.save();
+
+        // MOCK EMAIL SENDING
+        console.log(`[AUTH] Verification email "sent" to ${user.email}`);
+        console.log(`[AUTH] Token: ${verificationToken}`);
+        // ───────────────────────────────────────────────────
+
         const accessToken = generateAccessToken(user);
         const refreshToken = generateRefreshToken(user);
+
+        // Security: Set httpOnly cookies
+        const isProd = process.env.NODE_ENV === 'production';
+        const cookieOptions = `Path=/; HttpOnly; ${isProd ? 'Secure;' : ''} SameSite=Strict; Max-Age=${7 * 24 * 60 * 60}`;
+
+        res.setHeader('Set-Cookie', [
+            `authToken=${accessToken}; ${cookieOptions}`,
+            `refreshToken=${refreshToken}; ${cookieOptions}`
+        ]);
 
         return res.status(201).json({
             success: true,
@@ -91,6 +112,7 @@ module.exports = async function handler(req, res) {
                     email: user.email,
                     name: user.name,
                     role: user.role,
+                    isEmailVerified: false,
                 },
             },
         });

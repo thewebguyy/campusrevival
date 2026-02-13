@@ -68,6 +68,11 @@ module.exports = async function handler(req, res) {
 
         const newAccessToken = generateAccessToken(user);
 
+        // Security: Update httpOnly cookie
+        const isProd = process.env.NODE_ENV === 'production';
+        const cookieOptions = `Path=/; HttpOnly; ${isProd ? 'Secure;' : ''} SameSite=Strict; Max-Age=${7 * 24 * 60 * 60}`;
+        res.setHeader('Set-Cookie', `authToken=${newAccessToken}; ${cookieOptions}`);
+
         return res.status(200).json({
             success: true,
             data: {
@@ -78,6 +83,7 @@ module.exports = async function handler(req, res) {
                     name: user.name,
                     role: user.role,
                     isVerifiedLeader: user.isVerifiedLeader,
+                    isEmailVerified: user.isEmailVerified,
                 },
             },
         });
