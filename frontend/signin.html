@@ -32,7 +32,7 @@
 
         <div class="input-group">
           <label for="password">Password</label>
-          <input type="password" id="password" name="password" placeholder="••••••••" required minlength="6">
+          <input type="password" id="password" name="password" placeholder="••••••••" required minlength="8">
         </div>
 
         <button type="submit" class="signin-btn" id="submitBtn">Sign In</button>
@@ -113,8 +113,8 @@
         return;
       }
 
-      if (password.length < 6) {
-        showError('Password must be at least 6 characters');
+      if (password.length < 8) {
+        showError('Password must be at least 8 characters');
         return;
       }
 

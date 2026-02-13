@@ -1,74 +1,97 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
-const userSchema = new mongoose.Schema({
-  email: {
-    type: String,
-    required: [true, 'Email is required'],
-    unique: true,
-    lowercase: true,
-    trim: true,
-    match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email']
+const userSchema = new mongoose.Schema(
+  {
+    email: {
+      type: String,
+      required: [true, 'Email is required'],
+      unique: true,
+      lowercase: true,
+      trim: true,
+      match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email'],
+    },
+    password: {
+      type: String,
+      required: [true, 'Password is required'],
+      minlength: [8, 'Password must be at least 8 characters'],
+      select: false,
+    },
+    name: {
+      type: String,
+      required: [true, 'Name is required'],
+      trim: true,
+      minlength: [2, 'Name must be at least 2 characters'],
+      maxlength: [100, 'Name cannot exceed 100 characters'],
+    },
+    role: {
+      type: String,
+      enum: ['adopter', 'admin'],
+      default: 'adopter',
+    },
+    streakCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    lastPrayerDate: {
+      type: Date,
+    },
+    bio: {
+      type: String,
+      maxlength: [500, 'Bio cannot exceed 500 characters'],
+    },
+    image: {
+      type: String,
+    },
+    isVerifiedLeader: {
+      type: Boolean,
+      default: false,
+    },
+    university: {
+      type: String,
+      trim: true,
+    },
+    universityEmail: {
+      type: String,
+      lowercase: true,
+      trim: true,
+      validate: {
+        validator(v) {
+          if (!v) return true;
+          return /^\S+@\S+\.\S+$/.test(v);
+        },
+        message: 'Please provide a valid university email address',
+      },
+    },
+    /** Token version — increment to revoke all refresh tokens. */
+    tokenVersion: {
+      type: Number,
+      default: 0,
+    },
+    organization: {
+      type: String,
+      trim: true,
+    },
   },
-  password: {
-    type: String,
-    required: [true, 'Password is required'],
-    minlength: [6, 'Password must be at least 6 characters'],
-    select: false
-  },
-  name: {
-    type: String,
-    required: [true, 'Name is required'],
-    trim: true,
-    minlength: [2, 'Name must be at least 2 characters']
-  },
-  role: {
-    type: String,
-    enum: ['adopter', 'admin'],
-    default: 'adopter'
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  streakCount: {
-    type: Number,
-    default: 0
-  },
-  lastPrayerDate: {
-    type: Date
-  },
-  bio: {
-    type: String,
-    maxlength: 500
-  },
-  image: {
-    type: String
-  },
-  isVerifiedLeader: {
-    type: Boolean,
-    default: false
-  },
-  university: {
-    type: String
-  },
-  universityEmail: {
-    type: String
-  },
-  organization: {
-    type: String,
-    trim: true
+  {
+    timestamps: true,
   }
-}, {
-  timestamps: true
-});
+);
 
-// Hash password before saving
+// ── Indexes ──────────────────────────────────────────────────
+userSchema.index({ email: 1 });
+
+// ── Hooks ────────────────────────────────────────────────────
+/**
+ * Hash password only when it has been modified (guards against
+ * double-hashing on unrelated .save() calls).
+ */
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
 
   try {
-    const salt = await bcrypt.genSalt(10);
+    const salt = await bcrypt.genSalt(12);
     this.password = await bcrypt.hash(this.password, salt);
     next();
   } catch (error) {
@@ -76,40 +99,61 @@ userSchema.pre('save', async function (next) {
   }
 });
 
-// Method to compare passwords
+// ── Instance methods ─────────────────────────────────────────
+/**
+ * Compare a plain-text password candidate to the stored hash.
+ *
+ * @param {string} candidatePassword
+ * @returns {Promise<boolean>}
+ */
 userSchema.methods.comparePassword = async function (candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
+  return bcrypt.compare(candidatePassword, this.password);
 };
 
-// Remove password from JSON
+/**
+ * Strip password from serialised output.
+ */
 userSchema.methods.toJSON = function () {
   const user = this.toObject();
   delete user.password;
   return user;
 };
 
-// Update streak logic
+/**
+ * Update the user's prayer streak using UTC dates so it is
+ * timezone-independent.
+ *
+ * @returns {Promise<this>}
+ */
 userSchema.methods.updateStreak = async function () {
   const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const todayUTC = Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate()
+  );
 
   if (!this.lastPrayerDate) {
     this.streakCount = 1;
   } else {
-    const lastDate = new Date(this.lastPrayerDate.getFullYear(), this.lastPrayerDate.getMonth(), this.lastPrayerDate.getDate());
-    const diffDays = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
+    const lastUTC = Date.UTC(
+      this.lastPrayerDate.getUTCFullYear(),
+      this.lastPrayerDate.getUTCMonth(),
+      this.lastPrayerDate.getUTCDate()
+    );
+    const diffDays = Math.floor((todayUTC - lastUTC) / (1000 * 60 * 60 * 24));
 
     if (diffDays === 1) {
       this.streakCount += 1;
     } else if (diffDays > 1) {
-      this.streakCount = 1;
+      this.streakCount = 1; // streak broken
     }
-    // if diffDays === 0, keep same streak
+    // diffDays === 0 → already prayed today, keep streak
   }
 
   this.lastPrayerDate = now;
-  return await this.save();
+  return this.save();
 };
 
-// Prevent duplicate model compilation
+// Prevent duplicate model compilation in serverless
 module.exports = mongoose.models.User || mongoose.model('User', userSchema);

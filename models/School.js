@@ -1,248 +1,240 @@
 const mongoose = require('mongoose');
 
-const schoolSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, 'School name is required'],
-    trim: true,
-    unique: true,
-    index: true,
-    minlength: [2, 'Name must be at least 2 characters'],
-    maxlength: [200, 'Name cannot exceed 200 characters']
-  },
-  slug: {
-    type: String,
-    unique: true,
-    index: true
-  },
-  lat: {
-    type: Number,
-    required: [true, 'Latitude is required'],
-    min: [-90, 'Latitude must be between -90 and 90'],
-    max: [90, 'Latitude must be between -90 and 90'],
-    validate: {
-      validator: function (v) {
-        return v >= -90 && v <= 90;
-      },
-      message: 'Invalid latitude coordinates'
-    }
-  },
-  lng: {
-    type: Number,
-    required: [true, 'Longitude is required'],
-    min: [-180, 'Longitude must be between -180 and 180'],
-    max: [180, 'Longitude must be between -180 and 180'],
-    validate: {
-      validator: function (v) {
-        return v >= -180 && v <= 180;
-      },
-      message: 'Invalid longitude coordinates'
-    }
-  },
-  address: {
-    type: String,
-    required: [true, 'Address is required'],
-    trim: true,
-    minlength: [5, 'Address must be at least 5 characters'],
-    maxlength: [500, 'Address cannot exceed 500 characters']
-  },
-  city: {
-    type: String,
-    trim: true,
-    index: true,
-    maxlength: [100, 'City name cannot exceed 100 characters']
-  },
-  country: {
-    type: String,
-    default: 'United Kingdom',
-    trim: true
-  },
+/** Maximum number of adopters a school can have (prevents unbounded array). */
+const MAX_ADOPTERS = 500;
 
-  // Support multiple adopters
-  adopters: [{
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true
-    },
-    adoptionType: {
+const schoolSchema = new mongoose.Schema(
+  {
+    name: {
       type: String,
-      enum: ['prayer', 'revival', 'both'],
-      default: 'prayer'
+      required: [true, 'School name is required'],
+      trim: true,
+      unique: true,
+      index: true,
+      minlength: [2, 'Name must be at least 2 characters'],
+      maxlength: [200, 'Name cannot exceed 200 characters'],
     },
-    adoptedAt: {
-      type: Date,
-      default: Date.now
-    }
-  }],
-
-  // Adoption count for quick access
-  adoptionCount: {
-    type: Number,
-    default: 0,
-    min: 0
-  },
-
-  // Status tracking for admin management
-  status: {
-    type: String,
-    enum: ['active', 'inactive', 'pending_review', 'archived'],
-    default: 'active',
-    index: true
-  },
-
-  // Featured schools for homepage
-  featured: {
-    type: Boolean,
-    default: false,
-    index: true
-  },
-
-  description: {
-    type: String,
-    trim: true,
-    maxlength: [5000, 'Description cannot exceed 5000 characters']
-  },
-
-  // Website URL
-  website: {
-    type: String,
-    trim: true,
-    validate: {
-      validator: function (v) {
-        if (!v) return true; // Optional field
-        return /^https?:\/\/.+\..+/.test(v);
+    slug: {
+      type: String,
+      unique: true,
+      index: true,
+    },
+    lat: {
+      type: Number,
+      required: [true, 'Latitude is required'],
+      min: [-90, 'Latitude must be between -90 and 90'],
+      max: [90, 'Latitude must be between -90 and 90'],
+    },
+    lng: {
+      type: Number,
+      required: [true, 'Longitude is required'],
+      min: [-180, 'Longitude must be between -180 and 180'],
+      max: [180, 'Longitude must be between -180 and 180'],
+    },
+    address: {
+      type: String,
+      required: [true, 'Address is required'],
+      trim: true,
+      minlength: [5, 'Address must be at least 5 characters'],
+      maxlength: [500, 'Address cannot exceed 500 characters'],
+    },
+    city: {
+      type: String,
+      trim: true,
+      index: true,
+      maxlength: [100, 'City name cannot exceed 100 characters'],
+    },
+    country: {
+      type: String,
+      default: 'United Kingdom',
+      trim: true,
+    },
+    adopters: [
+      {
+        userId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User',
+          required: true,
+        },
+        adoptionType: {
+          type: String,
+          enum: ['prayer', 'revival', 'both'],
+          default: 'prayer',
+        },
+        adoptedAt: {
+          type: Date,
+          default: Date.now,
+        },
       },
-      message: 'Website must be a valid URL starting with http:// or https://'
-    }
-  },
-
-  // School image (URL or base64)
-  image: {
-    type: String,
-    trim: true
-  },
-
-  // Statistics for analytics
-  stats: {
-    totalPrayerAdoptions: {
+    ],
+    adoptionCount: {
       type: Number,
       default: 0,
-      min: 0
+      min: 0,
     },
-    totalRevivalAdoptions: {
-      type: Number,
-      default: 0,
-      min: 0
+    status: {
+      type: String,
+      enum: ['active', 'inactive', 'pending_review', 'archived'],
+      default: 'active',
+      index: true,
     },
-    lastAdoptedAt: {
-      type: Date
+    featured: {
+      type: Boolean,
+      default: false,
+      index: true,
     },
-    totalJournalEntries: {
-      type: Number,
-      default: 0,
-      min: 0
-    }
+    description: {
+      type: String,
+      trim: true,
+      maxlength: [5000, 'Description cannot exceed 5000 characters'],
+    },
+    website: {
+      type: String,
+      trim: true,
+      validate: {
+        validator(v) {
+          if (!v) return true;
+          return /^https?:\/\/.+\..+/.test(v);
+        },
+        message: 'Website must be a valid URL starting with http:// or https://',
+      },
+    },
+    image: {
+      type: String,
+      trim: true,
+    },
+    stats: {
+      totalPrayerAdoptions: { type: Number, default: 0, min: 0 },
+      totalRevivalAdoptions: { type: Number, default: 0, min: 0 },
+      lastAdoptedAt: { type: Date },
+      totalJournalEntries: { type: Number, default: 0, min: 0 },
+    },
+    timezone: {
+      type: String,
+      default: 'Europe/London',
+    },
+    partnerOrganizations: [
+      {
+        name: String,
+        logo: String,
+        website: String,
+      },
+    ],
+    adminNotes: {
+      type: String,
+      trim: true,
+      maxlength: [2000, 'Admin notes cannot exceed 2000 characters'],
+      select: false,
+    },
   },
-  timezone: {
-    type: String,
-    default: 'Europe/London'
-  },
-  partnerOrganizations: [{
-    name: String,
-    logo: String,
-    website: String
-  }],
-
-  // Admin notes (not visible to users)
-  adminNotes: {
-    type: String,
-    trim: true,
-    maxlength: [2000, 'Admin notes cannot exceed 2000 characters'],
-    select: false // Don't include in queries by default
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   }
-}, {
-  timestamps: true, // Adds createdAt and updatedAt
-  toJSON: { virtuals: true },
-  toObject: { virtuals: true }
-});
+);
 
-// ============== INDEXES ==============
-schoolSchema.index({ lat: 1, lng: 1 }); // Geospatial queries
-schoolSchema.index({ status: 1, featured: -1 }); // Featured schools query
-schoolSchema.index({ 'adopters.userId': 1 }); // Find schools by adopter
-schoolSchema.index({ city: 1, status: 1 }); // Filter by city and status
-schoolSchema.index({ adoptionCount: -1 }); // Sort by popularity
+// ── Indexes ──────────────────────────────────────────────
+schoolSchema.index({ lat: 1, lng: 1 });
+schoolSchema.index({ status: 1, featured: -1 });
+schoolSchema.index({ 'adopters.userId': 1 });
+schoolSchema.index({ city: 1, status: 1 });
+schoolSchema.index({ adoptionCount: -1 });
 
-// ============== VIRTUALS ==============
+// ── Virtuals ─────────────────────────────────────────────
 schoolSchema.virtual('isAdopted').get(function () {
-  return this.adopters && this.adopters.length > 0;
+  return this.adopters?.length > 0;
 });
 
 schoolSchema.virtual('prayerAdopterCount').get(function () {
   if (!this.adopters) return 0;
-  return this.adopters.filter(a => a.adoptionType === 'prayer' || a.adoptionType === 'both').length;
+  return this.adopters.filter(
+    (a) => a.adoptionType === 'prayer' || a.adoptionType === 'both'
+  ).length;
 });
 
 schoolSchema.virtual('revivalAdopterCount').get(function () {
   if (!this.adopters) return 0;
-  return this.adopters.filter(a => a.adoptionType === 'revival' || a.adoptionType === 'both').length;
+  return this.adopters.filter(
+    (a) => a.adoptionType === 'revival' || a.adoptionType === 'both'
+  ).length;
 });
 
-// ============== METHODS ==============
-// Check if user already adopted this school
+// ── Instance methods ─────────────────────────────────────
+
+/**
+ * Check whether the given user has already adopted this school.
+ *
+ * @param {string|mongoose.Types.ObjectId} userId
+ * @returns {boolean}
+ */
 schoolSchema.methods.isAdoptedByUser = function (userId) {
-  return this.adopters.some(adopter =>
-    adopter.userId.toString() === userId.toString()
+  return this.adopters.some(
+    (a) => a.userId.toString() === userId.toString()
   );
 };
 
-// Add adopter with stats update
+/**
+ * Add a new adopter **atomically** using `$push` + `$inc`.
+ * This avoids race conditions between concurrent requests.
+ *
+ * @param {string|mongoose.Types.ObjectId} userId
+ * @param {'prayer'|'revival'|'both'} adoptionType
+ * @returns {Promise<this|false>} Updated school or false if already adopted.
+ */
 schoolSchema.methods.addAdopter = async function (userId, adoptionType = 'prayer') {
-  if (!this.isAdoptedByUser(userId)) {
-    this.adopters.push({
-      userId,
-      adoptionType,
-      adoptedAt: new Date()
-    });
+  if (this.isAdoptedByUser(userId)) return false;
 
-    this.adoptionCount = this.adopters.length;
-
-    // Update stats
-    if (adoptionType === 'prayer') {
-      this.stats.totalPrayerAdoptions += 1;
-    } else if (adoptionType === 'revival') {
-      this.stats.totalRevivalAdoptions += 1;
-    } else if (adoptionType === 'both') {
-      this.stats.totalPrayerAdoptions += 1;
-      this.stats.totalRevivalAdoptions += 1;
-    }
-
-    this.stats.lastAdoptedAt = new Date();
-
-    const savedSchool = await this.save();
-    return savedSchool;
+  if (this.adopters.length >= MAX_ADOPTERS) {
+    throw new Error(
+      `This school has reached the maximum number of adopters (${MAX_ADOPTERS}).`
+    );
   }
-  return false;
-};
 
-// Remove adopter
-schoolSchema.methods.removeAdopter = async function (userId) {
-  const initialLength = this.adopters.length;
-  this.adopters = this.adopters.filter(adopter =>
-    adopter.userId.toString() !== userId.toString()
+  const update = {
+    $push: {
+      adopters: { userId, adoptionType, adoptedAt: new Date() },
+    },
+    $inc: { adoptionCount: 1 },
+    $set: { 'stats.lastAdoptedAt': new Date() },
+  };
+
+  if (adoptionType === 'prayer' || adoptionType === 'both') {
+    update.$inc['stats.totalPrayerAdoptions'] = 1;
+  }
+  if (adoptionType === 'revival' || adoptionType === 'both') {
+    update.$inc['stats.totalRevivalAdoptions'] = 1;
+  }
+
+  const updated = await this.constructor.findByIdAndUpdate(
+    this._id,
+    update,
+    { new: true }
   );
-
-  if (this.adopters.length < initialLength) {
-    this.adoptionCount = this.adopters.length;
-    await this.save();
-    return true;
-  }
-  return false;
+  return updated;
 };
 
-// ============== STATICS ==============
-// Get featured schools
+/**
+ * Remove an adopter atomically.
+ *
+ * @param {string|mongoose.Types.ObjectId} userId
+ * @returns {Promise<boolean>}
+ */
+schoolSchema.methods.removeAdopter = async function (userId) {
+  const result = await this.constructor.findByIdAndUpdate(
+    this._id,
+    {
+      $pull: { adopters: { userId } },
+      $inc: { adoptionCount: -1 },
+    },
+    { new: true }
+  );
+  return !!result;
+};
+
+// ── Statics ──────────────────────────────────────────────
+
+/** Get active featured schools, sorted by popularity. */
 schoolSchema.statics.getFeatured = function (limit = 10) {
   return this.find({ featured: true, status: 'active' })
     .sort({ adoptionCount: -1 })
@@ -250,7 +242,7 @@ schoolSchema.statics.getFeatured = function (limit = 10) {
     .select('name address lat lng image adoptionCount');
 };
 
-// Get most adopted schools
+/** Get most adopted active schools. */
 schoolSchema.statics.getMostAdopted = function (limit = 10) {
   return this.find({ status: 'active' })
     .sort({ adoptionCount: -1, createdAt: -1 })
@@ -258,24 +250,34 @@ schoolSchema.statics.getMostAdopted = function (limit = 10) {
     .select('name address city adoptionCount stats');
 };
 
-// Search schools by name or city
+/**
+ * Search schools by name, city, or address.
+ *
+ * @param {string} searchTerm
+ * @param {{ status?: string, limit?: number, page?: number }} options
+ */
 schoolSchema.statics.search = function (searchTerm, options = {}) {
+  const limit = Math.min(options.limit || 20, 100);
+  const page = Math.max(options.page || 1, 1);
+
   const query = {
     status: options.status || 'active',
     $or: [
-      { name: new RegExp(searchTerm, 'i') },
-      { city: new RegExp(searchTerm, 'i') },
-      { address: new RegExp(searchTerm, 'i') }
-    ]
+      { name: new RegExp(searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') },
+      { city: new RegExp(searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') },
+      { address: new RegExp(searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') },
+    ],
   };
 
   return this.find(query)
     .sort({ adoptionCount: -1, name: 1 })
-    .limit(options.limit || 20);
+    .skip((page - 1) * limit)
+    .limit(limit);
 };
 
-// ============== HOOKS ==============
-// Pre-save: Update adoption count
+// ── Hooks ────────────────────────────────────────────────
+
+/** Keep adoptionCount in sync with the adopters array on save. */
 schoolSchema.pre('save', function (next) {
   if (this.isModified('adopters')) {
     this.adoptionCount = this.adopters.length;
@@ -283,10 +285,9 @@ schoolSchema.pre('save', function (next) {
   next();
 });
 
-// Pre-save: Extract city from address if not provided
+/** Extract city from address if not provided. */
 schoolSchema.pre('save', function (next) {
   if (!this.city && this.address) {
-    // Try to extract city from address (last part before country)
     const parts = this.address.split(',');
     if (parts.length >= 2) {
       this.city = parts[parts.length - 2].trim();
@@ -295,29 +296,27 @@ schoolSchema.pre('save', function (next) {
   next();
 });
 
-// Pre-save: Generate slug
+/**
+ * Generate a URL-friendly slug from the school name.
+ * Appends a short random suffix to avoid collisions.
+ */
 schoolSchema.pre('save', function (next) {
   if (this.isModified('name') || !this.slug) {
-    this.slug = this.name
+    const base = this.name
       .toLowerCase()
       .trim()
       .replace(/[^\w\s-]/g, '')
       .replace(/[\s_-]+/g, '-')
       .replace(/^-+|-+$/g, '');
+
+    // Append a short random suffix for uniqueness
+    const suffix = Math.random().toString(36).substring(2, 6);
+    this.slug = `${base}-${suffix}`;
   }
   next();
 });
 
-// Post-save: Log creation
-schoolSchema.post('save', function (doc, next) {
-  if (doc.isNew) {
-    console.log(`✅ New school created: ${doc.name} (${doc._id})`);
-  }
-  next();
-});
-
-// ============== QUERY MIDDLEWARE ==============
-// Exclude archived schools by default
+/** Exclude archived schools from find queries by default. */
 schoolSchema.pre(/^find/, function (next) {
   if (!this.getOptions().includeArchived) {
     this.where({ status: { $ne: 'archived' } });
@@ -325,5 +324,6 @@ schoolSchema.pre(/^find/, function (next) {
   next();
 });
 
-// Prevent duplicate model compilation
-module.exports = mongoose.models.School || mongoose.model('School', schoolSchema);
+// Prevent duplicate model compilation in serverless
+module.exports =
+  mongoose.models.School || mongoose.model('School', schoolSchema);

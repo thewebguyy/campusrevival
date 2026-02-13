@@ -1,20 +1,27 @@
 {
-    "name": "crm-fullstack",
-    "version": "1.0.0",
+    "name": "campus-revival-movement",
+    "version": "2.0.0",
+    "description": "Campus Revival Movement — Adopt-a-Campus prayer platform",
+    "private": true,
     "scripts": {
-        "dev": "echo 'Run vercel dev locally'",
-        "build": "mkdir -p public && cp -r frontend/* public/",
-        "start": "node api/health.js"
+        "dev": "vercel dev",
+        "start": "vercel dev",
+        "lint": "eslint api/ lib/ models/ --ext .js",
+        "lint:fix": "eslint api/ lib/ models/ --ext .js --fix",
+        "test": "echo \"No tests configured yet\" && exit 0"
+    },
+    "engines": {
+        "node": ">=18"
     },
     "dependencies": {
         "bcryptjs": "^2.4.3",
         "cors": "^2.8.5",
         "dotenv": "^16.3.1",
-        "express-validator": "^7.0.1",
         "jsonwebtoken": "^9.0.2",
-        "mongoose": "^7.6.3",
-        "helmet": "^7.0.0",
-        "express-mongo-sanitize": "^2.2.0",
-        "xss-clean": "^0.1.4"
+        "mongoose": "^7.6.3"
+    },
+    "devDependencies": {
+        "eslint": "^8.56.0",
+        "vercel": "^33.0.0"
     }
 }

@@ -1,3 +1,145 @@
 {
-    "version": 2
+    "version": 2,
+    "buildCommand": "echo 'No build step needed'",
+    "outputDirectory": "frontend",
+    "rewrites": [
+        {
+            "source": "/api/health",
+            "destination": "/api/health"
+        },
+        {
+            "source": "/api/schools/slug/:slug",
+            "destination": "/api/schools/slug/[slug]"
+        },
+        {
+            "source": "/api/schools/:id/adopters",
+            "destination": "/api/schools/[id]/adopters"
+        },
+        {
+            "source": "/api/schools/:id/impact",
+            "destination": "/api/schools/[id]/impact"
+        },
+        {
+            "source": "/api/schools/:id",
+            "destination": "/api/schools/[id]"
+        },
+        {
+            "source": "/api/schools",
+            "destination": "/api/schools/index"
+        },
+        {
+            "source": "/api/auth/login",
+            "destination": "/api/auth/login"
+        },
+        {
+            "source": "/api/auth/register",
+            "destination": "/api/auth/register"
+        },
+        {
+            "source": "/api/auth/me",
+            "destination": "/api/auth/me"
+        },
+        {
+            "source": "/api/auth/verify-leader",
+            "destination": "/api/auth/verify-leader"
+        },
+        {
+            "source": "/api/auth/refresh",
+            "destination": "/api/auth/refresh"
+        },
+        {
+            "source": "/api/adoptions",
+            "destination": "/api/adoptions/index"
+        },
+        {
+            "source": "/api/dashboard",
+            "destination": "/api/dashboard/index"
+        },
+        {
+            "source": "/api/journal/:id",
+            "destination": "/api/journal/[id]"
+        },
+        {
+            "source": "/api/journal",
+            "destination": "/api/journal/index"
+        },
+        {
+            "source": "/api/prayer-requests/:schoolId",
+            "destination": "/api/prayer-requests/[schoolId]"
+        },
+        {
+            "source": "/api/prayer-requests",
+            "destination": "/api/prayer-requests/index"
+        },
+        {
+            "source": "/api/public/activity",
+            "destination": "/api/public/activity"
+        }
+    ],
+    "headers": [
+        {
+            "source": "/api/(.*)",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "no-store, max-age=0"
+                },
+                {
+                    "key": "X-Content-Type-Options",
+                    "value": "nosniff"
+                },
+                {
+                    "key": "X-Frame-Options",
+                    "value": "DENY"
+                },
+                {
+                    "key": "X-XSS-Protection",
+                    "value": "1; mode=block"
+                },
+                {
+                    "key": "Referrer-Policy",
+                    "value": "strict-origin-when-cross-origin"
+                }
+            ]
+        },
+        {
+            "source": "/(.*)",
+            "headers": [
+                {
+                    "key": "X-Content-Type-Options",
+                    "value": "nosniff"
+                },
+                {
+                    "key": "X-Frame-Options",
+                    "value": "SAMEORIGIN"
+                },
+                {
+                    "key": "X-XSS-Protection",
+                    "value": "1; mode=block"
+                },
+                {
+                    "key": "Referrer-Policy",
+                    "value": "strict-origin-when-cross-origin"
+                },
+                {
+                    "key": "Content-Security-Policy",
+                    "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com https://fonts.googleapis.com https://cdn.jsdelivr.net; img-src 'self' data: https: blob:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.mongodb.net; frame-src 'none';"
+                }
+            ]
+        },
+        {
+            "source": "/(.*)\\.(?:css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2)",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "public, max-age=31536000, immutable"
+                }
+            ]
+        }
+    ],
+    "functions": {
+        "api/**/*.js": {
+            "maxDuration": 30
+        }
+    }
 }

@@ -1,53 +1,90 @@
-const { cors, runMiddleware } = require('../../lib/cors');
+const { cors, runMiddleware, applySecurityHeaders, sanitizeInput } = require('../../lib/cors');
 const dbConnect = require('../../lib/mongodb');
 const User = require('../../models/User');
-const jwt = require('jsonwebtoken');
+const { generateAccessToken, generateRefreshToken } = require('../../lib/auth');
+const { isValidEmail, validationError, serverError } = require('../../lib/validate');
+const { checkRateLimit } = require('../../lib/rateLimit');
 
+/**
+ * POST /api/auth/login — Authenticate a user and return JWT tokens.
+ */
 module.exports = async function handler(req, res) {
     await runMiddleware(req, res, cors);
+    applySecurityHeaders(res);
+
+    if (req.method === 'OPTIONS') return res.status(200).end();
 
     if (req.method !== 'POST') {
-        return res.status(405).json({ success: false, error: 'Method not allowed' });
+        return res.status(405).json({
+            success: false,
+            error: { code: 'METHOD_NOT_ALLOWED', message: 'Only POST is allowed' },
+        });
+    }
+
+    // Rate limit: 10 login attempts per 15 minutes per IP
+    const ip =
+        req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
+        req.socket?.remoteAddress ||
+        'unknown';
+    const rl = checkRateLimit(`login:${ip}`, { max: 10 });
+    if (!rl.allowed) {
+        return res.status(429).json({
+            success: false,
+            error: {
+                code: 'RATE_LIMIT_EXCEEDED',
+                message: 'Too many login attempts. Please try again later.',
+                retryAfter: Math.ceil((rl.resetAt - Date.now()) / 1000),
+            },
+        });
     }
 
     try {
         await dbConnect();
+        const body = sanitizeInput({ ...req.body });
+        const { email, password } = body;
 
-        const { email, password } = req.body;
-
-        if (!email || !password) {
-            return res.status(400).json({ success: false, error: 'Please provide email and password' });
+        if (!email || !isValidEmail(email)) {
+            return validationError(res, 'INVALID_EMAIL', 'Please provide a valid email address.');
+        }
+        if (!password || typeof password !== 'string') {
+            return validationError(res, 'MISSING_PASSWORD', 'Password is required.');
         }
 
-        const user = await User.findOne({ email }).select('+password');
+        const user = await User.findOne({ email: email.toLowerCase().trim() }).select('+password');
         if (!user) {
-            return res.status(401).json({ success: false, error: 'Invalid credentials' });
+            return res.status(401).json({
+                success: false,
+                error: { code: 'INVALID_CREDENTIALS', message: 'Invalid email or password.' },
+            });
         }
 
         const isMatch = await user.comparePassword(password);
         if (!isMatch) {
-            return res.status(401).json({ success: false, error: 'Invalid credentials' });
+            return res.status(401).json({
+                success: false,
+                error: { code: 'INVALID_CREDENTIALS', message: 'Invalid email or password.' },
+            });
         }
 
-        const token = jwt.sign(
-            { id: user._id },
-            process.env.JWT_SECRET,
-            { expiresIn: process.env.JWT_EXPIRE || '7d' }
-        );
+        const accessToken = generateAccessToken(user);
+        const refreshToken = generateRefreshToken(user);
 
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
-            message: 'Login successful',
-            token,
-            user: {
-                id: user._id,
-                email: user.email,
-                name: user.name,
-                role: user.role
-            }
+            data: {
+                message: 'Login successful',
+                token: accessToken,
+                refreshToken,
+                user: {
+                    id: user._id,
+                    email: user.email,
+                    name: user.name,
+                    role: user.role,
+                    isVerifiedLeader: user.isVerifiedLeader,
+                },
+            },
         });
     } catch (error) {
-        console.error('Login Error:', error);
-        res.status(500).json({ success: false, error: 'Login failed', message: error.message });
+        return serverError(res, error, 'AUTH_LOGIN');
     }
-}
+};

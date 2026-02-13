@@ -248,15 +248,25 @@
         console.error('Map Init Error:', err);
         document.getElementById('loadingOverlay').style.display = 'none';
 
-        // Show error to user
+        // Use toast if available
+        if (typeof showApiError === 'function') {
+          showApiError(err, 'Failed to load campus data. Please try again.');
+        }
+
+        // Show contextual error in map area
         const mapDiv = document.getElementById('map');
+        const isNetwork = err?.type === 'NETWORK' || !navigator.onLine;
+        const errorTitle = isNetwork ? 'Connection Lost' : 'Failed to Load Map Data';
+        const errorBody = isNetwork
+          ? 'Please check your internet connection and try again.'
+          : (err?.message || 'Could not connect to the campus database.');
+
         mapDiv.innerHTML = `
           <div style="height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#f8f9fa; color:#dc3545; text-align:center; padding:20px;">
             <i class="fas fa-exclamation-triangle" style="font-size:3rem; margin-bottom:15px;"></i>
-            <h3 style="margin-bottom:10px;">Failed to Load Map Data</h3>
-            <p>Could not connect to the campus database.</p>
-            <p style="font-size:0.9rem; margin-top:10px; color:#6c757d;">Please refresh the page or try again later.</p>
-            <button onclick="location.reload()" style="margin-top:15px; padding:8px 20px; background:#dc3545; color:white; border:none; border-radius:4px; cursor:pointer;">Retry</button>
+            <h3 style="margin-bottom:10px;">${errorTitle}</h3>
+            <p>${errorBody}</p>
+            <button onclick="location.reload()" style="margin-top:15px; padding:8px 20px; background:var(--primary,#3b82f6); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Retry</button>
           </div>
         `;
       }

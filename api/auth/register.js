@@ -1,58 +1,109 @@
-const { cors, runMiddleware } = require('../../lib/cors');
+const { cors, runMiddleware, applySecurityHeaders, sanitizeInput } = require('../../lib/cors');
 const dbConnect = require('../../lib/mongodb');
 const User = require('../../models/User');
-const jwt = require('jsonwebtoken');
+const { generateAccessToken, generateRefreshToken } = require('../../lib/auth');
+const { isValidEmail, stripHtml, validationError, serverError } = require('../../lib/validate');
+const { checkRateLimit } = require('../../lib/rateLimit');
 
+/**
+ * POST /api/auth/register — Create a new user account.
+ */
 module.exports = async function handler(req, res) {
-    // Run CORS
     await runMiddleware(req, res, cors);
+    applySecurityHeaders(res);
+
+    if (req.method === 'OPTIONS') return res.status(200).end();
 
     if (req.method !== 'POST') {
-        return res.status(405).json({ success: false, error: 'Method not allowed' });
+        return res.status(405).json({
+            success: false,
+            error: { code: 'METHOD_NOT_ALLOWED', message: 'Only POST is allowed' },
+        });
+    }
+
+    // Rate limit: 5 registrations per 15 minutes per IP
+    const ip =
+        req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
+        req.socket?.remoteAddress ||
+        'unknown';
+    const rl = checkRateLimit(`register:${ip}`, { max: 5 });
+    if (!rl.allowed) {
+        return res.status(429).json({
+            success: false,
+            error: {
+                code: 'RATE_LIMIT_EXCEEDED',
+                message: 'Too many registration attempts. Please try again later.',
+                retryAfter: Math.ceil((rl.resetAt - Date.now()) / 1000),
+            },
+        });
     }
 
     try {
         await dbConnect();
+        const body = sanitizeInput({ ...req.body });
+        const { email, password, name } = body;
 
-        const { email, password, name } = req.body;
+        // ── Validation ─────────────────────────────────────
+        if (!email || !isValidEmail(email)) {
+            return validationError(res, 'INVALID_EMAIL', 'Please provide a valid email address.');
+        }
+        if (!password || typeof password !== 'string' || password.length < 8) {
+            return validationError(
+                res,
+                'WEAK_PASSWORD',
+                'Password must be at least 8 characters long.'
+            );
+        }
+        if (!name || typeof name !== 'string' || name.trim().length < 2) {
+            return validationError(res, 'INVALID_NAME', 'Name must be at least 2 characters.');
+        }
 
-        // Manual validation (since express-validator is harder to integrate with pure serverless req)
-        if (!email || !email.includes('@')) {
-            return res.status(400).json({ success: false, error: 'Please provide a valid email' });
-        }
-        if (!password || password.length < 6) {
-            return res.status(400).json({ success: false, error: 'Password must be at least 6 characters' });
-        }
-        if (!name || name.length < 2) {
-            return res.status(400).json({ success: false, error: 'Name must be at least 2 characters' });
-        }
+        const cleanName = stripHtml(name.trim());
 
-        const existingUser = await User.findOne({ email });
+        const existingUser = await User.findOne({ email: email.toLowerCase().trim() });
         if (existingUser) {
-            return res.status(400).json({ success: false, error: 'User already exists' });
+            return res.status(409).json({
+                success: false,
+                error: {
+                    code: 'USER_EXISTS',
+                    message: 'An account with this email already exists.',
+                },
+            });
         }
 
-        const user = await User.create({ email, password, name });
+        const user = await User.create({
+            email: email.toLowerCase().trim(),
+            password,
+            name: cleanName,
+        });
 
-        const token = jwt.sign(
-            { id: user._id },
-            process.env.JWT_SECRET,
-            { expiresIn: process.env.JWT_EXPIRE || '7d' }
-        );
+        const accessToken = generateAccessToken(user);
+        const refreshToken = generateRefreshToken(user);
 
-        res.status(201).json({
+        return res.status(201).json({
             success: true,
-            message: 'User registered successfully',
-            token,
-            user: {
-                id: user._id,
-                email: user.email,
-                name: user.name,
-                role: user.role
-            }
+            data: {
+                message: 'Account created successfully',
+                token: accessToken,
+                refreshToken,
+                user: {
+                    id: user._id,
+                    email: user.email,
+                    name: user.name,
+                    role: user.role,
+                },
+            },
         });
     } catch (error) {
-        console.error('Registration Error:', error);
-        res.status(500).json({ success: false, error: 'Registration failed', message: error.message });
+        if (error.code === 11000) {
+            return res.status(409).json({
+                success: false,
+                error: {
+                    code: 'USER_EXISTS',
+                    message: 'An account with this email already exists.',
+                },
+            });
+        }
+        return serverError(res, error, 'AUTH_REGISTER');
     }
-}
+};

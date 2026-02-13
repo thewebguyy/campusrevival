@@ -1,32 +1,48 @@
-const { cors, runMiddleware } = require('../../lib/cors');
+const { cors, runMiddleware, applySecurityHeaders } = require('../../lib/cors');
 const dbConnect = require('../../lib/mongodb');
 const School = require('../../models/School');
+const { isValidObjectId, serverError } = require('../../lib/validate');
 
+/**
+ * GET /api/schools/:id — Retrieve a single school by its MongoDB _id.
+ */
 async function handler(req, res) {
     await runMiddleware(req, res, cors);
-    await dbConnect();
+    applySecurityHeaders(res);
+
+    if (req.method !== 'GET') {
+        return res.status(405).json({
+            success: false,
+            error: { code: 'METHOD_NOT_ALLOWED', message: 'Only GET is allowed' },
+        });
+    }
 
     const { id } = req.query;
 
-    if (req.method === 'GET') {
-        try {
-            const school = await School.findById(id)
-                .populate('adopters.userId', 'name email');
-
-            if (!school) {
-                return res.status(404).json({ success: false, error: 'School not found' });
-            }
-
-            return res.status(200).json({
-                success: true,
-                school
-            });
-        } catch (error) {
-            return res.status(500).json({ success: false, error: error.message });
-        }
+    if (!isValidObjectId(id)) {
+        return res.status(400).json({
+            success: false,
+            error: { code: 'INVALID_ID', message: 'The provided school ID is not valid.' },
+        });
     }
 
-    res.status(405).json({ success: false, error: 'Method not allowed' });
+    try {
+        await dbConnect();
+
+        const school = await School.findById(id)
+            .populate('adopters.userId', 'name');
+
+        if (!school) {
+            return res.status(404).json({
+                success: false,
+                error: { code: 'SCHOOL_NOT_FOUND', message: 'School not found.' },
+            });
+        }
+
+        return res.status(200).json({ success: true, data: { school } });
+    } catch (error) {
+        return serverError(res, error, 'SCHOOL_BY_ID');
+    }
 }
 
 module.exports = handler;
